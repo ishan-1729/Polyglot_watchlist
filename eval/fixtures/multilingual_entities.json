@@ -1,0 +1,92 @@
+[
+  {
+    "entity_id": "ml-001",
+    "english": "Blue Cedar Library",
+    "arabic": "مكتبة الأرز الأزرق",
+    "partition": "development",
+    "pair_type": "translation",
+    "synthetic": true,
+    "label_basis": "authored pair, not verified real-world identity"
+  },
+  {
+    "entity_id": "ml-002",
+    "english": "Blue Palm Library",
+    "arabic": "مكتبة النخيل الأزرق",
+    "partition": "development",
+    "pair_type": "translation",
+    "synthetic": true,
+    "label_basis": "authored pair, not verified real-world identity"
+  },
+  {
+    "entity_id": "ml-003",
+    "english": "Golden Moon Bakery",
+    "arabic": "مخبز القمر الذهبي",
+    "partition": "test",
+    "pair_type": "translation",
+    "synthetic": true,
+    "label_basis": "authored pair, not verified real-world identity"
+  },
+  {
+    "entity_id": "ml-004",
+    "english": "Silver Moon Bakery",
+    "arabic": "مخبز القمر الفضي",
+    "partition": "test",
+    "pair_type": "translation",
+    "synthetic": true,
+    "label_basis": "authored pair, not verified real-world identity"
+  },
+  {
+    "entity_id": "ml-005",
+    "english": "Green River Workshop",
+    "arabic": "ورشة النهر الأخضر",
+    "partition": "test",
+    "pair_type": "translation",
+    "synthetic": true,
+    "label_basis": "authored pair, not verified real-world identity"
+  },
+  {
+    "entity_id": "ml-006",
+    "english": "Green Mountain Workshop",
+    "arabic": "ورشة الجبل الأخضر",
+    "partition": "test",
+    "pair_type": "translation",
+    "synthetic": true,
+    "label_basis": "authored pair, not verified real-world identity"
+  },
+  {
+    "entity_id": "ml-007",
+    "english": "Neri Vasko",
+    "arabic": "نيري فاسكو",
+    "partition": "test",
+    "pair_type": "transliteration",
+    "synthetic": true,
+    "label_basis": "authored pair, not verified real-world identity"
+  },
+  {
+    "entity_id": "ml-008",
+    "english": "Nera Vasko",
+    "arabic": "نيرا فاسكو",
+    "partition": "test",
+    "pair_type": "transliteration",
+    "synthetic": true,
+    "label_basis": "authored pair, not verified real-world identity"
+  },
+  {
+    "entity_id": "ml-009",
+    "english": "Amber Kite Studio",
+    "arabic": "استوديو الطائرة الورقية الكهرمانية",
+    "partition": "ambiguity",
+    "pair_type": "translation",
+    "synthetic": true,
+    "label_basis": "authored pair, not verified real-world identity"
+  },
+  {
+    "entity_id": "ml-010",
+    "english": "Amber Kite Studio",
+    "arabic": "استوديو الطائرة الورقية الكهرمانية",
+    "partition": "ambiguity",
+    "pair_type": "translation",
+    "synthetic": true,
+    "label_basis": "authored pair, not verified real-world identity"
+  }
+]

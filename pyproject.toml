@@ -1,0 +1,51 @@
+[build-system]
+requires = ["hatchling==1.32.4"]
+build-backend = "hatchling.build"
+
+[project]
+name = "polyglot-watchlist"
+version = "0.1.0"
+description = "Research-only fictional name-matching baseline"
+requires-python = ">=3.14,<3.15"
+dependencies = ["rapidfuzz>=3.14,<4"]
+
+[project.optional-dependencies]
+agent = [
+    "langgraph==1.2.16",
+    "langgraph-checkpoint==4.3.0",
+    "langgraph-checkpoint-sqlite==3.1.2",
+]
+embeddings = [
+    "numpy>=2.4.6",
+    "sentence-transformers>=6.1.0",
+    "torch>=2.14.1",
+]
+
+[dependency-groups]
+dev = ["pytest==9.1.1", "hatchling==1.32.4"]
+qa = ["ruff==0.14.10", "pre-commit==4.5.1", "detect-secrets==1.5.0"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/watchlist"]
+
+[tool.hatch.build.targets.sdist]
+# The source distribution rebuilds the package without redistributing datasets,
+# model weights, historical evidence, or local environments from this checkout.
+include = ["/src/watchlist", "/pyproject.toml", "/README.md", "/uv.lock"]
+
+[tool.uv]
+required-version = "==0.13.5"
+
+[tool.ruff]
+required-version = "==0.14.10"
+target-version = "py314"
+include = ["scripts/project_checks.py", "tests/test_project_checks.py", "tests/test_packaging.py"]
+force-exclude = true
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers"
+markers = ["integration: requires explicitly downloaded local model weights"]

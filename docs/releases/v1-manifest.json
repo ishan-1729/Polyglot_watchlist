@@ -1,0 +1,390 @@
+{
+  "baseline_kind": "private_research_recovery_baseline",
+  "captured_at_utc": "2026-10-23T19:12:41.195833+00:00",
+  "categories": {
+    "database": {
+      "directories": 0,
+      "regular_bytes": 622592,
+      "regular_files": 4,
+      "symlinks_recorded_as_metadata": 0
+    },
+    "environment": {
+      "directories": 2490,
+      "regular_bytes": 808612344,
+      "regular_files": 25306,
+      "symlinks_recorded_as_metadata": 3
+    },
+    "project": {
+      "directories": 47,
+      "regular_bytes": 1041397260,
+      "regular_files": 187,
+      "symlinks_recorded_as_metadata": 0
+    },
+    "python-framework": {
+      "directories": 2157,
+      "regular_bytes": 510314403,
+      "regular_files": 11860,
+      "symlinks_recorded_as_metadata": 36
+    }
+  },
+  "preservation_utility_sha256": "53386192a5fdef606a631956adbd3d8bee78bf3a944b9a97c52d9a69b03ba8ec",
+  "private_archive_manifest_sha256": "ece00da970f15c517c597f45dcc51cf86de7887feb778422492f2d5e88803d0d",
+  "publication_policy": {
+    "file_hashes_establish": "Agreement with the captured bytes; not source truth, license validity, or protection against replacement of both files and manifest.",
+    "license_status": "Recorded local evidence only; no current legal validation or new redistribution permission is asserted.",
+    "model_licenses_do_not_relicense_source_data": true,
+    "record_content_excluded": true,
+    "review_content_excluded": true,
+    "scope": "Allowlisted historical source and model descriptors, application source hashes, configuration hashes, and dependency-file hashes only."
+  },
+  "recorded_models": [
+    {
+      "evidence": [
+        {
+          "path": "data/models/e5-small/acquisition.json",
+          "sha256": "c7d51d3f9be6c0a9bc4b03fc665bbe28a875bdfe1dc1bc62e9cc5fdcb2ae49f9"
+        },
+        {
+          "path": "data/models/e5-small/README.md",
+          "sha256": "0038de97aee16258cecbad7ffda4b4febd6953e747a00e0ddbc8e6ed241e9c1c"
+        }
+      ],
+      "model_id": "intfloat/multilingual-e5-small",
+      "recorded_licensing": {
+        "license_url": null,
+        "limitations": [
+          "No standalone LICENSE or NOTICE file is present in the saved model directory.",
+          "Preserve the existing model card and acquisition receipt; license-notice completeness is unverified.",
+          "The recorded license label is not an independent audit of training-data rights."
+        ],
+        "model_card_label": "mit",
+        "receipt_label": "MIT",
+        "standalone_license_text_present": false
+      },
+      "recorded_retrieved_at": null,
+      "retrieval_date_note": "The saved acquisition receipt contains no retrieval timestamp.",
+      "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+      "source_url": "https://huggingface.co/intfloat/multilingual-e5-small"
+    },
+    {
+      "evidence": [
+        {
+          "path": "data/models/mmarco-minilm/acquisition.json",
+          "sha256": "80d78aad4576bc84686bbd1c5f1e5ef73bbd6060d350efb805ee57b21e344130"
+        },
+        {
+          "path": "data/models/mmarco-minilm/README.md",
+          "sha256": "474736a65d6393a060119a8dc304563af67af4d8d86ccfee4a05dd0df107fc11"
+        },
+        {
+          "path": "data/models/mmarco-minilm/LICENSE-2.0.txt",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        }
+      ],
+      "model_id": "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1",
+      "recorded_licensing": {
+        "license_url": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+        "limitations": [
+          "The saved model card, acquisition receipt, and license text are retained as historical evidence.",
+          "The recorded license label is not an independent audit of training-data rights."
+        ],
+        "model_card_label": "apache-2.0",
+        "receipt_label": "apache-2.0",
+        "standalone_license_text_present": true
+      },
+      "recorded_retrieved_at": "2026-10-21T17:45:58.103268+00:00",
+      "revision": "1427fd652930e4ba29e8149678df786c240d8825",
+      "source_url": "https://huggingface.co/cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
+    }
+  ],
+  "recorded_sources": [
+    {
+      "dataset": "un_sc_sanctions",
+      "evidence": [
+        {
+          "path": "data/manifests/source.json",
+          "sha256": "4f1265a2f5fee8ed03225353ec3ec797e8562e1b15156bc2ed73ee61de971689"
+        }
+      ],
+      "metadata_sha256": "a8e20e7edcca703371f14bd663e906352ac2ec2d44ccc28e9820e26f32f77edb",
+      "provider": "OpenSanctions",
+      "provider_timestamp_note": "Timezone absent from the saved provider timestamps; preserved without inference.",
+      "publisher": "United Nations Security Council",
+      "raw_sha256": "8def6a063c47a2ff0c02c1c5a4c33b73146432339d51eca7af025e8c795a9bac",
+      "recorded_export_version": "20261020200104-otg",
+      "recorded_licensing": {
+        "attribution": "OpenSanctions; UN Security Council Consolidated Sanctions; upstream publisher: United Nations Security Council. Selected and transformed for noncommercial research. No endorsement.",
+        "label": "CC-BY-NC-4.0",
+        "license_url": "https://creativecommons.org/licenses/by-nc/4.0/",
+        "limitations": [
+          "Historical licensing evidence was not revalidated during Step 00.",
+          "The provider-distribution license does not settle every upstream or other right.",
+          "No new publication, commercial use, or redistribution approval is asserted."
+        ],
+        "permission_record_date_as_documented": "2026-10-21",
+        "permission_record_date_basis": "docs/data-card.md",
+        "provider_guidance_url": "https://www.opensanctions.org/docs/commercial/exemption/",
+        "recorded_purpose": "Local noncommercial student/personal name-matching research."
+      },
+      "recorded_retrieved_at": "2026-10-20T20:15:30.258602+00:00",
+      "recorded_source_last_change": "2026-10-15T20:01:05",
+      "recorded_source_last_export": "2026-10-20T20:01:04",
+      "source_url": "https://www.opensanctions.org/datasets/un_sc_sanctions/"
+    }
+  ],
+  "recovery_limits": [
+    "Verified same-host recovery uses the original installed macOS Python 3.14 framework and compatible system libraries.",
+    "Framework bytes were captured and restored, but independent relocation or portable offline rebuilding was not established.",
+    "Two preexisting Tcl/Tk PrivateHeaders symlinks have absent targets; their exact targets and absence were preserved.",
+    "Archive and restore reside on the same local disk. This is not off-device disaster recovery.",
+    "Access times and transient caches are outside the preservation contract.",
+    "Local hashes are integrity receipts, not independent tamper-proof signatures or reviewer authentication.",
+    "Source/model permission and license descriptors are historical recorded evidence, not a new legal review."
+  ],
+  "schema": "polyglot-v1-public-preservation-summary-1",
+  "source_configuration_dependency_sha256": [
+    {
+      "category": "configuration",
+      "path": "config/agent.json",
+      "sha256": "d64f7687d1d3fc077bee9ca0736f26602221b46954b5918873abb8ed162822b3"
+    },
+    {
+      "category": "configuration",
+      "path": "eval/configs/baseline.json",
+      "sha256": "760aa214b1608e9086f511d7d507e04772882ff477c9a7383ba397142fbb5383"
+    },
+    {
+      "category": "configuration",
+      "path": "eval/configs/embeddings.json",
+      "sha256": "e75703a1998e2f7ae45c4fd5a2ac4726b72b82c20b8f8300a58c8cd62cd907d0"
+    },
+    {
+      "category": "configuration",
+      "path": "eval/configs/public-small.json",
+      "sha256": "6e1c2aaf31f116b07004563632c12ee81c63bdebdc8c221742e3d0ca62819dcc"
+    },
+    {
+      "category": "configuration",
+      "path": "eval/configs/reranking.json",
+      "sha256": "7a7a0e8c20839c232c924ff77c4f9960321a982c45eb1f8fa5ebd9b4f1688ae5"
+    },
+    {
+      "category": "dependency_files",
+      "path": "pyproject.toml",
+      "sha256": "255cbb618f6f02494a756dacd3ebe6718a75a24a8dfca4aa79a3f981616c71b2"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/__init__.py",
+      "sha256": "d8b6ffc057923d96273c38121adfd9d3d4abaae3ab253fa8672239012753ae63"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/__main__.py",
+      "sha256": "6e4c407009ff1e8f74efc9b99ea70ad1fade406159eb82d5ad00c611220bef0b"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/agent/__init__.py",
+      "sha256": "1a61e64eb79f949861b098fdae4cb16ab2fe86c19d48b11667934e3a98fb79ab"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/agent/__main__.py",
+      "sha256": "d290163f6ebb5cc9691ebd7661e704eb1f73bf5565f9761d9dc090f445a1afd5"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/agent/audit.py",
+      "sha256": "eed0b2a5b3a33fb91a18fb31ef5f0c71eb0fb4e9f1074fafd362fcc574b2773a"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/agent/cli.py",
+      "sha256": "29ccd4e24cafa83396c6c52b728a6f188fd2dc0c906c82574d7024e65f493300"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/agent/graph.py",
+      "sha256": "f45ca57ee4463c4275a859caa65f5764b870cb9d2d5c62e37dda004fb3b4a7bf"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/agent/nodes.py",
+      "sha256": "93ee6e2cf5338a463bca90abffc52128d0051bd83ec01453e0f95adb5516a6ac"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/agent/retrieval.py",
+      "sha256": "7393e4c13e7673d55b422391253b9da1c07d35815de612bba357745a69f9d6e1"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/agent/schema.sql",
+      "sha256": "cabc81dc19b9cd10a149643438d63286e5470c83574bad748c6d7c7e15cdad8d"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/agent/state.py",
+      "sha256": "37e00bf80c48cfb60988d4b8fe53af26786556e489c6e596f6228ecdf1868443"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/agent/storage.py",
+      "sha256": "5278e976830ff314aede284e6bca672d73568cf48e75ab84f772951178ea30c9"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/cli.py",
+      "sha256": "499e380f25b461ae5e2bec49aee2256552fcf7c59594038868f97a5752387f95"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/compare_retrieval.py",
+      "sha256": "b00009d61930609caff1b75994ce762bfa3c668c52b059a965d5b48dcfb3406f"
+    },
+    {
+      "category": "packaged_fictional_fixture",
+      "path": "src/watchlist/data/synthetic_entities.json",
+      "sha256": "7e48bd880de4a6468f87b0f00c060afcba6874b6e4ef518e331ac88ebb089f9e"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/database.py",
+      "sha256": "67efcf124398d76289b9daf6e9362c7c8417aa8677b5bd6b58bb64ca6d8b4f48"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/embeddings.py",
+      "sha256": "6c2dab46bf2c7f272ea4f43d10182857483f0e71938ff6aea61465a4c6299858"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/entities.py",
+      "sha256": "593480dbbd05a507582ea1182a36de19a9d23e310b8e89c57ec78565c2af9c81"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/evaluate.py",
+      "sha256": "a76c4b8d37f14b463f19c31de760fa50413cd015ad23d061cabd77a7577a7d5f"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/evaluate_reranking.py",
+      "sha256": "abc4b58d8771ba8c56f3aa0b008c6ccecb76e3472d88f7bc27c31e175397600c"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/evaluation_data.py",
+      "sha256": "180add3eb4cfd2aea801aaf5dd4be791a0dbf8e7f3617bcda36badd3fdbc19bb"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/ingest/__init__.py",
+      "sha256": "5746523dbcf044837fd31e6ce37e24324156a250e851eb81108dbbcb837e5c28"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/ingest/deduplicate.py",
+      "sha256": "93d29b17eeaae02d5ab2ee0ea406d8b432d9ec2d175618b102f92e9b1ca13faf"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/ingest/fetch_source.py",
+      "sha256": "6ff6058d8295e61b66400e9de32496c7be7bdf3988057da3362e0a5678cf2457"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/ingest/import_source.py",
+      "sha256": "d5dd01382adcf883597652a14ddd5a7f2ec365830409f90058efc4dc9e5599f2"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/ingest/parse_opensanctions.py",
+      "sha256": "b6429f39f6657c45d60111ac6ae03c6b04b517b3a525a6ec1da2d788fddcc097"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/ingest/schema.sql",
+      "sha256": "17d3478fcfd7aa1da8585f5c52a864d48f11026936038665fa5a7fbe0bd39816"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/matching.py",
+      "sha256": "69ade6c252cafe0674750dafefd516f95f7c198587e0b8ff38a6f399d53c92ae"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/matching_embeddings.py",
+      "sha256": "9376ed0da5a973f7526fdc358d8dc2c4ff709173aa703a269991ccc9524bea6b"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/normalize.py",
+      "sha256": "51dd0f8ce3ed0a4892b99a0be644394a36fcfb4b83dc1ff07ca3b8154ea45473"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/perturbations.py",
+      "sha256": "be50293b5b7d1486b6a3763981d74b8ad3c11f927bdeb5b94feb38f2c4ed26bd"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/reranking.py",
+      "sha256": "903399ce7b496275de5f5fed3cfe007370493574786fb9b2bd5d49546781fc3f"
+    },
+    {
+      "category": "application_source",
+      "path": "src/watchlist/splits.py",
+      "sha256": "217e64c34e5635db667c28c2987f895549c6a13ca9269fedab585322343a9771"
+    },
+    {
+      "category": "dependency_files",
+      "path": "uv.lock",
+      "sha256": "6c4926f3be1f940dec17fb8988adddf9c52eac0b6c4b0a543480544e1268c072"
+    }
+  ],
+  "summary_generated_at_utc": "2026-10-23T19:18:19.801788+00:00",
+  "total_regular_bytes": 2360946599,
+  "total_regular_files": 37357,
+  "verification": {
+    "approved_modified_original_files": [
+      ".gitignore"
+    ],
+    "archive_bytes_and_membership": "passed",
+    "archive_unchanged_after_restore": true,
+    "audit_event_count": 4,
+    "captured_project_files_unchanged_after_restore": 187,
+    "case_count": 1,
+    "checkpoint_count": 9,
+    "checkpoint_write_count": 44,
+    "embedding_cache_pairs_verified_in_archive_and_restore": 7,
+    "existing_offline_tests": {
+      "integration_tests_deselected": 3,
+      "passed": 210
+    },
+    "fresh_restore_bytes_and_membership": "passed",
+    "model_receipt_files_verified_in_archive_and_restore": 18,
+    "normalized_database_count": 4,
+    "original_files_compared": 184,
+    "preservation_tests": {
+      "passed": 87
+    },
+    "restored_database_logical_evidence": "passed",
+    "restored_runtime": {
+      "graph_execution_performed": false,
+      "installed_distributions": 82,
+      "model_inference_performed": false,
+      "passed": true,
+      "requested_imports": 8,
+      "temporary_scratch_removed": true,
+      "verified_import_file_locations": 3808,
+      "verified_synthetic_torch_module_objects": 2
+    },
+    "saved_demo_transcripts": "passed",
+    "selected_source_configuration_dependency_hashes_verified": 40,
+    "simulated_demo_annotation_count": 1,
+    "source_receipt_raw_and_metadata_files": "passed",
+    "unchanged_original_files": 183
+  }
+}

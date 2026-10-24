@@ -1,0 +1,7 @@
+{"id":"fixture-001","schema":"Company","caption":"Moonberry Loom","datasets":["un_sc_sanctions"],"referents":["fixture-old-001"],"properties":{"name":["Moonberry Loom","MOONBERRY LOOM","Moonberry Loom"],"alias":["Moonberry Loom Studio","مونبيري لوم"],"weakAlias":["Loom"],"topics":["sanction"]}}
+{"id":"fixture-002","schema":"LegalEntity","caption":"Copper Kite Guild","datasets":["un_sc_sanctions"],"properties":{"name":["Copper Kite Guild"],"alias":["Медный Воздушный Змей"],"topics":["sanction"]}}
+{"id":"fixture-003","schema":"Organization","datasets":["un_sc_sanctions"],"properties":{"name":["Moonberry Loom"],"topics":["sanction"]}}
+{"id":"fixture-person","schema":"Person","datasets":["un_sc_sanctions"],"properties":{"name":["Luma Vesper"],"topics":["sanction"]}}
+{"id":"fixture-address","schema":"Address","properties":{"full":["Invented place"]}}
+{"id":"fixture-no-name","schema":"Company","datasets":["un_sc_sanctions"],"properties":{"topics":["sanction"]}}
+{"id":"fixture-not-target","schema":"Company","datasets":["un_sc_sanctions"],"properties":{"name":["Cloudberry Workshop"]}}

@@ -1,0 +1,8 @@
+{
+  "dataset": "public-small",
+  "seed": 42,
+  "partitions": "data/manifests/splits.json",
+  "timing_repetitions": 20,
+  "output": "data/evaluation/public-small",
+  "database": "data/watchlist.sqlite"
+}

@@ -1,0 +1,34 @@
+.venv/
+.venv-*/
+.tools/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.pre-commit-cache/
+.uv-cache/
+build/
+dist/
+*.egg-info/
+.env
+.env.*
+!.env.example
+.DS_Store
+data/raw/
+data/samples/
+data/manifests/
+data/*.sqlite
+data/*.sqlite-*
+data/evaluation/
+data/models/
+data/embedding-cache/
+
+# Local versioned source copies and verification receipts are not publishable inputs.
+data/source-v*/
+data/eval-comparisons/
+
+# Local human-review cases, checkpoints, forms and audit receipts
+data/review/
+
+# Private preservation archives and isolated restore drills
+data/review-archives/

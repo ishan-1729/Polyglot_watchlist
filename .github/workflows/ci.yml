@@ -1,0 +1,144 @@
+name: Offline fixture checks
+
+# Prepared locally; a hosted result requires a separately approved actual run.
+"on":
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  offline-checks:
+    name: Python 3.14 on Ubuntu
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      UV_PYTHON_DOWNLOADS: never
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      # Release tags, commit signatures, inputs and relevant source paths were
+      # checked against the official repositories. Full commit pins are used.
+      - name: Check out project
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up Python
+        id: python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.14.0"
+          architecture: x64
+          check-latest: false
+
+      - name: Set up uv
+        id: uv
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          version: "0.13.5"
+          # Linux x86_64 glibc archive hash from this action commit's table.
+          checksum: f68d291c75783122dad58ab77def0e13f3233f358731db5d6d7e8715603b928f # pragma: allowlist secret
+          enable-cache: false
+          cache-local-path: ${{ runner.temp }}/watchlist-uv-cache
+          download-from-astral-mirror: false
+
+      # Acquisition happens before the offline boundary. Preserve all extras:
+      # non-integration tests use NumPy and Torch. Torch plus candidate Linux
+      # NVIDIA wheels alone total about 2.74 GB in the original lock; that is a
+      # partial size sum, not a measured complete installation. No models or
+      # live source data are acquired by these commands.
+      - name: Install locked runtime and quality tools
+        shell: bash
+        env:
+          CI_PYTHON: ${{ steps.python.outputs.python-path }}
+          CI_UV: ${{ steps.uv.outputs.uv-path }}
+        run: |
+          test ! -e .venv
+          test ! -L .venv
+          test ! -L .tools
+          test ! -e .tools/qa
+          test ! -L .tools/qa
+          UV_PROJECT_ENVIRONMENT="$PWD/.venv" "$CI_UV" sync \
+            --locked --dev --extra embeddings --extra agent --python "$CI_PYTHON"
+          UV_PROJECT_ENVIRONMENT="$PWD/.tools/qa" "$CI_UV" sync \
+            --locked --only-group qa --no-install-project --python "$CI_PYTHON"
+
+      # This Linux isolation boundary is checked at runtime. It was not run on
+      # the macOS development host; hosted execution remains separate evidence.
+      - name: Verify fixtures without network access
+        shell: bash
+        env:
+          CI_UV: ${{ steps.uv.outputs.uv-path }}
+        run: |
+          ci_uid="$(id -u)"
+          ci_gid="$(id -g)"
+          ci_host_net="$(readlink /proc/self/ns/net)"
+          ci_python="$PWD/.venv/bin/python"
+          ci_qa_python="$PWD/.tools/qa/bin/python"
+          ci_python_lib="$pythonLocation/lib"
+          ci_dist="$RUNNER_TEMP/watchlist-package-output"
+          test -x "$ci_python"
+          test -x "$ci_qa_python"
+          test -x "$CI_UV"
+          test -d "$UV_CACHE_DIR"
+          test -d "$ci_python_lib"
+
+          sudo unshare --net -- \
+            setpriv --reuid "$ci_uid" --regid "$ci_gid" --clear-groups \
+              --bounding-set=-all --inh-caps=-all --ambient-caps=-all \
+              --no-new-privs --reset-env \
+            env PATH="$PATH" TMPDIR="$RUNNER_TEMP" \
+              LD_LIBRARY_PATH="$ci_python_lib" UV_CACHE_DIR="$UV_CACHE_DIR" \
+              PRE_COMMIT_HOME="$RUNNER_TEMP/watchlist-pre-commit" \
+              RUFF_CACHE_DIR="$RUNNER_TEMP/watchlist-ruff" \
+              PYTHONDONTWRITEBYTECODE=1 PYTHONHASHSEED=0 \
+              HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_DATASETS_OFFLINE=1 \
+              HF_HUB_DISABLE_TELEMETRY=1 \
+              LANGSMITH_TRACING=false LANGCHAIN_TRACING_V2=false \
+              UV_OFFLINE=1 UV_PYTHON_DOWNLOADS=never \
+              PIP_NO_INDEX=1 PIP_DISABLE_PIP_VERSION_CHECK=1 \
+              RUN_EMBEDDING_INTEGRATION=0 RUN_RERANKER_INTEGRATION=0 \
+              RUN_AGENT_E5_INTEGRATION=0 \
+            /bin/bash --noprofile --norc -euo pipefail -s -- \
+              "$ci_python" "$ci_qa_python" "$CI_UV" "$ci_dist" "$ci_host_net" <<'OFFLINE_CHECKS'
+          export PYTHON="$1" QA_PYTHON="$2" UV="$3" DIST_DIR="$4"
+          test "$(readlink /proc/self/ns/net)" != "$5"
+          test "$(id -u)" != 0
+          "$PYTHON" -I -B - <<'VERIFY_ENVIRONMENT'
+          import os
+          from pathlib import Path
+          import sys
+
+          status = dict(line.split(":", 1) for line in Path("/proc/self/status").read_text().splitlines())
+          for name in ("CapInh", "CapPrm", "CapEff", "CapBnd", "CapAmb"):
+              assert int(status[name].strip(), 16) == 0, name
+          assert status["NoNewPrivs"].strip() == "1"
+          assert os.geteuid() != 0 and not os.getgroups()
+          interfaces = {
+              line.split(":", 1)[0].strip()
+              for line in Path("/proc/self/net/dev").read_text().splitlines()[2:]
+          }
+          assert interfaces == {"lo"}
+          assert sys.version_info[:3] == (3, 14, 0)
+          # Missing extras must fail before pytest.importorskip can hide tests.
+          import hatchling
+          import numpy
+          import pytest
+          import sentence_transformers
+          import torch
+          from langgraph.checkpoint.sqlite import SqliteSaver
+          VERIFY_ENVIRONMENT
+          "$QA_PYTHON" -I -B -m pre_commit validate-config
+          "$QA_PYTHON" -I -B -m pre_commit run --all-files
+          make inventory
+          make build
+          # The full non-integration suite includes the packaging checks.
+          make test
+          make eval-smoke
+          OFFLINE_CHECKS

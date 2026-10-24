@@ -1,0 +1,22 @@
+{
+  "model": {
+    "model_id": "intfloat/multilingual-e5-small",
+    "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+    "model_path": "data/models/e5-small",
+    "device": "cpu",
+    "dtype": "float32",
+    "dimension": 384,
+    "prefix": "query: ",
+    "max_tokens": 512,
+    "normalization": "phase1-nfkc-casefold-whitespace-v1",
+    "pooling": "mean",
+    "batch_size": 8
+  },
+  "cache_path": "data/embedding-cache",
+  "timing_repetitions": 20,
+  "datasets": [
+    "fictional",
+    "public-small",
+    "multilingual"
+  ]
+}

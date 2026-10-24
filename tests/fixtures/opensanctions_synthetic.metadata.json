@@ -1,0 +1,7 @@
+{
+  "name": "fictional-ftm-v1",
+  "synthetic": true,
+  "version": "fixture-v1",
+  "last_change": null,
+  "description": "Authored fictional examples of the file structure. Dataset labels mimic parser input; no record originates from OpenSanctions or the UN."
+}

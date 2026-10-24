@@ -1,0 +1,98 @@
+[
+  {
+    "entity_id": "syn-001", "name": "Luma Vesper", "entity_type": "person",
+    "synthetic": true, "source": "fictional-synthetic-v1",
+    "aliases": [
+      {"alias_id": "syn-001-a1", "name": "Luma Vesper"},
+      {"alias_id": "syn-001-a2", "name": "L. Vesper"}
+    ]
+  },
+  {
+    "entity_id": "syn-002", "name": "Lumo Vespar", "entity_type": "person",
+    "synthetic": true, "source": "fictional-synthetic-v1",
+    "aliases": [
+      {"alias_id": "syn-002-a1", "name": "Lumo Vespar"},
+      {"alias_id": "syn-002-a2", "name": "L. Vespar"}
+    ]
+  },
+  {
+    "entity_id": "syn-003", "name": "Élo Nivara", "entity_type": "person",
+    "synthetic": true, "source": "fictional-synthetic-v1",
+    "aliases": [
+      {"alias_id": "syn-003-a1", "name": "Élo Nivara"},
+      {"alias_id": "syn-003-a2", "name": "Elo Nivara"}
+    ]
+  },
+  {
+    "entity_id": "syn-004", "name": "Aster Quill Workshop", "entity_type": "organisation",
+    "synthetic": true, "source": "fictional-synthetic-v1",
+    "aliases": [
+      {"alias_id": "syn-004-a1", "name": "Aster Quill Workshop"},
+      {"alias_id": "syn-004-a2", "name": "Aster Quill"}
+    ]
+  },
+  {
+    "entity_id": "syn-005", "name": "Mira Velune", "entity_type": "person",
+    "synthetic": true, "source": "fictional-synthetic-v1",
+    "aliases": [
+      {"alias_id": "syn-005-a1", "name": "Mira Velune"},
+      {"alias_id": "syn-005-a2", "name": "Мира Велуне"}
+    ]
+  },
+  {
+    "entity_id": "syn-006", "name": "Naro Zefir", "entity_type": "person",
+    "synthetic": true, "source": "fictional-synthetic-v1",
+    "aliases": [
+      {"alias_id": "syn-006-a1", "name": "Naro Zefir"},
+      {"alias_id": "syn-006-a2", "name": "Наро Зефир"}
+    ]
+  },
+  {
+    "entity_id": "syn-007", "name": "Sira Lumen", "entity_type": "person",
+    "synthetic": true, "source": "fictional-synthetic-v1",
+    "aliases": [
+      {"alias_id": "syn-007-a1", "name": "Sira Lumen"},
+      {"alias_id": "syn-007-a2", "name": "سيرا لومين"}
+    ]
+  },
+  {
+    "entity_id": "syn-008", "name": "Daro Nuvem", "entity_type": "person",
+    "synthetic": true, "source": "fictional-synthetic-v1",
+    "aliases": [
+      {"alias_id": "syn-008-a1", "name": "Daro Nuvem"},
+      {"alias_id": "syn-008-a2", "name": "دارو نوفيم"}
+    ]
+  },
+  {
+    "entity_id": "syn-009", "name": "Copper Kite Guild", "entity_type": "organisation",
+    "synthetic": true, "source": "fictional-synthetic-v1",
+    "aliases": [
+      {"alias_id": "syn-009-a1", "name": "Copper Kite Guild"},
+      {"alias_id": "syn-009-a2", "name": "Copper Kite"}
+    ]
+  },
+  {
+    "entity_id": "syn-010", "name": "Moonberry Loom", "entity_type": "organisation",
+    "synthetic": true, "source": "fictional-synthetic-v1",
+    "aliases": [
+      {"alias_id": "syn-010-a1", "name": "Moonberry Loom"},
+      {"alias_id": "syn-010-a2", "name": "Moonberry Loom Studio"}
+    ]
+  },
+  {
+    "entity_id": "syn-011", "name": "Tavi Orlun", "entity_type": "person",
+    "synthetic": true, "source": "fictional-synthetic-v1",
+    "aliases": [
+      {"alias_id": "syn-011-a1", "name": "Tavi Orlun"},
+      {"alias_id": "syn-011-a2", "name": "Tavi O."}
+    ]
+  },
+  {
+    "entity_id": "syn-012", "name": "Luma Vesper", "entity_type": "person",
+    "synthetic": true, "source": "fictional-synthetic-v1",
+    "aliases": [
+      {"alias_id": "syn-012-a1", "name": "Luma Vesper"},
+      {"alias_id": "syn-012-a2", "name": "Luma V."}
+    ]
+  }
+]

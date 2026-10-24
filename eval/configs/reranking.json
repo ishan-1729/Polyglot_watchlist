@@ -1,0 +1,30 @@
+{
+  "model": {
+    "model_id": "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1",
+    "revision": "1427fd652930e4ba29e8149678df786c240d8825",
+    "license": "apache-2.0",
+    "model_path": "data/models/mmarco-minilm",
+    "device": "cpu",
+    "dtype": "float32",
+    "batch_size": 8,
+    "max_tokens": 512,
+    "normalization": "phase1-nfkc-casefold-whitespace-v1",
+    "score": "raw_logit",
+    "threads": 4
+  },
+  "prior_metadata_bytes": 9451,
+  "primary_k": 5,
+  "sensitivity_k": 10,
+  "timing_repetitions": 5,
+  "max_runtime_seconds": 1800,
+  "datasets": [
+    "fictional",
+    "public-small",
+    "multilingual"
+  ],
+  "phase4_result_sha256": {
+    "fictional": "dc6ed111680d982eba8926f0787b2be9fcfb6f00679459c2a343a3539e9722bf",
+    "public-small": "54e077a6f2e0e3c6517616b3e7eb084c7fc129ab7c98a31a5ae23e80fa3746d6",
+    "multilingual": "5a8c472a062b08c9b60f022c8c7765189e38a61353308d0a65fa18903f6d757b"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "dataset": "fictional",
+  "seed": 42,
+  "partitions": "eval/fixtures/fictional-partitions.json",
+  "timing_repetitions": 20,
+  "output": "eval/results/fictional",
+  "absent_queries": "eval/fixtures/absent-queries.json"
+}

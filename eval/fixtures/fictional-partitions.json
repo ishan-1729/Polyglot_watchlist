@@ -1,0 +1,50 @@
+{
+  "syn-002": {
+    "group_id": "syn-002",
+    "partition": "train"
+  },
+  "syn-003": {
+    "group_id": "syn-003",
+    "partition": "train"
+  },
+  "syn-004": {
+    "group_id": "syn-004",
+    "partition": "train"
+  },
+  "syn-006": {
+    "group_id": "syn-006",
+    "partition": "train"
+  },
+  "syn-008": {
+    "group_id": "syn-008",
+    "partition": "train"
+  },
+  "syn-005": {
+    "group_id": "syn-005",
+    "partition": "development"
+  },
+  "syn-009": {
+    "group_id": "syn-009",
+    "partition": "development"
+  },
+  "syn-007": {
+    "group_id": "syn-007",
+    "partition": "test"
+  },
+  "syn-010": {
+    "group_id": "syn-010",
+    "partition": "test"
+  },
+  "syn-011": {
+    "group_id": "syn-011",
+    "partition": "test"
+  },
+  "syn-001": {
+    "group_id": "syn-001",
+    "partition": "ambiguity"
+  },
+  "syn-012": {
+    "group_id": "syn-012",
+    "partition": "ambiguity"
+  }
+}

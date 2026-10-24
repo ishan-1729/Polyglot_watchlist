@@ -1,0 +1,9 @@
+{
+  "schema_version": "review-v1",
+  "workflow_version": "phase-07a-v1",
+  "workspace": "data/review",
+  "embedding_config": "eval/configs/embeddings.json",
+  "top_k": 5,
+  "reranker": "disabled",
+  "review_policy": "human_only"
+}
