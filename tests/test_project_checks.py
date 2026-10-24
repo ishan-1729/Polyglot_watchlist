@@ -133,11 +133,15 @@ print(json.dumps({
 
 
 @pytest.mark.parametrize("with_canary", [False, True])
+@pytest.mark.parametrize(
+    "start_method", [None, "forkserver"], ids=["default", "forkserver"]
+)
 def test_real_detector_accepts_clean_files_and_rejects_fabricated_key(
-    qa_python, tmp_path, with_canary
+    qa_python, tmp_path, with_canary, start_method
 ):
     project = tmp_path / "project"
     put(project, "README.md", "Fictional, harmless scanner input.\n")
+    put(project, "src/example.py", "fictional_value = 7\n")
     canary = (
         "-----BEGIN "
         + "RSA PRIVATE KEY-----\nnot a real key\n-----END "
@@ -154,11 +158,23 @@ import sys
 spec = importlib.util.spec_from_file_location('real_project_checks', sys.argv[1])
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
+if sys.argv[3]:
+    module.SCANNER_BOOTSTRAP = (
+        "import multiprocessing as mp\\n"
+        f"mp.set_start_method({sys.argv[3]!r}, force=True)\\n"
+        + module.SCANNER_BOOTSTRAP
+    )
 print(json.dumps(module.secret_scan(Path(sys.argv[2])), sort_keys=True))
 """
     process = run_qa(
         qa_python,
-        ["-c", code, str(ROOT / "scripts/project_checks.py"), str(project)],
+        [
+            "-c",
+            code,
+            str(ROOT / "scripts/project_checks.py"),
+            str(project),
+            start_method or "",
+        ],
         tmp_path,
     )
     assert process.returncode == 0, (
@@ -528,27 +544,26 @@ def test_scanner_child_never_executes_a_project_or_pythonpath_shadow_module(
     "event", ["socket.connect", "socket.getaddrinfo", "socket.sendto"]
 )
 def test_scanner_child_rejects_a_network_attempt_even_when_caught(
-    checks, tmp_path, event
+    checks, qa_python, tmp_path, event
 ):
-    """Raise audit events without opening sockets, then catch them like a plugin."""
+    """A detector file scan cannot hide an audit event by catching its exception."""
+    put(tmp_path, "README.md", "Fictional harmless scanner input.\n")
     exercise = """
-import runpy
 import sys
+from detect_secrets.core.secrets_collection import SecretsCollection
 event = sys.argv[1]
 def caught_attempt(*args, **kwargs):
     try:
         sys.audit(event, 'fictional-private-endpoint')
     except RuntimeError:
         pass
-runpy.run_module = caught_attempt
+SecretsCollection.scan_file = caught_attempt
+sys.argv = ["detect-secrets", "scan", "--all-files", "--no-verify", "README.md"]
 """
-    process = subprocess.run(
-        [sys.executable, "-I", "-B", "-c", exercise + checks.SCANNER_BOOTSTRAP, event],
-        cwd=tmp_path,
-        capture_output=True,
-        text=True,
-        check=False,
-        timeout=10,
+    process = run_qa(
+        qa_python,
+        ["-c", exercise + checks.SCANNER_BOOTSTRAP, event],
+        tmp_path,
     )
     assert process.returncode == 86
     assert not process.stdout and not process.stderr

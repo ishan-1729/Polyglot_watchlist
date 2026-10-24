@@ -27,8 +27,10 @@ DETECTOR_VERSION = "1.5.0"
 SCANNER_TIMEOUT_SECONDS = 120
 # Isolated Python still loads the selected virtual environment's site-packages.
 # Install the socket guard before loading any detector or verification plugin.
+# Scan each file in this process: Linux's forkserver uses a local socket, and
+# spawned detector workers would not inherit this process's Python audit hook.
 SCANNER_BOOTSTRAP = """\
-import runpy
+import json
 import sys
 
 network_attempts = []
@@ -41,7 +43,21 @@ def deny_network(event, args):
 sys.addaudithook(deny_network)
 sys.argv = ["detect-secrets", *sys.argv[1:]]
 try:
-    runpy.run_module("detect_secrets", run_name="__main__")
+    from detect_secrets.core.baseline import format_for_output
+    from detect_secrets.core.scan import get_files_to_scan
+    from detect_secrets.core.secrets_collection import SecretsCollection
+    from detect_secrets.main import parse_args
+
+    args = parse_args()
+    secrets = SecretsCollection(root=args.custom_root)
+    for filename in get_files_to_scan(
+        *args.path,
+        should_scan_all_files=args.all_files,
+        root=args.custom_root,
+    ):
+        secrets.scan_file(filename)
+    if not network_attempts:
+        print(json.dumps(format_for_output(secrets, is_slim_mode=args.slim)))
 finally:
     if network_attempts:
         raise SystemExit(86)
