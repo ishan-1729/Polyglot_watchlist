@@ -434,6 +434,8 @@ def test_clean_install_and_cli_run_outside_repository(distributions):
         commands=receipt["commands"],
     )
     inspect = """
+from importlib import import_module
+from importlib.machinery import EXTENSION_SUFFIXES, ExtensionFileLoader
 import importlib.metadata as metadata
 from importlib.resources import files
 import json
@@ -446,11 +448,20 @@ sys.addaudithook(no_network)
 import watchlist
 from watchlist.entities import load_entities
 from rapidfuzz import fuzz
+scorer = import_module(fuzz.WRatio.__module__)
+scorer_path = Path(scorer.__file__).resolve()
+native_scorer = isinstance(scorer.__spec__.loader, ExtensionFileLoader) and any(
+    scorer_path.name == scorer.__name__.rsplit('.', 1)[-1] + suffix
+    for suffix in EXTENSION_SUFFIXES
+)
 resources = {name: len(files('watchlist').joinpath(name).read_bytes())
              for name in ('data/synthetic_entities.json', 'ingest/schema.sql', 'agent/schema.sql')}
 print(json.dumps({'package_path': watchlist.__file__, 'prefix': sys.prefix,
                   'sys_path': sys.path, 'resources': resources,
                   'entities': len(load_entities()), 'scorer_module': fuzz.WRatio.__module__,
+                  'scorer_file': str(scorer_path), 'scorer_is_native': native_scorer,
+                  'scorer_export_matches': scorer.WRatio is fuzz.WRatio,
+                  'rapidfuzz_package_path': str(Path(metadata.distribution('rapidfuzz').locate_file('rapidfuzz')).resolve()),
                   'direct_urls': {name: json.loads(metadata.distribution(name).read_text('direct_url.json') or 'null')
                                   for name in ('polyglot-watchlist', 'rapidfuzz')},
                   'installed': {item.metadata['Name'].lower(): item.version
@@ -468,7 +479,17 @@ print(json.dumps({'package_path': watchlist.__file__, 'prefix': sys.prefix,
     assert set(observed["installed"]) == {"polyglot-watchlist", "rapidfuzz"}
     assert observed["installed"]["rapidfuzz"] == locked_rapidfuzz
     assert observed["entities"] == 12 and all(observed["resources"].values())
-    assert observed["scorer_module"] == "rapidfuzz.fuzz_cpp"
+    # RapidFuzz selects a native backend for the available CPU features.
+    assert observed["scorer_module"] in {
+        "rapidfuzz.fuzz_cpp",
+        "rapidfuzz.fuzz_cpp_avx2",
+        "rapidfuzz.fuzz_cpp_sse2",
+    }
+    assert observed["scorer_is_native"] is True
+    assert observed["scorer_export_matches"] is True
+    rapidfuzz_package = Path(observed["rapidfuzz_package_path"])
+    assert rapidfuzz_package.is_relative_to(environment)
+    assert Path(observed["scorer_file"]).parent == rapidfuzz_package
     assert observed["direct_urls"]["polyglot-watchlist"]["url"] == wheel.as_uri()
     if installed_dependency:
         assert (
