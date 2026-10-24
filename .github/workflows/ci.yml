@@ -69,6 +69,101 @@ jobs:
           UV_PROJECT_ENVIRONMENT="$PWD/.tools/qa" "$CI_UV" sync \
             --locked --only-group qa --no-install-project --python "$CI_PYTHON"
 
+      # A locked sync need not populate the registry metadata required by a
+      # later offline reinstall. Supply the packaging test's explicit wheelhouse.
+      - name: Prepare verified wheel for offline package installation
+        shell: bash
+        run: |
+          ci_wheelhouse="$RUNNER_TEMP/watchlist-wheelhouse"
+          timeout --signal=TERM --kill-after=5s 60s \
+            "$PWD/.venv/bin/python" -I -B - "$ci_wheelhouse" <<'PREPARE_WHEELHOUSE'
+          import hashlib
+          from importlib.metadata import version
+          import json
+          from pathlib import Path
+          import re
+          import ssl
+          import sys
+          import tomllib
+          from urllib.parse import urlsplit
+          from urllib.request import HTTPSHandler, HTTPRedirectHandler, ProxyHandler, Request, build_opener
+
+          from packaging.tags import sys_tags
+          from packaging.utils import parse_wheel_filename
+
+          lock_bytes = Path("uv.lock").read_bytes()
+          packages = [item for item in tomllib.loads(lock_bytes.decode())["package"] if item["name"] == "rapidfuzz"]
+          if len(packages) != 1 or version("rapidfuzz") != packages[0]["version"]:
+              raise ValueError("Installed RapidFuzz must match one locked package.")
+          package = packages[0]
+          ranks = {tag: rank for rank, tag in enumerate(sys_tags())}
+          compatible = []
+          for artifact in package["wheels"]:
+              parts = urlsplit(artifact["url"])
+              if (
+                  parts.scheme != "https"
+                  or parts.netloc != "files.pythonhosted.org"
+                  or not parts.path.startswith("/packages/")
+                  or parts.query or parts.fragment
+                  or re.search(r"[\s%\\]", artifact["url"])
+              ):
+                  raise ValueError("Locked wheel URL is outside the official HTTPS host.")
+              filename = parts.path.rsplit("/", 1)[-1]
+              name, wheel_version, _, tags = parse_wheel_filename(filename)
+              if name != "rapidfuzz" or str(wheel_version) != package["version"]:
+                  raise ValueError("Locked wheel name or version does not match RapidFuzz.")
+              matching = tags & ranks.keys()
+              if matching:
+                  compatible.append((min(ranks[tag] for tag in matching), filename, artifact))
+          if not compatible:
+              raise ValueError("No locked RapidFuzz wheel supports this runtime.")
+          _, filename, artifact = min(compatible, key=lambda item: (item[0], item[1]))
+          expected_size = artifact["size"]
+          if type(expected_size) is not int or not 0 < expected_size <= 10_000_000:
+              raise ValueError("Locked wheel exceeds the 10 MB preparation limit.")
+          if not re.fullmatch(r"sha256:[0-9a-f]{64}", artifact["hash"]):
+              raise ValueError("Locked wheel must have an exact SHA-256 digest.")
+          wheelhouse = Path(sys.argv[1])
+          if not wheelhouse.is_absolute():
+              raise ValueError("Wheelhouse must be an absolute temporary path.")
+          wheelhouse.mkdir(mode=0o700, exist_ok=False)
+
+          class NoRedirect(HTTPRedirectHandler):
+              def redirect_request(self, request, fp, code, message, headers, newurl):
+                  return None
+
+          opener = build_opener(
+              ProxyHandler({}), HTTPSHandler(context=ssl.create_default_context()), NoRedirect()
+          )
+          request = Request(artifact["url"], headers={"Accept-Encoding": "identity"})
+          with opener.open(request, timeout=20) as response:
+              if response.status != 200 or response.geturl() != artifact["url"]:
+                  raise ValueError("Wheel download must be a direct HTTP 200 response.")
+              if response.headers.get("Content-Encoding", "identity").lower() != "identity":
+                  raise ValueError("Unexpected wheel content encoding.")
+              lengths = response.headers.get_all("Content-Length", [])
+              if lengths and (len(lengths) != 1 or lengths[0] != str(expected_size)):
+                  raise ValueError("Wheel response length differs from the lock.")
+              payload = response.read(expected_size + 1)
+          if len(payload) != expected_size or "sha256:" + hashlib.sha256(payload).hexdigest() != artifact["hash"]:
+              raise ValueError("Downloaded wheel differs from its locked size or SHA-256.")
+          with (wheelhouse / filename).open("xb") as stream:
+              stream.write(payload)
+          receipt = {
+              "package": "rapidfuzz",
+              "version": package["version"],
+              "filename": filename,
+              "url": artifact["url"],
+              "bytes": len(payload),
+              "sha256": hashlib.sha256(payload).hexdigest(),
+              "lock_sha256": hashlib.sha256(lock_bytes).hexdigest(),
+          }
+          with (wheelhouse / "receipt.json").open("x") as stream:
+              json.dump(receipt, stream, indent=2, sort_keys=True)
+              stream.write("\n")
+          print(json.dumps(receipt, sort_keys=True))
+          PREPARE_WHEELHOUSE
+
       # This Linux isolation boundary is checked at runtime. It was not run on
       # the macOS development host; hosted execution remains separate evidence.
       - name: Verify fixtures without network access
@@ -83,11 +178,14 @@ jobs:
           ci_qa_python="$PWD/.tools/qa/bin/python"
           ci_python_lib="$pythonLocation/lib"
           ci_dist="$RUNNER_TEMP/watchlist-package-output"
+          ci_wheelhouse="$RUNNER_TEMP/watchlist-wheelhouse"
           test -x "$ci_python"
           test -x "$ci_qa_python"
           test -x "$CI_UV"
           test -d "$UV_CACHE_DIR"
           test -d "$ci_python_lib"
+          test -d "$ci_wheelhouse"
+          test ! -L "$ci_wheelhouse"
 
           sudo unshare --net -- \
             setpriv --reuid "$ci_uid" --regid "$ci_gid" --clear-groups \
@@ -95,6 +193,7 @@ jobs:
               --no-new-privs --reset-env \
             env PATH="$PATH" TMPDIR="$RUNNER_TEMP" \
               LD_LIBRARY_PATH="$ci_python_lib" UV_CACHE_DIR="$UV_CACHE_DIR" \
+              WATCHLIST_WHEELHOUSE="$ci_wheelhouse" \
               PRE_COMMIT_HOME="$RUNNER_TEMP/watchlist-pre-commit" \
               RUFF_CACHE_DIR="$RUNNER_TEMP/watchlist-ruff" \
               PYTHONDONTWRITEBYTECODE=1 PYTHONHASHSEED=0 \
