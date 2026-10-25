@@ -39,7 +39,28 @@ required-version = "==0.13.5"
 [tool.ruff]
 required-version = "==0.14.10"
 target-version = "py314"
-include = ["scripts/project_checks.py", "tests/test_project_checks.py", "tests/test_packaging.py"]
+include = [
+    "scripts/project_checks.py", "tests/test_project_checks.py", "tests/test_packaging.py",
+    "src/watchlist/ingest/source_registry.py", "src/watchlist/ingest/acquire.py",
+    "src/watchlist/ingest/_parse_common.py", "src/watchlist/ingest/parse_ftm.py",
+    "src/watchlist/ingest/parse_un.py", "src/watchlist/ingest/parse_ofac.py",
+    "src/watchlist/ingest/parse_eu.py", "src/watchlist/ingest/parse_wikidata.py",
+    "tests/test_source_acquisition.py", "tests/test_source_adapters.py",
+    "src/watchlist/corpus.py",
+    "src/watchlist/label_review.py",
+    "src/watchlist/ingest/link_records.py",
+    "src/watchlist/ingest/full_acquire.py",
+    "src/watchlist/ingest/resource_guard.py",
+    "src/watchlist/ingest/wikidata_api.py",
+    "src/watchlist/ingest/metadata_preflight.py",
+    "tests/test_corpus.py",
+    "tests/test_label_review.py",
+    "tests/test_record_links.py",
+    "tests/test_full_acquisition.py",
+    "tests/test_resource_guard.py",
+    "tests/test_wikidata_api.py",
+    "tests/test_metadata_preflight.py",
+]
 force-exclude = true
 
 [tool.ruff.lint]

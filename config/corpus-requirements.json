@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "scope": "Completion Step 07 feasibility; three required successful sources under user-approved revision dated 2026-10-25",
+  "evaluation_eligibility_established": false,
+  "training_eligibility_established": false,
+  "sources": [
+    "opensanctions_un",
+    "un_consolidated",
+    "ofac_sdn",
+    "eu_consolidated",
+    "wikidata_orgs"
+  ],
+  "allowed_entity_types": [
+    "organization",
+    "vessel"
+  ],
+  "excluded_entity_types": [
+    "person",
+    "aircraft",
+    "unknown",
+    "ambiguous LegalEntity"
+  ],
+  "limits": {
+    "max_retained_provider_groups_per_source": 200,
+    "max_received_body_bytes_per_source_all_attempts": 10000000,
+    "max_received_body_bytes_per_profile_all_attempts": 50000000,
+    "max_concurrent_requests": 1,
+    "max_eu_received_body_bytes_all_attempts": 32000000,
+    "max_ofac_decoded_xml_bytes": 32000000,
+    "request_timeout_seconds": 30,
+    "source_deadline_seconds": 120,
+    "eu_request_timeout_seconds": 180,
+    "eu_source_deadline_seconds": 240,
+    "wikidata_request_timeout_seconds": 90,
+    "response_limit_note": "10,000,000 applies to all sources except the approved EU-only 32,000,000 override; combined 50,000,000 includes failed attempts. Limits apply per invocation; the coordinator subtracts earlier session bytes before a fresh invocation. EU has 180 seconds per absolute request deadline and 240 seconds per source invocation. Wikidata has a 90-second request limit within its unchanged 120-second source deadline; other sources retain 30/120 seconds. The coordinator selected one attempt for the authorized Wikidata investigation; the current pinned query selects at most 20 service-order candidates within the unchanged 200-group retention ceiling. No further request follows automatically from unused byte allowance."
+  },
+  "required_record_evidence": [
+    "source_id",
+    "source-qualified provider ID",
+    "provider entity type or schema",
+    "original primary name",
+    "original aliases and source field paths",
+    "available language tags and alias attributes",
+    "available provider referents without inferred identity merges",
+    "available provider datasets/topics and explicit classification basis"
+  ],
+  "required_receipt_evidence": [
+    "exact official requested URL and final approved URL; provider signing queries redacted with canonical object path, query-present flag and full URL SHA-256",
+    "current permission status, terms links and local evidence hashes",
+    "bytes received across all attempts",
+    "complete input body SHA-256 on completed transfer only",
+    "normalized selection SHA-256",
+    "parser version and available publisher version or explicit content-hash fallback",
+    "raw_retained=false",
+    "aggregate exclusion, alias, script and duplicate counts",
+    "explicit status for every candidate source including blocked sources",
+    "OFAC container/member and decoded XML bytes/SHA-256; verify against publisher XML digest, record absence of publisher ZIP digest"
+  ],
+  "grouping_policy": "Provider IDs define source-local groups. Preserve referents for later adjudication; do not merge by name or infer cross-source identity.",
+  "wikidata_role": "supplemental_unlabelled; never confirmed absent, sanctioned, or an evaluation negative",
+  "raw_storage_policy": "Mixed bulk bodies remain in bounded memory only. Persist only approved non-person records and aggregate receipts in private new directories.",
+  "future_corpus_review": [
+    "Measure actual script, language, alias and duplicate coverage before setting corpus requirements.",
+    "Adjudicate cross-source duplicate groups before entity-disjoint training, calibration and test splits.",
+    "Set evaluation and training acceptance criteria in separately approved Step 08.",
+    "Zero retained groups is an honest acquisition result, not a usable corpus claim."
+  ],
+  "source_qualified_classification_exception": "OpenSanctions UN LegalEntity is eligible only with explicit un_sc_sanctions dataset membership and sanction topic, grounded in captured publisher mapping of UN ENTITY versus INDIVIDUAL. Preserve provider_schema and saved mapping-evidence hashes. Generic LegalEntity remains excluded.",
+  "required_successful_source_ids": [
+    "opensanctions_un",
+    "ofac_sdn",
+    "eu_consolidated"
+  ],
+  "investigated_not_acquired": {
+    "un_consolidated": "No applicable transformation grant or current primary endpoint established. Excluded from required Step07 acquisitions by user approval; future use requires separate authorization and permission review.",
+    "wikidata_orgs": "No retained selection after transport errors and confirmed HTTP504 responses. Excluded from required Step07 acquisitions by user approval; future API/query use requires separate authorization and review."
+  },
+  "scope_revision": {
+    "approved_on": "2026-10-25",
+    "approval_reference": "User DECISION 1 \u2014 STEP 07 in this conversation",
+    "record": "docs/progress/completion-07-approved.md",
+    "step08_targets_unchanged": true,
+    "future_acquisition_authorized": false
+  }
+}

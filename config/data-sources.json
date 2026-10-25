@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "profile": "feasibility",
+  "limits": {
+    "max_source_bytes": 10000000,
+    "max_total_bytes": 50000000,
+    "max_groups": 200,
+    "request_timeout_seconds": 30,
+    "source_deadline_seconds": 120,
+    "max_attempts": 2,
+    "max_redirects": 3,
+    "max_eu_source_bytes": 32000000,
+    "eu_request_timeout_seconds": 180,
+    "eu_source_deadline_seconds": 240,
+    "wikidata_request_timeout_seconds": 90
+  },
+  "sources": [
+    {
+      "source_id": "opensanctions_un",
+      "label": "OpenSanctions UN distribution",
+      "role": "sanctions_reference",
+      "url": "https://data.opensanctions.org/artifacts/un_sc_sanctions/20261024160105-nsw/entities.ftm.json",
+      "allowed_redirects": [],
+      "parser": "ftm",
+      "permission": {
+        "status": "approved",
+        "reviewed_at": "2026-10-24",
+        "license": "CC-BY-NC-4.0",
+        "terms_urls": [
+          "https://www.opensanctions.org/docs/commercial/exemption/",
+          "https://creativecommons.org/licenses/by-nc/4.0/legalcode.en"
+        ],
+        "evidence_paths": [
+          "data/eval-comparisons/completion-07/permissions/opensanctions-noncommercial.html",
+          "data/eval-comparisons/completion-07/permissions/cc-bync-legalcode.html",
+          "data/eval-comparisons/completion-07/permissions/opensanctions-un-index.json",
+          "data/eval-comparisons/completion-07/permissions/opensanctions-un-crawler.txt",
+          "data/eval-comparisons/completion-07/permissions/opensanctions-un-helper.txt"
+        ],
+        "rationale": "Current publisher grant permits local noncommercial student and personal research with attribution and modification notices. This phase authorizes bounded acquisition only, not operational screening, training or model release. A narrow LegalEntity classification requires explicit un_sc_sanctions dataset membership and sanction topic; the captured publisher mapper establishes UN ENTITY as LegalEntity and INDIVIDUAL as Person. Other ambiguous LegalEntity records remain excluded."
+      }
+    },
+    {
+      "source_id": "un_consolidated",
+      "label": "United Nations consolidated list",
+      "role": "sanctions_reference",
+      "url": "https://scsanctions.un.org/resources/xml/en/consolidated.xml",
+      "allowed_redirects": [],
+      "parser": "un",
+      "permission": {
+        "status": "blocked",
+        "reviewed_at": "2026-10-25",
+        "license": "No source-specific transformation grant established",
+        "terms_urls": [
+          "https://www.un.org/en/about-us/terms-of-use",
+          "https://shop.un.org/rights-permissions"
+        ],
+        "evidence_paths": [
+          "data/eval-comparisons/completion-07/permissions/un-terms.html",
+          "data/eval-comparisons/completion-07/closure-review/un-permission-review/un-rights-permissions.html"
+        ],
+        "rationale": "Direct-source acquisition remains blocked. UN general terms reserve compilation and derivative rights; the official Rights and Permissions page explicitly requires permission to reuse online-platform/database content. No applicable list-specific grant or written permission for bounded non-person corpus compilation, normalization/indexing and local matching was established. Official sanctions information returned an HTTP 202 access-verification challenge; it was not bypassed and no current official XML endpoint was established. The configured XML candidate last returned HEAD 404 on 2026-10-24; no new data request was made. A working endpoint alone would not establish transformation permission. An applicable grant plus permitted access, or an explicit user-approved scope revision, is required. The user approved its investigated-not-acquired disposition for Step07 closure. Future use remains blocked pending separate authorization, applicable permission and endpoint review."
+      }
+    },
+    {
+      "source_id": "ofac_sdn",
+      "label": "OFAC Specially Designated Nationals list",
+      "role": "sanctions_reference",
+      "url": "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/SDN_XML.ZIP",
+      "allowed_redirects": [
+        "https://wc2h-sls-prod-public-published.s3.us-gov-west-1.amazonaws.com/Published/c855675f-4385-4bb5-b89a-59ccb73a83e6/2026-10-20/4166a9f5-d268-432a-a70b-65bd16bcd16a/SDN_XML.ZIP"
+      ],
+      "parser": "ofac",
+      "permission": {
+        "status": "approved",
+        "reviewed_at": "2026-10-24",
+        "license": "Narrow factual fields: OFAC import/export guidance and 17 USC 105",
+        "terms_urls": [
+          "https://ofac.treasury.gov/sdn-list-data-formats-data-schemas/tutorial-on-the-use-of-list-related-legacy-flat-files",
+          "https://www.copyright.gov/title17/92chap1.html#105",
+          "https://ofac.treasury.gov/sanctions-list-service"
+        ],
+        "evidence_paths": [
+          "data/eval-comparisons/completion-07/permissions/ofac-flat-tutorial.html",
+          "data/eval-comparisons/completion-07/permissions/ofac-flat-specification.txt",
+          "data/eval-comparisons/completion-07/permissions/us-copyright-chapter1.html",
+          "data/eval-comparisons/completion-07/permissions/ofac-sls-page.html",
+          "data/eval-comparisons/completion-07/permissions/ofac-download-notice.html",
+          "data/eval-comparisons/completion-07/permissions/ofac-sdn-metadata-post.json",
+          "data/eval-comparisons/completion-07/permissions/ofac-current-xml-schema-redirect.txt"
+        ],
+        "rationale": "Official guidance explicitly supports importing and exporting factual list names and aliases. Section105 government-work rule supports this narrow local research use; no broader rights claim. The copyright capture is a bounded prefix containing complete section105. Use official SDN_XML.ZIP under10MB response cap and32MB decodedXML bound; ZIP publisher digest unavailable, decodedXML publisherSHA256 required. Only exact metadata-bound S3 object and reviewed finite provider-issued signing query are allowed; signing values remain in memory and are redacted from receipts. Training, release and operations are outside this phase."
+      }
+    },
+    {
+      "source_id": "eu_consolidated",
+      "label": "European Union consolidated financial sanctions list",
+      "role": "sanctions_reference",
+      "url": "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw",
+      "allowed_redirects": [],
+      "parser": "eu",
+      "permission": {
+        "status": "approved",
+        "reviewed_at": "2026-10-24",
+        "license": "European Commission COM_REUSE distribution grant",
+        "terms_urls": [
+          "https://data.europa.eu/api/hub/search/datasets/consolidated-list-of-persons-groups-and-entities-subject-to-eu-financial-sanctions",
+          "https://commission.europa.eu/legal-notice_en"
+        ],
+        "evidence_paths": [
+          "data/eval-comparisons/completion-07/permissions/eu-catalog-metadata.json",
+          "data/eval-comparisons/completion-07/permissions/eu-legal-notice.html",
+          "data/eval-comparisons/completion-07/permissions/eu-xml11-schema.txt"
+        ],
+        "rationale": "Official catalog explicitly grants COM_REUSE for XML1.1; the Commission notice requires credit and change notices with exclusions. The exact token query is a catalog-published routing parameter, not a private API key. Following the failed bounded attempt, the user authorized a suitable retry: EU-only 32,000,000 received response-body bytes across session attempts, 180 seconds per request and 240 seconds per source invocation. All other sources remain at 10,000,000 bytes and a 120-second source deadline, with profile total 50,000,000; only Wikidata has its separate 90-second request amendment. The coordinator subtracts prior session bytes before each fresh invocation. Verified current XSD defines subjectType classificationCode E/P; preserve schema evidence and retain only explicit non-person E records. No public release, training or operational clearance is asserted."
+      }
+    },
+    {
+      "source_id": "wikidata_orgs",
+      "label": "Wikidata organization names",
+      "role": "supplemental_unlabelled",
+      "url": "https://query.wikidata.org/sparql?query=PREFIX+wd%3A+%3Chttp%3A%2F%2Fwww.wikidata.org%2Fentity%2F%3E%0APREFIX+wdt%3A+%3Chttp%3A%2F%2Fwww.wikidata.org%2Fprop%2Fdirect%2F%3E%0APREFIX+rdfs%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0APREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0ASELECT+%3Fitem+%3Fname+%3Fname_kind+%3Ftype+WHERE+%7B%0A++%7B+SELECT+%3Fitem+WHERE+%7B%0A++++++%7B+SELECT+%3Fitem+WHERE+%7B%0A++++++++++%3Fitem+wdt%3AP31+wd%3AQ43229+.%0A++++++++%7D+LIMIT+20+%7D%0A++++++FILTER+NOT+EXISTS+%7B%0A++++++++%3Fitem+wdt%3AP31+%3FcandidateType+.%0A++++++++%3FcandidateType+wdt%3AP279%2A+wd%3AQ5+.%0A++++++%7D%0A++++%7D+%7D%0A++%7B+%3Fitem+rdfs%3Alabel+%3Fname+.+BIND%28%22label%22+AS+%3Fname_kind%29+%7D%0A++UNION%0A++%7B+%3Fitem+skos%3AaltLabel+%3Fname+.+BIND%28%22alias%22+AS+%3Fname_kind%29+%7D%0A++BIND%28wd%3AQ43229+AS+%3Ftype%29%0A%7D&format=json",
+      "allowed_redirects": [],
+      "parser": "wikidata",
+      "permission": {
+        "status": "pending",
+        "reviewed_at": "2026-10-25",
+        "license": "CC0-1.0",
+        "terms_urls": [
+          "https://www.wikidata.org/wiki/Wikidata:Copyright",
+          "https://www.mediawiki.org/wiki/Wikidata_Query_Service/User_Manual",
+          "https://foundation.wikimedia.org/wiki/Special:MyLanguage/User-Agent_policy"
+        ],
+        "evidence_paths": [
+          "data/eval-comparisons/completion-07/permissions/wikidata-copyright.html",
+          "data/eval-comparisons/completion-07/permissions/wikidata-query-manual.html",
+          "data/eval-comparisons/completion-07/permissions/wikimedia-user-agent.html"
+        ],
+        "rationale": "CC0 covers main-namespace structured labels and aliases. The exact reviewed query selects at most 20 direct P31 Q43229 candidates without global sorting, then excludes any candidate whose explicit P31 type has a P279* path to human Q5. All labels and aliases of remaining candidates are returned without an outer row limit; excluded candidates are not refilled. This is a small service-order feasibility sample, not a representative or repeatable live population sample. Local parser ordering and saved response/selection hashes provide artifact reproducibility. Supplemental unlabelled only: never confirmed absent, sanctioned or evaluation negatives. Operator contact is the approved public project URL; 429 stops acquisition. Removing global sorts and reducing candidates addresses avoidable query work after confirmed HTTP 504; it neither diagnoses the gateway failure nor guarantees service availability. The user authorized one justified bounded investigation within existing resources: 90-second request, 120-second source deadline, one attempt in the execution policy, and session-remaining byte caps. No permission, type or field scope is expanded. User-approved Step07 closure revision records this source as investigated but not acquired. The recorded CC0 structured-data permission remains evidence, but project authorization for further acquisition is pending separate review and approval; no Action API, REST route or repeated SPARQL request is enabled by this registry."
+      }
+    }
+  ]
+}

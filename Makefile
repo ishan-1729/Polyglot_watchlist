@@ -5,6 +5,26 @@ PYTHON ?= python3
 QA_PYTHON ?= .tools/qa/bin/python
 UV ?= uv
 DIST_DIR ?= dist
+QUALITY_FILES = scripts/project_checks.py tests/test_project_checks.py tests/test_packaging.py \
+	src/watchlist/ingest/source_registry.py src/watchlist/ingest/acquire.py \
+	src/watchlist/ingest/_parse_common.py src/watchlist/ingest/parse_ftm.py \
+	src/watchlist/ingest/parse_un.py src/watchlist/ingest/parse_ofac.py \
+	src/watchlist/ingest/parse_eu.py src/watchlist/ingest/parse_wikidata.py \
+	tests/test_source_acquisition.py tests/test_source_adapters.py \
+	src/watchlist/corpus.py \
+	src/watchlist/label_review.py \
+	src/watchlist/ingest/link_records.py \
+	src/watchlist/ingest/full_acquire.py \
+	src/watchlist/ingest/resource_guard.py \
+	src/watchlist/ingest/wikidata_api.py \
+	src/watchlist/ingest/metadata_preflight.py \
+	tests/test_corpus.py \
+	tests/test_label_review.py \
+	tests/test_record_links.py \
+	tests/test_full_acquisition.py \
+	tests/test_resource_guard.py \
+	tests/test_wikidata_api.py \
+	tests/test_metadata_preflight.py
 export PYTHON QA_PYTHON UV
 
 # These targets verify local inputs; they never acquire packages or models.
@@ -22,7 +42,7 @@ export PYTHONDONTWRITEBYTECODE HF_HUB_OFFLINE TRANSFORMERS_OFFLINE HF_HUB_DISABL
 export LANGSMITH_TRACING LANGCHAIN_TRACING_V2 UV_OFFLINE UV_PYTHON_DOWNLOADS
 export PIP_NO_INDEX PIP_DISABLE_PIP_VERSION_CHECK
 
-.PHONY: help test test-local-models lock-check lint build package-smoke eval-smoke secret-scan inventory
+.PHONY: help test test-local-models lock-check lint build package-smoke eval-smoke secret-scan inventory source-preflight source-tests
 
 help:
 	@printf '%s\n' \
@@ -36,6 +56,8 @@ help:
 	  'eval-smoke     Run deterministic current-contract fictional evaluation.' \
 	  'secret-scan    Scan the declared publication scope; requires detect-secrets.' \
 	  'inventory      Report lock and installed dependency/license metadata.' \
+	  'source-preflight  Inspect reviewed source policies offline; no download.' \
+	  'source-tests   Run fictional acquisition and adapter boundary tests.' \
 	  'Overrides: PYTHON=<executable> QA_PYTHON=<executable> UV=<executable> DIST_DIR=<new-directory>'
 
 test:
@@ -49,9 +71,9 @@ lock-check:
 
 lint:
 	"$(QA_PYTHON)" -I -B -m ruff check --config pyproject.toml \
-		scripts/project_checks.py tests/test_project_checks.py tests/test_packaging.py
+		$(QUALITY_FILES)
 	"$(QA_PYTHON)" -I -B -m ruff format --check --config pyproject.toml \
-		scripts/project_checks.py tests/test_project_checks.py tests/test_packaging.py
+		$(QUALITY_FILES)
 
 build:
 	@test ! -e "$(DIST_DIR)" && test ! -L "$(DIST_DIR)" || { printf '%s\n' 'Build output exists; choose a new DIST_DIR to preserve it.' >&2; exit 1; }
@@ -68,3 +90,9 @@ secret-scan:
 
 inventory:
 	"$(PYTHON)" -B scripts/project_checks.py inventory
+
+source-preflight:
+	"$(PYTHON)" -B -m watchlist.ingest.acquire preflight --profile feasibility --registry config/data-sources.json
+
+source-tests:
+	"$(PYTHON)" -B -m pytest -q tests/test_source_acquisition.py tests/test_source_adapters.py tests/test_corpus.py tests/test_label_review.py tests/test_record_links.py tests/test_full_acquisition.py tests/test_resource_guard.py tests/test_wikidata_api.py tests/test_metadata_preflight.py -p no:cacheprovider

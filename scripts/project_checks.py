@@ -121,6 +121,180 @@ SAFE_FINDING_TYPES = frozenset(
 # exception binds the whole file, location and detector type. Changed content
 # or additional findings require a new review; files remain in every scan.
 REVIEWED_NON_SECRET_FINDINGS = {
+    "config/corpus-adjudication-v1.json": {
+        "file_sha256": "4a865ea83fb452f599d6d1dd92caeda5aa20063f13827bb6ad22b7bab09b4107",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(
+            (
+                (7, "Hex High Entropy String"),
+                (11, "Hex High Entropy String"),
+                (14, "Hex High Entropy String"),
+                (28, "Hex High Entropy String"),
+                (36, "Hex High Entropy String"),
+                (40, "Hex High Entropy String"),
+                (48, "Hex High Entropy String"),
+                (52, "Hex High Entropy String"),
+                (56, "Hex High Entropy String"),
+                (60, "Hex High Entropy String"),
+                (64, "Hex High Entropy String"),
+                (68, "Hex High Entropy String"),
+                (72, "Hex High Entropy String"),
+                (76, "Hex High Entropy String"),
+                (80, "Hex High Entropy String"),
+                (88, "Hex High Entropy String"),
+                (92, "Hex High Entropy String"),
+                (96, "Hex High Entropy String"),
+            )
+        ),
+        "reason": "Reviewed integrity commitments for policy, evidence, code, source payloads and empty-ledger state; not authentication credentials.",
+    },
+    "config/corpus-human-review-v1.json": {
+        "file_sha256": "891905ea198b9def30815119af23e412b28020314183541a67ee67967deb2fe0",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(
+            (
+                (7, "Hex High Entropy String"),
+                (11, "Hex High Entropy String"),
+                (28, "Hex High Entropy String"),
+                (36, "Hex High Entropy String"),
+                (40, "Hex High Entropy String"),
+                (48, "Hex High Entropy String"),
+                (52, "Hex High Entropy String"),
+                (56, "Hex High Entropy String"),
+                (60, "Hex High Entropy String"),
+                (64, "Hex High Entropy String"),
+                (68, "Hex High Entropy String"),
+                (72, "Hex High Entropy String"),
+                (76, "Hex High Entropy String"),
+                (80, "Hex High Entropy String"),
+                (84, "Hex High Entropy String"),
+                (88, "Hex High Entropy String"),
+                (92, "Hex High Entropy String"),
+                (96, "Hex High Entropy String"),
+                (100, "Hex High Entropy String"),
+                (104, "Hex High Entropy String"),
+                (108, "Hex High Entropy String"),
+                (116, "Hex High Entropy String"),
+                (120, "Hex High Entropy String"),
+            )
+        ),
+        "reason": "Reviewed integrity commitments for policy, evidence, code, source payloads and empty-ledger state; not authentication credentials.",
+    },
+    "config/corpus-readiness-v1.json": {
+        "file_sha256": "a0469888b5ab962e960396bbad5eb1e12a84972b6c956b1d28f5a628b5770daa",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(
+            (
+                (6, "Hex High Entropy String"),
+                (18, "Hex High Entropy String"),
+                (26, "Hex High Entropy String"),
+                (30, "Hex High Entropy String"),
+            )
+        ),
+        "reason": "Reviewed integrity commitments for policy, evidence, code, source payloads and empty-ledger state; not authentication credentials.",
+    },
+    "config/corpus-review-v1.json": {
+        "file_sha256": "29dfeb6b3dfe8662d880361b563e8300787fe7fc7bc5b11992a5a20cb845f389",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(
+            (
+                (7, "Hex High Entropy String"),
+                (11, "Hex High Entropy String"),
+                (26, "Hex High Entropy String"),
+                (34, "Hex High Entropy String"),
+                (38, "Hex High Entropy String"),
+                (46, "Hex High Entropy String"),
+                (50, "Hex High Entropy String"),
+                (58, "Hex High Entropy String"),
+                (62, "Hex High Entropy String"),
+                (66, "Hex High Entropy String"),
+                (70, "Hex High Entropy String"),
+            )
+        ),
+        "reason": "Reviewed integrity commitments for policy, evidence, code, source payloads and empty-ledger state; not authentication credentials.",
+    },
+    "config/corpus-solo-review-v1.json": {
+        "file_sha256": "e748fbc1f1754c424de06c277d464c3c1685e1949b0abb0ef5b27719bb98b124",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(
+            (
+                (7, "Hex High Entropy String"),
+                (11, "Hex High Entropy String"),
+            )
+        ),
+        "reason": "Reviewed integrity commitments for policy, evidence, code, source payloads and empty-ledger state; not authentication credentials.",
+    },
+    "config/data-sources-step08-continuation.json": {
+        "file_sha256": "9a1eede5d5088841c1f30e9aef716cbaa74258b903cf458014caa5dd9ab0c8a0",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(
+            (
+                (4, "Hex High Entropy String"),
+                (16, "Hex High Entropy String"),
+                (20, "Hex High Entropy String"),
+                (24, "Hex High Entropy String"),
+                (28, "Hex High Entropy String"),
+                (32, "Hex High Entropy String"),
+                (36, "Hex High Entropy String"),
+                (40, "Hex High Entropy String"),
+                (56, "Hex High Entropy String"),
+                (61, "Hex High Entropy String"),
+                (80, "Hex High Entropy String"),
+                (92, "Hex High Entropy String"),
+                (96, "Hex High Entropy String"),
+                (100, "Hex High Entropy String"),
+                (108, "Hex High Entropy String"),
+            )
+        ),
+        "reason": "Reviewed integrity commitments for policy, evidence, code, source payloads and empty-ledger state; not authentication credentials.",
+    },
+    "config/data-sources-step08-full.json": {
+        "file_sha256": "4a2cd2f3a34655c97637720c3f881abb2b026dba609bb3f159351fb615e79af4",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(
+            (
+                (4, "Hex High Entropy String"),
+                (22, "Hex High Entropy String"),
+                (26, "Hex High Entropy String"),
+                (37, "Hex High Entropy String"),
+                (42, "Hex High Entropy String"),
+                (58, "Hex High Entropy String"),
+            )
+        ),
+        "reason": "Reviewed integrity commitments for policy, evidence, code, source payloads and empty-ledger state; not authentication credentials.",
+    },
+    "config/data-sources-step08-recovery.json": {
+        "file_sha256": "63264e256c20506ede558b9ab533bab207b72f42f0b2483511b0d5219478f91e",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(
+            (
+                (4, "Hex High Entropy String"),
+                (16, "Hex High Entropy String"),
+                (20, "Hex High Entropy String"),
+                (24, "Hex High Entropy String"),
+                (28, "Hex High Entropy String"),
+                (32, "Hex High Entropy String"),
+                (36, "Hex High Entropy String"),
+                (40, "Hex High Entropy String"),
+                (56, "Hex High Entropy String"),
+                (61, "Hex High Entropy String"),
+                (80, "Hex High Entropy String"),
+            )
+        ),
+        "reason": "Reviewed integrity commitments for policy, evidence, code, source payloads and empty-ledger state; not authentication credentials.",
+    },
+    "tests/test_corpus.py": {
+        "file_sha256": "535886506fc2e014a9a4f9476b9f93e534e00a94bb92b85dd458202a83169039",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(((1387, "Hex High Entropy String"),)),
+        "reason": "Fixed historical SQL schema SHA256 in a fictional compatibility test; not a credential.",
+    },
+    "tests/test_full_acquisition.py": {
+        "file_sha256": "fbfc70eb07c094c24f3faf884d6266b5e80c2fb79771deb7931270f3ca072351",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(((1145, "Base64 High Entropy String"),)),
+        "reason": "Alphabet-sequence fictional signing credential in an isolated fake redirect test; no real credential.",
+    },
+    "config/data-sources-step08.json": {
+        "file_sha256": "b71ac3feba93e7d84d0b1a91e508900aa72c2bff1c89fecbb2e84050215b3f6c",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(((21, "Hex High Entropy String"),)),
+        "reason": "Whole-file SHA256 of the locally reviewed Step08 metadata preflight rationale; not a credential.",
+    },
+    "tests/test_source_acquisition.py": {
+        "file_sha256": "54122c1f2f826e5214bbae12c9db0a590f671183a8df2ec262eefb6a7dc22f51",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(((1246, "Base64 High Entropy String"),)),
+        "reason": "Explicit FICTIONALKEY000000 signing credential in a fake public-download redirect regression; no real credential.",
+    },
     "docs/progress/completion-00.md": {
         "file_sha256": "05f434b5abc82484bb78872b4eea2a5bff16c6949d9601af0f7db8ef6a516fa5",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
         "findings": frozenset((line, "Hex High Entropy String") for line in (201,)),

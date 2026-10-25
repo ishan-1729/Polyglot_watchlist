@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "scope": "08B-1-metadata-only",
+  "approval": "User explicitly approved Step08B-0 and08B-1 only, exact5MB/16transactions/512000perresponse/30s/60min limits, no retries or parallel requests.",
+  "limits": {
+    "total_bytes": 5000000,
+    "transactions": 16,
+    "response_bytes": 512000,
+    "request_seconds": 30,
+    "session_seconds": 3600
+  },
+  "endpoints": [
+    {
+      "id": "metadata-01",
+      "source_id": "wikidata_orgs",
+      "url": "https://www.wikidata.org/wiki/Wikidata:Data_access",
+      "method": "GET",
+      "kind": "html",
+      "purpose": "Official metadata/terms/schema verification only; not dataset acquisition.",
+      "basis": "docs/step-08b-01-preflight.md",
+      "basis_sha256": "31c840ba8f315c38411e5e4ff23283c1280b4778510ad54e045ceeb472ad3b7c"
+    },
+    {
+      "id": "metadata-02",
+      "source_id": "eu_consolidated",
+      "url": "https://commission.europa.eu/legal-notice_en",
+      "method": "GET",
+      "kind": "html",
+      "purpose": "Official metadata/terms/schema verification only; not dataset acquisition.",
+      "basis": "docs/step-08b-01-preflight.md",
+      "basis_sha256": "31c840ba8f315c38411e5e4ff23283c1280b4778510ad54e045ceeb472ad3b7c"
+    },
+    {
+      "id": "metadata-03",
+      "source_id": "eu_consolidated",
+      "url": "https://data.europa.eu/api/hub/search/datasets/consolidated-list-of-persons-groups-and-entities-subject-to-eu-financial-sanctions",
+      "method": "GET",
+      "kind": "json",
+      "purpose": "Official metadata/terms/schema verification only; not dataset acquisition.",
+      "basis": "docs/step-08b-01-preflight.md",
+      "basis_sha256": "31c840ba8f315c38411e5e4ff23283c1280b4778510ad54e045ceeb472ad3b7c"
+    },
+    {
+      "id": "metadata-04",
+      "source_id": "eu_consolidated",
+      "url": "https://webgate.ec.europa.eu/fsd/fsf/public/files/xsdFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw",
+      "method": "GET",
+      "kind": "xml",
+      "purpose": "Official metadata/terms/schema verification only; not dataset acquisition.",
+      "basis": "docs/step-08b-01-preflight.md",
+      "basis_sha256": "31c840ba8f315c38411e5e4ff23283c1280b4778510ad54e045ceeb472ad3b7c"
+    },
+    {
+      "id": "metadata-05",
+      "source_id": "ofac_sdn",
+      "url": "https://ofac.treasury.gov/sdn-list-data-formats-data-schemas/tutorial-on-the-use-of-list-related-legacy-flat-files",
+      "method": "GET",
+      "kind": "html",
+      "purpose": "Official metadata/terms/schema verification only; not dataset acquisition.",
+      "basis": "docs/step-08b-01-preflight.md",
+      "basis_sha256": "31c840ba8f315c38411e5e4ff23283c1280b4778510ad54e045ceeb472ad3b7c"
+    },
+    {
+      "id": "metadata-06",
+      "source_id": "ofac_sdn",
+      "url": "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/SdnList",
+      "method": "POST",
+      "kind": "json",
+      "purpose": "Official metadata/terms/schema verification only; not dataset acquisition.",
+      "basis": "docs/step-08b-01-preflight.md",
+      "basis_sha256": "31c840ba8f315c38411e5e4ff23283c1280b4778510ad54e045ceeb472ad3b7c"
+    },
+    {
+      "id": "metadata-07",
+      "source_id": "ofac_sdn",
+      "url": "https://www.copyright.gov/title17/92chap1.html",
+      "method": "GET",
+      "kind": "html",
+      "purpose": "Official metadata/terms/schema verification only; not dataset acquisition.",
+      "basis": "docs/step-08b-01-preflight.md",
+      "basis_sha256": "31c840ba8f315c38411e5e4ff23283c1280b4778510ad54e045ceeb472ad3b7c"
+    },
+    {
+      "id": "metadata-08",
+      "source_id": "opensanctions_un",
+      "url": "https://creativecommons.org/licenses/by-nc/4.0/legalcode.en",
+      "method": "GET",
+      "kind": "html",
+      "purpose": "Official metadata/terms/schema verification only; not dataset acquisition.",
+      "basis": "docs/step-08b-01-preflight.md",
+      "basis_sha256": "31c840ba8f315c38411e5e4ff23283c1280b4778510ad54e045ceeb472ad3b7c"
+    },
+    {
+      "id": "metadata-09",
+      "source_id": "opensanctions_un",
+      "url": "https://data.opensanctions.org/artifacts/un_sc_sanctions/20261024160105-nsw/index.json",
+      "method": "GET",
+      "kind": "json",
+      "purpose": "Official metadata/terms/schema verification only; not dataset acquisition.",
+      "basis": "docs/step-08b-01-preflight.md",
+      "basis_sha256": "31c840ba8f315c38411e5e4ff23283c1280b4778510ad54e045ceeb472ad3b7c"
+    },
+    {
+      "id": "metadata-10",
+      "source_id": "opensanctions_un",
+      "url": "https://data.opensanctions.org/datasets/latest/un_sc_sanctions/index.json",
+      "method": "GET",
+      "kind": "json",
+      "purpose": "Official metadata/terms/schema verification only; not dataset acquisition.",
+      "basis": "docs/step-08b-01-preflight.md",
+      "basis_sha256": "31c840ba8f315c38411e5e4ff23283c1280b4778510ad54e045ceeb472ad3b7c"
+    },
+    {
+      "id": "metadata-11",
+      "source_id": "opensanctions_un",
+      "url": "https://www.opensanctions.org/docs/commercial/exemption/",
+      "method": "GET",
+      "kind": "html",
+      "purpose": "Official metadata/terms/schema verification only; not dataset acquisition.",
+      "basis": "docs/step-08b-01-preflight.md",
+      "basis_sha256": "31c840ba8f315c38411e5e4ff23283c1280b4778510ad54e045ceeb472ad3b7c"
+    },
+    {
+      "id": "metadata-12",
+      "source_id": "wikidata_orgs",
+      "url": "https://foundation.wikimedia.org/wiki/Special:MyLanguage/User-Agent_policy",
+      "method": "GET",
+      "kind": "html",
+      "purpose": "Official metadata/terms/schema verification only; not dataset acquisition.",
+      "basis": "docs/step-08b-01-preflight.md",
+      "basis_sha256": "31c840ba8f315c38411e5e4ff23283c1280b4778510ad54e045ceeb472ad3b7c"
+    },
+    {
+      "id": "metadata-13",
+      "source_id": "wikidata_orgs",
+      "url": "https://www.mediawiki.org/wiki/Wikibase/Indexing/RDF_Dump_Format",
+      "method": "GET",
+      "kind": "html",
+      "purpose": "Official metadata/terms/schema verification only; not dataset acquisition.",
+      "basis": "docs/step-08b-01-preflight.md",
+      "basis_sha256": "31c840ba8f315c38411e5e4ff23283c1280b4778510ad54e045ceeb472ad3b7c"
+    },
+    {
+      "id": "metadata-14",
+      "source_id": "wikidata_orgs",
+      "url": "https://www.wikidata.org/w/api.php?action=paraminfo&modules=wbgetentities%7Cwbsearchentities&format=json&formatversion=2",
+      "method": "GET",
+      "kind": "json",
+      "purpose": "Official metadata/terms/schema verification only; not dataset acquisition.",
+      "basis": "docs/step-08b-01-preflight.md",
+      "basis_sha256": "31c840ba8f315c38411e5e4ff23283c1280b4778510ad54e045ceeb472ad3b7c"
+    },
+    {
+      "id": "metadata-15",
+      "source_id": "wikidata_orgs",
+      "url": "https://www.wikidata.org/wiki/Wikidata:Copyright",
+      "method": "GET",
+      "kind": "html",
+      "purpose": "Official metadata/terms/schema verification only; not dataset acquisition.",
+      "basis": "docs/step-08b-01-preflight.md",
+      "basis_sha256": "31c840ba8f315c38411e5e4ff23283c1280b4778510ad54e045ceeb472ad3b7c"
+    }
+  ]
+}

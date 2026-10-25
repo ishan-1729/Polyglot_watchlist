@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export xmlns="http://eu.europa.ec/fpi/fsd/export" generationDate="2026-01-01T00:00:00Z" globalFileId="990000200">
+  <sanctionEntity logicalId="990000201" euReferenceNumber="FICTIONAL.EU.001">
+    <regulation logicalId="990000251" regulationType="fictional" organisationType="fictional" publicationDate="2026-01-01" entryIntoForceDate="2026-01-01" numberTitle="FICTIONAL EXAMPLE 001" programme="FICTIONAL"/>
+    <subjectType code="enterprise" classificationCode="E"/>
+    <nameAlias wholeName="Fictional Jadebranch Cooperative" firstName="" middleName="" lastName="" strong="true" nameLanguage="EN" regulationLanguage="EN" logicalId="990000211"><regulationSummary regulationType="fictional" publicationDate="2026-01-01" numberTitle="FICTIONAL EXAMPLE 001"/></nameAlias>
+    <nameAlias wholeName="虚构玉枝合作社" strong="true" nameLanguage="zh" regulationLanguage="EN" logicalId="990000212"><regulationSummary regulationType="fictional" publicationDate="2026-01-01" numberTitle="FICTIONAL EXAMPLE 001"/></nameAlias>
+    <nameAlias wholeName="Fictional Jadebranch" strong="false" nameLanguage="en" regulationLanguage="EN" logicalId="990000213"><regulationSummary regulationType="fictional" publicationDate="2026-01-01" numberTitle="FICTIONAL EXAMPLE 001"/></nameAlias>
+  </sanctionEntity>
+  <sanctionEntity logicalId="990000202" euReferenceNumber="FICTIONAL.EU.002">
+    <regulation logicalId="990000252" regulationType="fictional" organisationType="fictional" publicationDate="2026-01-01" entryIntoForceDate="2026-01-01" numberTitle="FICTIONAL EXAMPLE 002" programme="FICTIONAL"/>
+    <subjectType code="enterprise" classificationCode="E"/>
+    <nameAlias wholeName="Fictional Rosequartz Workshop" strong="true" nameLanguage="" regulationLanguage="EN" logicalId="990000221"><regulationSummary regulationType="fictional" publicationDate="2026-01-01" numberTitle="FICTIONAL EXAMPLE 002"/></nameAlias>
+    <nameAlias wholeName="ورشة روزكوارتز الخيالية" strong="true" nameLanguage="ar" regulationLanguage="EN" logicalId="990000222"><regulationSummary regulationType="fictional" publicationDate="2026-01-01" numberTitle="FICTIONAL EXAMPLE 002"/></nameAlias>
+  </sanctionEntity>
+  <sanctionEntity logicalId="990000203">
+    <regulation logicalId="990000253" regulationType="fictional" organisationType="fictional" publicationDate="2026-01-01" entryIntoForceDate="2026-01-01" numberTitle="FICTIONAL EXAMPLE 003" programme="FICTIONAL"/>
+    <subjectType code="person" classificationCode="P"/>
+    <nameAlias wholeName="Fictional Excluded Person Placeholder" strong="true" nameLanguage="en" regulationLanguage="EN" logicalId="990000231"><regulationSummary regulationType="fictional" publicationDate="2026-01-01" numberTitle="FICTIONAL EXAMPLE 003"/></nameAlias>
+  </sanctionEntity>
+</export>

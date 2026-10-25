@@ -32,3 +32,6 @@ data/review/
 
 # Private preservation archives and isolated restore drills
 data/review-archives/
+
+# Machine-bound genuine-review policies contain private owner declarations.
+config/corpus-solo-execution-v*.json

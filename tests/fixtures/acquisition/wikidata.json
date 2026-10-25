@@ -1,0 +1,43 @@
+{
+  "head": {"vars": ["item", "name", "name_kind", "type"]},
+  "results": {
+    "bindings": [
+      {
+        "item": {"type": "uri", "value": "http://www.wikidata.org/entity/Q999999901"},
+        "name": {"type": "literal", "xml:lang": "en", "value": "Fictional Amberquill Cooperative"},
+        "name_kind": {"type": "literal", "value": "label"},
+        "type": {"type": "uri", "value": "http://www.wikidata.org/entity/Q43229"}
+      },
+      {
+        "item": {"type": "uri", "value": "http://www.wikidata.org/entity/Q999999901"},
+        "name": {"type": "literal", "xml:lang": "ar", "value": "تعاونية أمبركويل الخيالية"},
+        "name_kind": {"type": "literal", "value": "label"},
+        "type": {"type": "uri", "value": "http://www.wikidata.org/entity/Q43229"}
+      },
+      {
+        "item": {"type": "uri", "value": "http://www.wikidata.org/entity/Q999999901"},
+        "name": {"type": "literal", "xml:lang": "en", "value": "Fictional Amberquill Cooperative"},
+        "name_kind": {"type": "literal", "value": "alias"},
+        "type": {"type": "uri", "value": "http://www.wikidata.org/entity/Q43229"}
+      },
+      {
+        "item": {"type": "uri", "value": "http://www.wikidata.org/entity/Q999999902"},
+        "name": {"type": "literal", "xml:lang": "en", "value": "Fictional Violetwake Workshop"},
+        "name_kind": {"type": "literal", "value": "label"},
+        "type": {"type": "uri", "value": "http://www.wikidata.org/entity/Q43229"}
+      },
+      {
+        "item": {"type": "uri", "value": "http://www.wikidata.org/entity/Q999999902"},
+        "name": {"type": "literal", "xml:lang": "ru", "value": "Вымышленная мастерская Виолетвейк"},
+        "name_kind": {"type": "literal", "value": "alias"},
+        "type": {"type": "uri", "value": "http://www.wikidata.org/entity/Q43229"}
+      },
+      {
+        "item": {"type": "uri", "value": "http://www.wikidata.org/entity/Q999999903"},
+        "name": {"type": "literal", "xml:lang": "en", "value": "Fictional Excluded Person Placeholder"},
+        "name_kind": {"type": "literal", "value": "label"},
+        "type": {"type": "uri", "value": "http://www.wikidata.org/entity/Q5"}
+      }
+    ]
+  }
+}

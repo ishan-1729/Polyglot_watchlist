@@ -1,12 +1,18 @@
 # Polyglot Watchlist — research name matching
 
-This is the Completion Step 06 publication snapshot. See [publication scope and historical evidence](docs/publication.md) for the included fictional inputs, preserved reports and intentionally unavailable local evidence links.
-
 A local multilingual candidate-retrieval prototype with a resumable human-review workflow. It suggests possible reference-record matches; it does not establish identity, wrongdoing, current sanctions status, or clearance. It is not a live screening/compliance service and is not affiliated with INTERPOL.
 
 The default demonstration uses invented names. All existing fictional, public-subset, and bilingual evaluation examples have been inspected and are **regression-only evidence**. A regression check asks whether software changes preserve expected behavior on known examples; it does not measure performance on unseen data.
 
 ## Current state
+
+Step 08 now includes completed [C1 readiness queues](docs/progress/completion-08b-c1.md), [C2 review packets and ledgers](docs/progress/completion-08b-c2.md), [C3 adjudication preparation](docs/progress/completion-08b-c3.md), and the [40-case human-review handoff](docs/progress/completion-08b-h1-i.md). The approved [solo-researcher protocol](docs/progress/step-08-solo-protocol-proposal.md) preserves the original multi-reviewer track while explicitly narrowing evidence and evaluation claims.
+
+[SOLO-I is formally closed](docs/progress/completion-08-solo-i-closed.md). [SOLO-E preparation and local activation passed](docs/progress/completion-08-solo-e.md); genuine owner review remains unfinished. The final SOLO-E focused check passed 52 fictional tests. Its earlier integration check passed 135 tests before the final language-tag/ledger-version correction; these are separate evidence snapshots. No independently validated labels or accepted corpus release are claimed.
+
+This public checkout contains implementation, fictional tests and progress documentation. Source snapshots, real review packets, ledgers, declarations, live execution policies and local receipts remain private. See [publication scope](docs/publication.md). A fresh public checkout cannot activate the private pilot without its separately authorized, pinned local evidence and policy.
+
+The approved **Step 08B-2R continuation completed OFAC/EU acquisition and offline validation**. OpenSanctions was reused. The [continuation report](docs/progress/completion-08b-02rc.md) contains measured yield, exact budgets and remaining corpus requirements. Earlier failed sessions below remain historical. Full Step 08 is incomplete; corpus construction, required genuine inspections, absent-query families and multilingual coverage gates remain open. No training or Step 09 execution is included.
 
 Completion Steps 00–05 delivered the preservation and repair work below. The [Step 06 report](docs/progress/completion-06.md) records the engineering checks, approval scope and final acceptance status. Completion Steps are distinct from the historical Phase 0–10 records. See the [current phase guide](docs/implementation-phases.md), [completion plan](docs/project-completion-plan.md), and [evaluation repair report](docs/progress/completion-05.md).
 
@@ -38,7 +44,7 @@ WATCHLIST_WHEELHOUSE=data/eval-comparisons/completion-06/wheelhouse \
 
 The CLI uses the packaged fictional fixture and needs neither model weights nor an API key. Tests use fictional records, deterministic vectors, and temporary stores. The full test target includes packaging checks, which require a compatible locally cached RapidFuzz wheel. The shown wheelhouse contains the separately approved CPython 3.14/macOS ARM64 wheel; another host needs its own approved compatible cache. Optional tests can skip when their packages are absent; a partial environment is not evidence that the full project passed. Already-local model checks are separate opt-in tests, not downloads.
 
-**Python 3.14 is the declared target (`>=3.14,<3.15`); local CPython 3.14.0 on macOS ARM64 is the demonstrated runtime.** Python 3.11–3.13 are outside the narrowed declaration. Hosted CI uses Python 3.14.0 on Ubuntu 24.04; see the [actual run history and conclusions](https://github.com/raiha-siddiqui/Polyglot_watchlist/actions/workflows/ci.yml). Windows is not a tested target; review storage uses POSIX file locks.
+**Python 3.14 is the declared target (`>=3.14,<3.15`); local CPython 3.14.0 on macOS ARM64 is the demonstrated runtime.** Python 3.11–3.13 are outside the narrowed declaration. Actual hosted runs use Python 3.14.0 on Ubuntu 24.04; their exact commits, outcomes and repairs are recorded in the [Step 07 report](docs/progress/completion-07.md). Windows is not a tested target; review storage uses POSIX file locks.
 
 The inspected local `uv` 0.13.5 executable has been copied with a checksum receipt to `.tools/bin/uv`; no temporary installer path is required. The reviewed local metadata/tool cache is `.tools/uv-cache`. Set `UV_CACHE_DIR` to its absolute path so checks that change directory still use the same cache. Other hosts need compatible, approved tools and cached artifacts. The project requires that uv version, and Makefile commands accept a `UV` executable override. The existing `.venv` can run directly while its interpreter and packages remain available. A lockfile records exact package versions/artifact hashes; it does not prove every platform or optional combination works.
 
@@ -80,7 +86,7 @@ The packaging checks build a wheel/source archive, rebuild the wheel from the ar
 
 `build` requires a new `DIST_DIR`; existing output is refused. `test-local-models` is an explicit opt-in for the three already-local model checks. Quality tooling uses Ruff 0.14.10, pre-commit 4.5.1 and detect-secrets 1.5.0 in `.tools/qa`; `QA_PYTHON` can select another approved environment. The three pre-commit hooks invoke the same lock/lint/scan targets without installing dependencies or rewriting files. Scanner reports distinguish reviewed non-secret fingerprints/fixtures from unreviewed findings. A missing tool, a failed scanner, or wrapper tests alone cannot establish a successful source scan.
 
-CI runs on pull-request/manual events with reviewed full action commit pins, read-only repository permissions and no persisted checkout credentials. Its approved bootstrap acquires locked dependencies and a size/hash-verified RapidFuzz wheel before a separate Linux network-isolated check stage. Runtime assertions verify the isolated network namespace, dropped privileges/capabilities and no-new-privileges. The scanner stays sequential under its socket guard; clean-install checks require a genuine native RapidFuzz extension, including supported CPU-specific backends. [GitHub Actions](https://github.com/raiha-siddiqui/Polyglot_watchlist/actions/workflows/ci.yml) records the exact commits and actual outcomes. Dispatch alone is not a passing result.
+CI runs on pull-request/manual events with reviewed full action commit pins, read-only repository permissions and no persisted checkout credentials. Its approved bootstrap acquires locked dependencies and a size/hash-verified RapidFuzz wheel before a separate Linux network-isolated check stage. Actual hosted checks assert a distinct network namespace, dropped privileges/capabilities and no-new-privileges. The [Step 07 report](docs/progress/completion-07.md) distinguishes hosted results for the published Step 06 source plus CI repairs from the larger local Step 07 suite. Failed runs and their fixes remain recorded; dispatch alone never means the checks passed.
 
 ## How retrieval works
 
@@ -102,6 +108,36 @@ New source-backed work uses explicitly rebuilt v3 snapshots, when present locall
 The original `data/sample.sqlite` and `data/watchlist.sqlite` are preserved historical v2 files. Normal loading rejects them with migration guidance; it never silently substitutes another database. See the [source migration guide](docs/maintenance/source-database-migration.md).
 
 The public snapshot is a historical, narrow OpenSanctions UN selection. Provider terms were recorded at acquisition; Step 06 performs no new online license verification. The [data card](docs/data-card.md) distinguishes saved provenance from current permission. Public availability is not unrestricted-use permission or identity ground truth.
+
+## Bounded source acquisition
+
+Completion Step 07 adds a separate, permission-gated acquisition path and closes under the user-approved three-source feasibility scope: OpenSanctions UN, OFAC and EU. Direct UN and Wikidata remain investigated but not acquired; future use requires separate authorization and review. See the [approved closure record](docs/progress/completion-07-approved.md), [current permissions](docs/source-permissions.md), and [retention rules](docs/data-retention.md). A source being listed in the configuration does not mean it is enabled or usable. The historical UN-only importer and its 20-record behavior remain unchanged.
+
+Inspect the local policy and exercise the new fictional tests without downloading anything:
+
+```sh
+make PYTHON=.venv/bin/python source-preflight
+make PYTHON=.venv/bin/python source-tests
+```
+
+For an installed package outside this checkout, provide both the registry and
+the project root containing its saved permission evidence. The package alone
+does not bundle those local permission captures:
+
+```sh
+watchlist_project=/absolute/path/to/polyglot-watchlist-starter
+python -m watchlist.ingest.acquire preflight --profile feasibility \
+  --registry "$watchlist_project/config/data-sources.json" \
+  --project-root "$watchlist_project"
+```
+
+Only an explicit `python -m watchlist.ingest.acquire fetch` command can acquire source data; there is no download hidden in these Make targets. Fetching requires reviewed permission evidence, an approved byte budget and a new private output directory. The CLI rejects blocked sources, unapproved redirects, unsafe paths and existing destinations. Receipts record response-body bytes, downloaded-body and retained-record hashes, parsing versions, source evidence and aggregate name/script counts. The original mixed response is filtered in memory and is not saved. Failures do not establish a usable corpus.
+
+The retained records are organisations or vessels, with original names and available alias/language evidence. Similar names never establish shared identity. Wikidata records are supplementary and unlabelled; they are not confirmed sanctions absences or evaluation negatives. Source feasibility alone does not establish training permission, independent evaluation labels or statistical coverage. Step 08A planning and offline analysis are complete; the full Step 08 corpus is not complete. See the [Step 08A plan](docs/step-08a-plan.md) and [progress report](docs/progress/completion-08a.md). Step 08B-0 offline implementation and Step 08B-1 metadata preflight completed within their approved scope; their [historical report](docs/progress/completion-08b-01.md) preserves the test and metadata evidence.
+
+The earlier Step 08B-2 session remains **partial and stopped**. OpenSanctions completed; OFAC returned an unfollowed redirect; EU was interrupted when resource monitoring failed. The completed selection was audited as development evidence, with no real human labels or final-test eligibility. All three request slots are consumed; no final acquisition receipt or corpus release was created. The [08B-2 report](docs/progress/completion-08b-02.md) records actual bytes/yield, focused tests, a reproduced monitor-race fix and the exact proposed recovery package. Further acquisition, human review and Step 09 require separate approval.
+
+The earlier **08B-2R recovery session remains partial and stopped**. Recovery implementation and focused tests passed; OpenSanctions was reused unchanged. One OFAC attempt failed before an HTTP response, with no recorded body bytes; EU was not attempted. Offline diagnosis found an empty default TLS trust store. Native acquisition now blocks that condition before a claim/request, and the installed CA bundle was verified offline with certificate checking enabled. The exact failed exception was not retained, so the diagnosis is not claimed as its proven sole cause. The [08B-2R report](docs/progress/completion-08b-02r.md) records the failed attempt, conservative reservation, partial audit and a proposed continuation within the existing byte ceiling. No retry or candidate corpus publication occurred.
 
 ## Evaluate without overwriting history
 

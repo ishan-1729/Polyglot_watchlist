@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "scope": "08B-C3-offline-adjudication",
+  "c2": {
+    "configuration": {
+      "path": "config/corpus-review-v1.json",
+      "sha256": "29dfeb6b3dfe8662d880361b563e8300787fe7fc7bc5b11992a5a20cb845f389"
+    },
+    "manifest": {
+      "path": "data/eval-comparisons/completion-08b-c2/packets/manifest.json",
+      "sha256": "64d7b9d7ff120b0363d1cfae6ccee324cb61df8a8a44d3d836e4e70fec2868a3"
+    },
+    "ledger_path": "data/eval-comparisons/completion-08b-c2/ledger",
+    "expected_head": "cd9b8e4f7d320d8a29368d9b8618a03fa8595b5e96532a030bdd05f4c238d7e3"
+  },
+  "output_path": "data/eval-comparisons/completion-08b-c3/preparation",
+  "artifact_roots": [
+    "data/eval-comparisons/completion-08b-02",
+    "data/eval-comparisons/completion-08b-02r",
+    "data/eval-comparisons/completion-08b-02rc",
+    "data/eval-comparisons/completion-08b-c1",
+    "data/eval-comparisons/completion-08b-c2",
+    "data/eval-comparisons/completion-08b-c3"
+  ],
+  "normalized_inputs": [
+    {
+      "path": "data/eval-comparisons/completion-08b-02/acquisition/opensanctions_un.jsonl",
+      "sha256": "caade45281bc200519db0a4fc3f645cbb080f183dec781ba19f7bc3c09f23d34"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-02r/acquisition/opensanctions_un.jsonl",
+      "sha256": "caade45281bc200519db0a4fc3f645cbb080f183dec781ba19f7bc3c09f23d34"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-02rc/acquisition/eu_consolidated.jsonl",
+      "sha256": "8412dc377efe56efd9fa7e730e1c2d3ce8fb9ae9e51f0956ea1fbb755db75dc4"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-02rc/acquisition/ofac_sdn.jsonl",
+      "sha256": "efd1877a8954fa7ee26e10092f651c4ec3f3fb448ac51858435ee6f0a1fe0e7e"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-02rc/acquisition/opensanctions_un.jsonl",
+      "sha256": "caade45281bc200519db0a4fc3f645cbb080f183dec781ba19f7bc3c09f23d34"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c1/preparation/components.jsonl",
+      "sha256": "7f25f71c2ff55e3037cdfb02641dc24b7025fde937425f543f7a4ccd29d16385"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c1/preparation/input-manifest.json",
+      "sha256": "70f334f28d6bcc276cff41c5f84bea1cb42b563748e91de2573da8b5a84e579c"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c1/preparation/manifest.json",
+      "sha256": "bb84c60fd09a4ff11fb93ddb5cb37d630c18b684cbc8d0d216ec3cabc047b195"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c1/preparation/nominations.jsonl",
+      "sha256": "e8ad8bcf0e175664c16f9e99d29c1ee48b6fce4e13c2fe57aed57113abf5960f"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c1/preparation/observations.jsonl",
+      "sha256": "60d2081826a0f7200a1197194c19e6ee1cbf7af18c9ee6a6d11b6eb32f4aaeec"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c1/preparation/quarantine.jsonl",
+      "sha256": "7b95da28f1d7ca19af3f546e85081b1c3c06a556cf7b5268f30c0391f92b8f0e"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c1/preparation/summary.json",
+      "sha256": "e331792f2305a18e554e33dab3a1334b548de5511f1668dd872934eec2f1bf93"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c2/packets/duplicate.jsonl",
+      "sha256": "11b0b23fc7aae62436bda8bf89d30a40dd71b26f2fcb317ac1b5aae0ddadd377"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c2/packets/flagged.jsonl",
+      "sha256": "55b87c9a87a8b9cab9a3b0ff4cd6c584ca35d969f2341999d45375f12d8abbb3"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c2/packets/manifest.json",
+      "sha256": "64d7b9d7ff120b0363d1cfae6ccee324cb61df8a8a44d3d836e4e70fec2868a3"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c2/packets/negative_candidate.jsonl",
+      "sha256": "a3981d19a5ed8f5cd9f6cb1f9a763e11bb71df430c30c37808e8948fbe254f16"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c2/packets/proposed_positive.jsonl",
+      "sha256": "4ac8a310131f55b26801fd03e28f88fd8ca88dcfb2d501b3090798c3d9c3539e"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c2/packets/summary.json",
+      "sha256": "9261317d36074b87173b38f2b8d113bb322e6ef7cb2e2985c5c60a558cede0b6"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c2/ledger/header.json",
+      "sha256": "cd9b8e4f7d320d8a29368d9b8618a03fa8595b5e96532a030bdd05f4c238d7e3"
+    }
+  ],
+  "expected_counts": {
+    "observations": 13658,
+    "name_entries": 40568,
+    "uncertain_pairs": 1259,
+    "review_tasks": 12238,
+    "ledger_events": 0,
+    "adjudications": 0
+  },
+  "limits": {
+    "max_new_artifact_bytes": 16000000,
+    "max_queries": 20000,
+    "max_representations": 100000,
+    "session_seconds": 3600
+  },
+  "permissions": {
+    "network_allowed": false,
+    "human_review_execution_allowed": false,
+    "identity_merge_allowed": false,
+    "accepted_corpus_release_allowed": false,
+    "training_allowed": false,
+    "step09_allowed": false,
+    "publication_allowed": false,
+    "fresh_final_eligible": false
+  },
+  "versions": {
+    "graph": "corpus-family-graph-v1",
+    "view": "corpus-reference-view-v1",
+    "absence": "corpus-absence-candidates-v1"
+  },
+  "reference_view": {
+    "view_id": "development-candidate-reference-v1",
+    "universe_id": "development-candidate-universe-v1",
+    "selection": "all_observations",
+    "view_kind": "corpus_level",
+    "membership_complete": true
+  },
+  "absent_target_observation_ids": [],
+  "actors": []
+}

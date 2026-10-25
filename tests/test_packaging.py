@@ -36,6 +36,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RESOURCES = {
     "watchlist/data/synthetic_entities.json",
     "watchlist/ingest/schema.sql",
+    "watchlist/corpus_schema.sql",
     "watchlist/agent/schema.sql",
 }
 

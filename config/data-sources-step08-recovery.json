@@ -1,0 +1,89 @@
+{
+  "approval": {
+    "path": "data/eval-comparisons/completion-08b-02r/permissions/user-approval.json",
+    "sha256": "aba71573aa3daf9325f30ea289f33b692916cec5627f1639e9e556e39faf1b4d"
+  },
+  "limits": {
+    "max_attempts": 1,
+    "max_redirects": 1,
+    "session_seconds": 3600,
+    "total_bytes": 34000000,
+    "transactions": 3
+  },
+  "reuse_completed_source": {
+    "claim": {
+      "path": "data/eval-comparisons/completion-08b-02/acquisition-session.claim.json",
+      "sha256": "ea759e8f3ef5cab4367ef8851aac9f37d28e1e5827e26b5b4d61df40c51f071e"
+    },
+    "completed_journal": {
+      "path": "data/eval-comparisons/completion-08b-02/acquisition/live-ledger-000197.json",
+      "sha256": "75025cab736b1ce6fe0e8be3a52bb3d5abdd50655fd37c674117c72a805f4f89"
+    },
+    "interruption_assessment": {
+      "path": "data/eval-comparisons/completion-08b-02/interruption-assessment.json",
+      "sha256": "937dc2c46dc6fd30b53b46e3d5a7952bcd5ca23ffec1f6792c03781bf4fd0c1e"
+    },
+    "permission": {
+      "path": "data/eval-comparisons/completion-08b-02/permissions/opensanctions_un.grant.json",
+      "sha256": "bbdd773920cf4a79ee723c76b113683e99fdb0118e4d7e7b2d9df98df5725478"
+    },
+    "policy": {
+      "path": "data/eval-comparisons/completion-08b-02/acquisition/execution-policy.json",
+      "sha256": "4a2cd2f3a34655c97637720c3f881abb2b026dba609bb3f159351fb615e79af4"
+    },
+    "recovery_permission": {
+      "path": "data/eval-comparisons/completion-08b-02r/permissions/opensanctions_un.recovery-grant.json",
+      "sha256": "0fccbddf0f2969516cd7366af5ef4041b411addffde146bbc314cca9554ab575"
+    },
+    "selection": {
+      "path": "data/eval-comparisons/completion-08b-02/acquisition/opensanctions_un.jsonl",
+      "sha256": "caade45281bc200519db0a4fc3f645cbb080f183dec781ba19f7bc3c09f23d34"
+    },
+    "source_id": "opensanctions_un"
+  },
+  "schema_version": 1,
+  "scope": "08B-2R-ofac-eu-recovery-acquisition",
+  "session_claim_path": "data/eval-comparisons/completion-08b-02r/acquisition-session.claim.json",
+  "sources": [
+    {
+      "allowed_redirects": [
+        "https://wc2h-sls-prod-public-published.s3.us-gov-west-1.amazonaws.com/Published/c855675f-4385-4bb5-b89a-59ccb73a83e6/2026-10-20/4166a9f5-d268-432a-a70b-65bd16bcd16a/SDN_XML.ZIP"
+      ],
+      "content_length_required": true,
+      "decoded_bytes": 32000000,
+      "expected_bytes": 2582121,
+      "expected_decoded_bytes": 29245041,
+      "expected_decoded_sha256": "421c5f6ee841eb7c0e327eb0d6bdbe24cbb58091e3cbfd77d83dd41c7b5a5e08",
+      "expected_sha1": null,
+      "expected_sha256": null,
+      "max_groups": 12000,
+      "permission_path": "data/eval-comparisons/completion-08b-02r/permissions/ofac_sdn.grant.json",
+      "permission_sha256": "4dab26bfdcc3b488bcd7b73a74f7c86b5452b4ed9800131fe2c63054dd613679",
+      "received_bytes": 4000000,
+      "request_seconds": 30,
+      "source_id": "ofac_sdn",
+      "source_seconds": 120,
+      "transactions": 2,
+      "url": "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/SDN_XML.ZIP"
+    },
+    {
+      "allowed_redirects": [],
+      "content_length_required": true,
+      "decoded_bytes": null,
+      "expected_bytes": null,
+      "expected_decoded_bytes": null,
+      "expected_decoded_sha256": null,
+      "expected_sha1": null,
+      "expected_sha256": null,
+      "max_groups": 2000,
+      "permission_path": "data/eval-comparisons/completion-08b-02r/permissions/eu_consolidated.grant.json",
+      "permission_sha256": "bc2fdae6be6a5b101552d9deb6c5972f3c9390759bc00f6728e4cebf0f661627",
+      "received_bytes": 30000000,
+      "request_seconds": 180,
+      "source_id": "eu_consolidated",
+      "source_seconds": 240,
+      "transactions": 1,
+      "url": "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw"
+    }
+  ]
+}

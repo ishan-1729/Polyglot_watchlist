@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "scope": "08-SOLO-I-offline-solo-intake",
+  "h1": {
+    "configuration": {
+      "path": "config/corpus-human-review-v1.json",
+      "sha256": "891905ea198b9def30815119af23e412b28020314183541a67ee67967deb2fe0"
+    },
+    "manifest": {
+      "path": "data/eval-comparisons/completion-08b-h1-i/pilot/manifest.json",
+      "sha256": "2f235e847e1e6b49db280f44ebe95d5f0a7783dc680babf786e741fd48cea16d"
+    }
+  },
+  "output_path": "data/eval-comparisons/completion-08-solo-i/packet",
+  "ledger_path": "data/eval-comparisons/completion-08-solo-i/ledger",
+  "artifact_roots": [
+    "data/eval-comparisons/completion-08b-02",
+    "data/eval-comparisons/completion-08b-02r",
+    "data/eval-comparisons/completion-08b-02rc",
+    "data/eval-comparisons/completion-08b-c1",
+    "data/eval-comparisons/completion-08b-c2",
+    "data/eval-comparisons/completion-08b-c3",
+    "data/eval-comparisons/completion-08b-h1-i",
+    "data/eval-comparisons/completion-08-solo-i"
+  ],
+  "limits": {
+    "max_new_artifact_bytes": 16000000,
+    "max_pilot_cases": 40,
+    "max_events": 10000,
+    "max_event_bytes": 65536,
+    "session_seconds": 3600
+  },
+  "permissions": {
+    "network_allowed": false,
+    "human_review_execution_allowed": false,
+    "identity_merge_allowed": false,
+    "accepted_corpus_release_allowed": false,
+    "training_allowed": false,
+    "step09_allowed": false,
+    "publication_allowed": false,
+    "fresh_final_eligible": false
+  },
+  "versions": {
+    "packet": "solo-review-packet-v1",
+    "ledger": "solo-review-ledger-v1",
+    "protocol": "solo-review-protocol-v1"
+  },
+  "metadata": {
+    "created_at": "2026-10-25T12:02:38.083201+00:00",
+    "creator": "codex-offline-preparation",
+    "approval_ref": "user-approved-SOLO-I"
+  },
+  "declaration": {
+    "owner": null,
+    "protocol_version": "solo-review-protocol-v1",
+    "scope": "development_pilot",
+    "retention_ref": null,
+    "real_execution_approval_ref": null,
+    "identity_verification_status": "local_owner_attestation_pending"
+  },
+  "expected_counts": {
+    "pilot_cases": 40,
+    "actual_submissions": 0,
+    "accepted_labels": 0
+  }
+}

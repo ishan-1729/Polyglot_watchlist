@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONSOLIDATED_LIST dateGenerated="2026-01-01T00:00:00Z">
+  <INDIVIDUALS>
+    <INDIVIDUAL><DATAID>990000001</DATAID><FIRST_NAME>Fictional Excluded Person Placeholder</FIRST_NAME></INDIVIDUAL>
+  </INDIVIDUALS>
+  <ENTITIES>
+    <ENTITY>
+      <DATAID>990000002</DATAID>
+      <FIRST_NAME>Fictional Silverfern Loom Cooperative</FIRST_NAME>
+      <NAME_ORIGINAL_SCRIPT xml:lang="ar">تعاونية سيلفرفيرن الخيالية</NAME_ORIGINAL_SCRIPT>
+      <ENTITY_ALIAS><QUALITY>Good</QUALITY><ALIAS_NAME>Fictional Silverfern Weavers</ALIAS_NAME></ENTITY_ALIAS>
+      <ENTITY_ALIAS><QUALITY>Low</QUALITY><ALIAS_NAME>Fictional Silverfern</ALIAS_NAME></ENTITY_ALIAS>
+      <ENTITY_ALIAS><QUALITY>Good</QUALITY><ALIAS_NAME xml:lang="zh">虚构银蕨纺织合作社</ALIAS_NAME></ENTITY_ALIAS>
+    </ENTITY>
+    <ENTITY>
+      <DATAID>990000003</DATAID>
+      <FIRST_NAME>Fictional Tealharbor Workshop</FIRST_NAME>
+      <ENTITY_ALIAS><QUALITY></QUALITY><ALIAS_NAME></ALIAS_NAME></ENTITY_ALIAS>
+    </ENTITY>
+  </ENTITIES>
+</CONSOLIDATED_LIST>

@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "scope": "08B-C1-offline-readiness",
+  "receipt": {
+    "path": "data/eval-comparisons/completion-08b-02rc/acquisition/receipt.json",
+    "sha256": "dff2ef1c3f0584f19e32630e37008b1bd007fb3fc01187267f700249d2172c85"
+  },
+  "output_path": "data/eval-comparisons/completion-08b-c1/preparation",
+  "artifact_roots": [
+    "data/eval-comparisons/completion-08b-02",
+    "data/eval-comparisons/completion-08b-02r",
+    "data/eval-comparisons/completion-08b-02rc",
+    "data/eval-comparisons/completion-08b-c1"
+  ],
+  "normalized_inputs": [
+    {
+      "path": "data/eval-comparisons/completion-08b-02/acquisition/opensanctions_un.jsonl",
+      "sha256": "caade45281bc200519db0a4fc3f645cbb080f183dec781ba19f7bc3c09f23d34"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-02r/acquisition/opensanctions_un.jsonl",
+      "sha256": "caade45281bc200519db0a4fc3f645cbb080f183dec781ba19f7bc3c09f23d34"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-02rc/acquisition/eu_consolidated.jsonl",
+      "sha256": "8412dc377efe56efd9fa7e730e1c2d3ce8fb9ae9e51f0956ea1fbb755db75dc4"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-02rc/acquisition/ofac_sdn.jsonl",
+      "sha256": "efd1877a8954fa7ee26e10092f651c4ec3f3fb448ac51858435ee6f0a1fe0e7e"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-02rc/acquisition/opensanctions_un.jsonl",
+      "sha256": "caade45281bc200519db0a4fc3f645cbb080f183dec781ba19f7bc3c09f23d34"
+    }
+  ],
+  "expected_counts": {
+    "observations": 13658,
+    "organizations": 12090,
+    "vessels": 1568,
+    "name_entries": 40568,
+    "candidate_pairs": 1259,
+    "exact_pairs": 663,
+    "normalized_only_pairs": 596,
+    "review_components": 657,
+    "collision_records": 1607,
+    "weak_name_entries": 2153,
+    "weak_records": 1476,
+    "overlength_name_entries": 17,
+    "overlength_records": 4,
+    "flagged_records": 2864,
+    "unknown_language_entries": 27858
+  },
+  "limits": {
+    "max_new_artifact_bytes": 67108864,
+    "max_records": 20000,
+    "max_names": 100000,
+    "max_pairs": 100000,
+    "max_witnesses": 1000000,
+    "max_total_name_characters": 10000000,
+    "max_name_characters": 100000,
+    "session_seconds": 3600
+  },
+  "permissions": {
+    "network_allowed": false,
+    "human_review_execution_allowed": false,
+    "identity_merge_allowed": false,
+    "accepted_corpus_release_allowed": false,
+    "training_allowed": false,
+    "step09_allowed": false,
+    "publication_allowed": false,
+    "fresh_final_eligible": false
+  },
+  "versions": {
+    "normalization": "nfkc-casefold-nfkc-whitespace-v1",
+    "nomination": "readiness-name-equality-v1",
+    "unicode": "16.0.0"
+  },
+  "entity_types": [
+    "organization",
+    "vessel"
+  ]
+}

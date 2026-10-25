@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "scope": "08B-C2-offline-review",
+  "c1": {
+    "configuration": {
+      "path": "config/corpus-readiness-v1.json",
+      "sha256": "a0469888b5ab962e960396bbad5eb1e12a84972b6c956b1d28f5a628b5770daa"
+    },
+    "manifest": {
+      "path": "data/eval-comparisons/completion-08b-c1/preparation/manifest.json",
+      "sha256": "bb84c60fd09a4ff11fb93ddb5cb37d630c18b684cbc8d0d216ec3cabc047b195"
+    }
+  },
+  "output_path": "data/eval-comparisons/completion-08b-c2/packets",
+  "ledger_path": "data/eval-comparisons/completion-08b-c2/ledger",
+  "artifact_roots": [
+    "data/eval-comparisons/completion-08b-02",
+    "data/eval-comparisons/completion-08b-02r",
+    "data/eval-comparisons/completion-08b-02rc",
+    "data/eval-comparisons/completion-08b-c1",
+    "data/eval-comparisons/completion-08b-c2"
+  ],
+  "normalized_inputs": [
+    {
+      "path": "data/eval-comparisons/completion-08b-02/acquisition/opensanctions_un.jsonl",
+      "sha256": "caade45281bc200519db0a4fc3f645cbb080f183dec781ba19f7bc3c09f23d34"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-02r/acquisition/opensanctions_un.jsonl",
+      "sha256": "caade45281bc200519db0a4fc3f645cbb080f183dec781ba19f7bc3c09f23d34"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-02rc/acquisition/eu_consolidated.jsonl",
+      "sha256": "8412dc377efe56efd9fa7e730e1c2d3ce8fb9ae9e51f0956ea1fbb755db75dc4"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-02rc/acquisition/ofac_sdn.jsonl",
+      "sha256": "efd1877a8954fa7ee26e10092f651c4ec3f3fb448ac51858435ee6f0a1fe0e7e"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-02rc/acquisition/opensanctions_un.jsonl",
+      "sha256": "caade45281bc200519db0a4fc3f645cbb080f183dec781ba19f7bc3c09f23d34"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c1/preparation/components.jsonl",
+      "sha256": "7f25f71c2ff55e3037cdfb02641dc24b7025fde937425f543f7a4ccd29d16385"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c1/preparation/input-manifest.json",
+      "sha256": "70f334f28d6bcc276cff41c5f84bea1cb42b563748e91de2573da8b5a84e579c"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c1/preparation/manifest.json",
+      "sha256": "bb84c60fd09a4ff11fb93ddb5cb37d630c18b684cbc8d0d216ec3cabc047b195"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c1/preparation/nominations.jsonl",
+      "sha256": "e8ad8bcf0e175664c16f9e99d29c1ee48b6fce4e13c2fe57aed57113abf5960f"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c1/preparation/observations.jsonl",
+      "sha256": "60d2081826a0f7200a1197194c19e6ee1cbf7af18c9ee6a6d11b6eb32f4aaeec"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c1/preparation/quarantine.jsonl",
+      "sha256": "7b95da28f1d7ca19af3f546e85081b1c3c06a556cf7b5268f30c0391f92b8f0e"
+    },
+    {
+      "path": "data/eval-comparisons/completion-08b-c1/preparation/summary.json",
+      "sha256": "e331792f2305a18e554e33dab3a1334b548de5511f1668dd872934eec2f1bf93"
+    }
+  ],
+  "expected_counts": {
+    "duplicate": 1259,
+    "flagged": 2864,
+    "proposed_positive": 6856,
+    "negative_candidate": 1259,
+    "total": 12238
+  },
+  "limits": {
+    "max_new_artifact_bytes": 16000000,
+    "max_cases": 40000,
+    "max_events": 100000,
+    "session_seconds": 3600
+  },
+  "permissions": {
+    "network_allowed": false,
+    "human_review_execution_allowed": false,
+    "identity_merge_allowed": false,
+    "accepted_corpus_release_allowed": false,
+    "training_allowed": false,
+    "step09_allowed": false,
+    "publication_allowed": false,
+    "fresh_final_eligible": false
+  },
+  "versions": {
+    "packet": "readiness-review-packets-v1",
+    "ledger": "readiness-review-ledger-v1"
+  },
+  "actors": [],
+  "metadata": {
+    "created_at": "2026-10-25T08:45:29.036063+00:00",
+    "creator": "codex-offline-preparation",
+    "approval_ref": "user-approved-08B-C2"
+  },
+  "protocol_version": "two-reviewers-independent-adjudicator-v1"
+}

@@ -1,0 +1,66 @@
+{
+  "approval": {
+    "path": "data/eval-comparisons/completion-08b-02/permissions/user-approval.json",
+    "sha256": "0e3779eef003d7475aea116737138ec35955c9823d6eddb61fdadf60052af0d2"
+  },
+  "limits": {
+    "max_attempts": 1,
+    "max_redirects": 0,
+    "session_seconds": 3600,
+    "total_bytes": 39000000,
+    "transactions": 3
+  },
+  "schema_version": 1,
+  "scope": "08B-2-three-source-candidate-acquisition",
+  "session_claim_path": "data/eval-comparisons/completion-08b-02/acquisition-session.claim.json",
+  "sources": [
+    {
+      "allowed_redirects": [],
+      "decoded_bytes": null,
+      "expected_bytes": 3015245,
+      "expected_decoded_sha256": null,
+      "expected_sha1": "7f54afcf4c8b514a0fa46faeff68a306133a3b92",
+      "expected_sha256": null,
+      "max_groups": 300,
+      "permission_path": "data/eval-comparisons/completion-08b-02/permissions/opensanctions_un.grant.json",
+      "permission_sha256": "bbdd773920cf4a79ee723c76b113683e99fdb0118e4d7e7b2d9df98df5725478",
+      "received_bytes": 5000000,
+      "request_seconds": 30,
+      "source_id": "opensanctions_un",
+      "source_seconds": 120,
+      "url": "https://data.opensanctions.org/artifacts/un_sc_sanctions/20261025000105-chi/entities.ftm.json"
+    },
+    {
+      "allowed_redirects": [],
+      "decoded_bytes": 32000000,
+      "expected_bytes": 2582121,
+      "expected_decoded_sha256": "421c5f6ee841eb7c0e327eb0d6bdbe24cbb58091e3cbfd77d83dd41c7b5a5e08",
+      "expected_sha1": null,
+      "expected_sha256": null,
+      "max_groups": 12000,
+      "permission_path": "data/eval-comparisons/completion-08b-02/permissions/ofac_sdn.grant.json",
+      "permission_sha256": "a17cb6bff0de7c0cf002561b68d077f6837378c80a226ae4b2680cfad3c3e26a",
+      "received_bytes": 4000000,
+      "request_seconds": 30,
+      "source_id": "ofac_sdn",
+      "source_seconds": 120,
+      "url": "https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/SDN_XML.ZIP"
+    },
+    {
+      "allowed_redirects": [],
+      "decoded_bytes": null,
+      "expected_bytes": null,
+      "expected_decoded_sha256": null,
+      "expected_sha1": null,
+      "expected_sha256": null,
+      "max_groups": 2000,
+      "permission_path": "data/eval-comparisons/completion-08b-02/permissions/eu_consolidated.grant.json",
+      "permission_sha256": "d956a370875230518041ef8674d2aa6ccb8d518f6b9a1521954246329d788ad4",
+      "received_bytes": 30000000,
+      "request_seconds": 180,
+      "source_id": "eu_consolidated",
+      "source_seconds": 240,
+      "url": "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw"
+    }
+  ]
+}

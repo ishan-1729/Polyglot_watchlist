@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sdnList xmlns="https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/XML">
+  <publshInformation><Publish_Date>01/01/2026</Publish_Date><Record_Count>4</Record_Count></publshInformation>
+  <sdnEntry>
+    <uid>990000101</uid>
+    <lastName>Fictional Cloudberry Trading Cooperative</lastName>
+    <sdnType>Entity</sdnType>
+    <programList><program>FICTIONAL</program></programList>
+    <akaList>
+      <aka><uid>990000111</uid><type>a.k.a.</type><category>strong</category><lastName>تعاونية كلاودبيري الخيالية</lastName></aka>
+      <aka><uid>990000112</uid><type>f.k.a.</type><category>strong</category><lastName>Fictional Cloudberry Looms</lastName></aka>
+      <aka><uid>990000113</uid><type>a.k.a.</type><category>weak</category><lastName>Fictional Cloudberry</lastName></aka>
+    </akaList>
+  </sdnEntry>
+  <sdnEntry>
+    <uid>990000102</uid>
+    <lastName>Fictional Sapphirewake Vessel</lastName><sdnType>Vessel</sdnType>
+    <programList><program>FICTIONAL</program></programList>
+    <akaList><aka><uid>990000121</uid><type>a.k.a.</type><category>strong</category><lastName>Вымышленное судно Сапфирвейк</lastName></aka></akaList>
+  </sdnEntry>
+  <sdnEntry><uid>990000103</uid><lastName>Fictional Excluded Person Placeholder</lastName><sdnType>Individual</sdnType><programList><program>FICTIONAL</program></programList></sdnEntry>
+  <sdnEntry><uid>990000104</uid><lastName>Fictional Excluded Aircraft Placeholder</lastName><sdnType>Aircraft</sdnType><programList><program>FICTIONAL</program></programList></sdnEntry>
+</sdnList>
