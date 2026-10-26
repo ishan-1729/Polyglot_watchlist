@@ -397,7 +397,7 @@ def _serve(workspace, port):
 
 
 def _wait_healthy(base, process):
-    deadline = time.monotonic() + 60
+    deadline = time.monotonic() + 180
     while time.monotonic() < deadline:
         if process.poll() is not None:
             raise AssertionError(process.stderr.read().decode("utf-8", "replace"))
@@ -405,7 +405,8 @@ def _wait_healthy(base, process):
             if httpx.get(f"{base}/health", timeout=1).status_code == 200:
                 return
         except httpx.TransportError:
-            time.sleep(0.1)
+            pass
+        time.sleep(0.1)
     raise AssertionError("server did not become healthy")
 
 

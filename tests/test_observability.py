@@ -493,10 +493,10 @@ def test_invalid_observability_settings(changes):
 # -- API integration -----------------------------------------------------------------
 
 
-def test_request_id_echoed_or_generated(tmp_path):
+def test_request_id_always_generated(tmp_path):
     with TestClient(build(tmp_path)) as client:
         given = client.get("/health", headers={"X-Request-ID": "fictional-req-001"})
-        assert given.headers["x-request-id"] == "fictional-req-001"
+        assert given.headers["x-request-id"] != "fictional-req-001"
         generated = client.get("/health", headers={"X-Request-ID": "bad id"})
         value = generated.headers["x-request-id"]
         assert value != "bad id" and len(value) == 32
@@ -536,7 +536,7 @@ def test_api_key_sent_only_as_request_id_is_not_echoed_or_traced(tmp_path):
             assert response.status_code == 401
             assert response.headers["x-request-id"] not in (REVIEWER, VIEWER)
         kept = client.get("/health", headers={"X-Request-ID": "fictional-req-002"})
-        assert kept.headers["x-request-id"] == "fictional-req-002"
+        assert kept.headers["x-request-id"] != "fictional-req-002"
     text = trace.read_text(encoding="utf-8")
     assert REVIEWER not in text and VIEWER not in text
 
@@ -558,7 +558,7 @@ def test_request_and_service_spans_share_the_trace(tmp_path):
         )
         assert missing.status_code == 404
     records = obs.read_trace(trace)
-    start = [r for r in records if r["trace_id"] == "fictional-start-1"]
+    start = [r for r in records if r["trace_id"] == response.headers["x-request-id"]]
     assert {r["operation"] for r in start} == {
         "http POST /v2/cases",
         "review.start_case",
@@ -571,7 +571,7 @@ def test_request_and_service_spans_share_the_trace(tmp_path):
     assert service["attrs"]["status"] == "awaiting_review"
     assert service["attrs"]["actor"] == "fictional-reviewer"
     assert http["attrs"] == {"method": "POST", "route": "/v2/cases", "status": 200}
-    lost = [r for r in records if r["trace_id"] == "fictional-missing-1"]
+    lost = [r for r in records if r["trace_id"] == missing.headers["x-request-id"]]
     assert {r["outcome"] for r in lost} == {"case_not_found"}
     assert "Luma" not in trace.read_text(encoding="utf-8")
 
@@ -615,7 +615,7 @@ def test_health_and_ready(tmp_path):
     with TestClient(build(tmp_path)) as client:
         health = client.get("/health")
         assert health.status_code == 200 and health.json()["status"] == "ok"
-        ready = client.get("/ready")
+        ready = client.get("/ready", headers=AUTH)
         assert ready.status_code == 200
         body = ready.json()
         assert body["status"] == "ready" and body["limitation"] == LIMITATION
@@ -629,7 +629,7 @@ def test_ready_reports_an_unusable_workspace_without_paths(tmp_path):
         moved = db.with_name(db.name + ".moved")
         db.rename(moved)
         try:
-            response = client.get("/ready")
+            response = client.get("/ready", headers=AUTH)
             assert response.status_code == 503
             body = response.json()
             assert body["code"] == "not_ready"
@@ -639,7 +639,7 @@ def test_ready_reports_an_unusable_workspace_without_paths(tmp_path):
             assert client.get("/health").status_code == 200  # liveness unaffected
         finally:
             moved.rename(db)
-        assert client.get("/ready").status_code == 200
+        assert client.get("/ready", headers=AUTH).status_code == 200
 
 
 def test_readiness_probe_coalesces_and_caches_only_healthy_results():
@@ -687,3 +687,23 @@ def test_json_log_format_setting_installs_the_handler(tmp_path):
             if handler not in before:
                 logger.removeHandler(handler)
         logger.setLevel(level)
+
+
+def test_health_request_ids_cannot_probe_valid_api_keys(tmp_path, monkeypatch):
+    from watchlist.api.auth import KeyStore
+
+    calls = []
+    original = KeyStore.authenticate
+
+    def record(self, token):
+        calls.append(token)
+        return original(self, token)
+
+    monkeypatch.setattr(KeyStore, "authenticate", record)
+    with TestClient(build(tmp_path)) as client:
+        for guess in (REVIEWER, VIEWER, "incorrect-fictional-key-guess"):
+            response = client.get("/health", headers={"X-Request-ID": guess})
+            assert response.status_code == 200
+            assert response.headers["x-request-id"] != guess
+            assert len(response.headers["x-request-id"]) == 32
+    assert calls == []
