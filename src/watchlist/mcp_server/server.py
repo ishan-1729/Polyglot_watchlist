@@ -221,8 +221,8 @@ async def _call(
         )
     except ReviewError as exc:
         return _result(tools.error_payload(exc), is_error=True)
-    except Exception:
-        logger.exception("MCP tool %s raised an unexpected exception", name)
+    except Exception as exc:
+        logger.error("MCP tool %s failed type=%s", name, type(exc).__name__)
         return _result(_internal_error(name), is_error=True)
     # A cancellation that arrived while the thread ran is delivered here, so
     # the finished operation's result is dropped instead of being returned.

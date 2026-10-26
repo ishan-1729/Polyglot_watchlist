@@ -18,31 +18,31 @@ snapshot fingerprint)``. An unregistered snapshot yields an explicit
 corrupt store raises, which the service reports as ``context_provider_failed``
 (the case stays recoverable).
 
-Source binding at lookup time: ``ContextRequest`` does not yet carry each
-candidate's evidence ``source`` label, so the namespace comes from the
-registered snapshot fingerprint alone. For the packaged RapidFuzz retriever
-the fingerprint digests every entity including its ``source`` field, so other
-source data yields a different (unregistered) fingerprint. A retriever whose
-fingerprint does not cover its evidence sources could still show history from
-the snapshot's namespace; publication refuses such evidence, and when a future
-``ContextRequest`` exposes ``candidate_sources`` the provider returns
-``source_mismatch`` with no cards.
+Source binding at lookup time: the service supplies labels from frozen alias
+evidence. Missing bindings or labels outside the snapshot's registered
+namespace yield source_mismatch and no cards, even if an adapter reuses a
+fingerprint incorrectly. Lookup never uses a query name.
 """
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 import json
 from typing import Any, Callable, Mapping, Sequence
 
 from watchlist.case_memory.identifiers import validate_identifier
-from watchlist.case_memory.lookup import build_context
+from watchlist.case_memory.lookup import build_context, check_freshness_in_session
 from watchlist.case_memory.state import (
     MEMORY_NOTICE,
     PROVIDER_NAME,
     PROVIDER_VERSION,
 )
 from watchlist.case_memory.store import MemoryStore
-from watchlist.review.contracts import ContextRequest, ReviewPacket
+from watchlist.review.contracts import (
+    ContextRequest,
+    ReviewPacket,
+    StaleSubmissionError,
+)
 
 
 class MemoryContextProvider:
@@ -103,19 +103,34 @@ class MemoryContextProvider:
                 exclude_case_id=request.case_id,
             )
 
+    @contextmanager
+    def guard_review(self, packet: ReviewPacket):
+        """Keep memory stable from the freshness check through durable acceptance.
+
+        Lock order is review workspace then memory store, the same as packet
+        creation. An already accepted review is replayed before this hook.
+        """
+        context = memory_context(packet)
+        if context is None:
+            yield
+            return
+        with self._store.session(write=False) as mdb:
+            freshness = check_freshness_in_session(
+                mdb, context, self._store.config.policy, now=self._clock()
+            )
+            if not freshness.fresh:
+                raise StaleSubmissionError(
+                    "reviewer memory changed or expired; start a new case to review fresh context",
+                    details={"case_id": packet.case_id, "next_action": "start_case"},
+                )
+            yield
+
 
 def _source_mismatch(request: ContextRequest, allowed: Sequence[str]) -> list[str]:
-    """Evidence source labels in the request that the namespace does not own.
-
-    The current ``ContextRequest`` carries no per-candidate evidence source, so
-    this check is forward compatible: it runs only when the request exposes a
-    ``candidate_sources`` sequence (requested from the review-service owner).
-    Until then the snapshot fingerprint is the only lookup-time binding; see
-    the module docstring.
-    """
-    sources = getattr(request, "candidate_sources", None)
-    if sources is None:
-        return []
+    """Refuse absent source binding or any foreign evidence source."""
+    sources = request.candidate_sources
+    if sources is None or (request.candidate_entity_ids and not sources):
+        return ["missing_source_binding"]
     return sorted({str(s) for s in sources if s not in allowed})
 
 

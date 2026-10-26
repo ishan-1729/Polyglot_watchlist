@@ -18,6 +18,7 @@ from fastapi.testclient import TestClient
 from review_v2_support import ROOT, FakeRetriever, make_config
 from watchlist.api import ApiSettings, case_revision, create_app, openapi_document
 from watchlist.api.auth import ApiKey, hash_key
+from watchlist.api.app import WriteQueue
 from watchlist.api.errors import REVIEW_STATUS, SECURITY_HEADERS, error_body
 from watchlist.api.schemas import CONTRACT_MODELS
 from watchlist.review import contracts
@@ -678,7 +679,7 @@ def test_every_review_error_code_has_a_status():
         and issubclass(cls, ReviewError)
         and cls is not ReviewError
     }
-    assert codes == set(REVIEW_STATUS)
+    assert codes | {"entity_not_found", "reference_mismatch"} == set(REVIEW_STATUS)
     assert REVIEW_STATUS["invalid_input"] == 422
     assert REVIEW_STATUS["case_not_found"] == 404
     assert {
@@ -770,3 +771,55 @@ def test_write_queue_counts_release_after_errors(tmp_path):
         failing.result(timeout=5)
     queue.shutdown()
     assert queue.outstanding == 0
+
+
+@pytest.mark.parametrize("fail", [False, True])
+def test_write_queue_releases_before_future_publishes_result(monkeypatch, fail):
+    from concurrent.futures import Future
+
+    queue = WriteQueue(0)
+    published = []
+    name = "set_exception" if fail else "set_result"
+    original = getattr(Future, name)
+
+    def publish(future, value):
+        published.append(queue.outstanding)
+        original(future, value)
+
+    monkeypatch.setattr(Future, name, publish)
+
+    def work():
+        if fail:
+            raise ValueError("fixture failure")
+        return 7
+
+    try:
+        result = queue.submit(work)
+        if fail:
+            with pytest.raises(ValueError):
+                result.result(30)
+        else:
+            assert result.result(30) == 7
+        assert published == [0]
+    finally:
+        queue.shutdown()
+
+
+def test_cancelled_queued_write_releases_admission_slot():
+    import threading
+
+    queue = WriteQueue(1)
+    gate = threading.Event()
+    first = queue.submit(lambda: gate.wait(30))
+    try:
+        cancelled = queue.submit(lambda: None)
+        assert cancelled.cancel()
+        assert queue.outstanding == 1
+        next_write = queue.submit(lambda: 9)
+        gate.set()
+        first.result(30)
+        assert next_write.result(30) == 9
+        assert queue.outstanding == 0
+    finally:
+        gate.set()
+        queue.shutdown()

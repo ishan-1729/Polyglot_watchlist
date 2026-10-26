@@ -151,3 +151,8 @@ Training data: poison test (near-duplicate dev/test/calibration names never beco
 
 - **Blocked:** Step 13 smoke runs on the real local E5/MiniLM copies (weights absent here; need approval), Steps 14–15 fine-tuning, Step 16 selection, and real Step 17 fitting/threshold selection. All depend on the reviewed Step 08 corpus and frozen upstream pipeline choices.
 - **Next action:** after Step 08 delivers reviewed groups and the local weights are verified, run `training preflight` and a ≤50-step smoke for each real model with a new config (replacing the fictional generator with reviewed training-partition pairs), record measured time/memory/disk, and bring the full-run budget for approval.
+
+
+## Adversarial review follow-up (2026-10-27)
+
+A later independent review on branch `p1-review` changed some behaviour described above and withdrew figures it could not reproduce. Read [the review report](review-p1-final.md) and [its validation record](review-p1-validation.json) alongside this report; where they disagree, the review report is current. The text above is kept as the record of what was reported at the time.

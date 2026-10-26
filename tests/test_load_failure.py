@@ -139,7 +139,7 @@ def test_concurrent_reads_beyond_the_in_flight_limit_get_429(tmp_path):
         assert blocking.entered == 4
         # Liveness stays observable while saturated; readiness is shed like reads.
         assert client.get("/health").status_code == 200
-        shed = client.get("/ready")
+        shed = client.get("/ready", headers=AUTH)
         assert shed.status_code == 429 and shed.json()["code"] == "too_many_requests"
         blocking.gate.set()
         responses = [f.result(60) for f in futures]
@@ -188,7 +188,13 @@ def test_many_concurrent_mixed_requests_never_500(tmp_path):
                 body = response.json()
                 assert body["code"] == "workspace_busy" and body["retryable"]
                 assert response.headers["retry-after"] == "1"
-        assert sum(r.status_code == 200 for r in responses) >= 60
+        # The success fraction during contention depends on scheduling, not safety.
+        # Once the burst drains, EVERY caller must be able to complete; this also
+        # proves the service did not leave its queue or lock stuck after shedding.
+        for call, response in zip(calls, responses, strict=True):
+            if response.status_code != 200:
+                response = call()
+            assert response.status_code == 200, response.text
         metrics = client.get("/metrics", headers=AUTH).text
         verified = client.get(f"/v2/cases/{case_id}/audit/verify", headers=AUTH)
     assert verified.json()["verification"]["ok"] is True
@@ -210,63 +216,66 @@ def test_ready_stays_200_while_a_write_holds_the_lock(tmp_path):
         time.sleep(0.2)  # the write is inside retrieval, holding the lock
         try:
             started = time.monotonic()
-            ready = client.get("/ready")
+            ready = client.get("/ready", headers=AUTH)
             assert time.monotonic() - started < 2.0
             assert ready.status_code == 200, ready.text
             assert ready.json()["checks"]["workspace_read_only_open"] in ("ok", "busy")
         finally:
             retriever.gate.set()
         assert pending.result(60).status_code == 200
-        assert client.get("/ready").status_code == 200
+        assert client.get("/ready", headers=AUTH).status_code == 200
 
 
 def test_ready_flood_does_not_make_authenticated_reads_fail(tmp_path):
-    """Regression (reviewer finding 1B): unauthenticated /ready floods vs reads.
+    """Concurrent probe bursts must coalesce, spare the lock and allow real reads.
 
-    Before the fix every probe took the workspace lock (waiting up to 0.5 s),
-    so a probe flood starved authenticated reads into 503 workspace_busy. Now
-    probes are coalesced and cached, so lock attempts are about one per second.
-    (Eight flood threads: in this in-process harness the client threads share
-    the server's interpreter, and a much larger flood of *any* endpoint, even
-    a 404, starves reads by CPU alone; that is generic overload, not the lock.)
+    An injected cache clock gives three exact windows. A gate holds the first
+    probe in each window while authenticated reads and the rest of the burst
+    run. No unbounded CPU flood or elapsed-time ratio decides this regression.
     """
     app = create_app(ApiSettings(api_keys=KEYS), service=new_service(tmp_path))
-    with TestClient(app) as client:
+    probe = app.state.readiness
+    now = [0.0]
+    probe._clock = lambda: now[0]
+    check = probe._check
+    entered, release = threading.Event(), threading.Event()
+
+    def gated_check():
+        entered.set()
+        assert release.wait(60), "test did not release the readiness check"
+        return check()
+
+    probe._check = gated_check
+    with TestClient(app) as client, ThreadPoolExecutor(14) as pool:
         case_id = client.post("/v2/cases", json=START, headers=AUTH).json()["case"][
             "case_id"
         ]
-        stop = threading.Event()
-        probes: list[int] = []
-
-        def flood():
-            while not stop.is_set():
-                probes.append(client.get("/ready").status_code)
-
-        started = time.monotonic()
-        read_statuses: list[int] = []
-        with ThreadPoolExecutor(14) as pool:
-            flooders = [pool.submit(flood) for _ in range(8)]
+        for window in range(3):
+            now[0] = window * (app_module.READY_CACHE_SECONDS + 1)
+            entered.clear()
+            release.clear()
+            probes = [pool.submit(client.get, "/ready", headers=AUTH) for _ in range(8)]
             try:
-                for _ in range(2):
-                    reads = [
-                        pool.submit(client.get, f"/v2/cases/{case_id}", headers=AUTH)
-                        for _ in range(6)
-                    ]
-                    read_statuses += [future.result(60).status_code for future in reads]
-                read_statuses += [
-                    client.get(f"/v2/cases/{case_id}", headers=AUTH).status_code
-                    for _ in range(10)
+                assert entered.wait(60), "readiness check did not start"
+                reads = [
+                    pool.submit(client.get, f"/v2/cases/{case_id}", headers=AUTH)
+                    for _ in range(6)
                 ]
+                responses = [f.result(60) for f in reads]
+                assert [r.status_code for r in responses] == [200] * 6
+                assert all(r.json()["case"]["case_id"] == case_id for r in responses)
             finally:
-                stop.set()
-                for future in flooders:
-                    future.result(60)
-        elapsed = time.monotonic() - started
-    assert read_statuses == [200] * 22
-    assert probes and set(probes) <= {200, 429}, sorted(set(probes))
-    # At most one lock attempt per cache window (plus the first).
-    assert app.state.readiness.runs <= elapsed / app_module.READY_CACHE_SECONDS + 2
-    assert app.state.readiness.runs < len(probes) / 10
+                release.set()
+            assert [f.result(60).status_code for f in probes] == [200] * 8
+            # A second burst in this exact window must use the same result.
+            cached = [
+                pool.submit(client.get, "/ready", headers=AUTH) for _ in range(16)
+            ]
+            assert [f.result(60).status_code for f in cached] == [200] * 16
+            assert probe.runs == window + 1
+        assert client.get(f"/v2/cases/{case_id}/audit/verify", headers=AUTH).json()[
+            "verification"
+        ]["ok"]
 
 
 # -- workspace lock held by another process -----------------------------------------
@@ -302,7 +311,7 @@ def test_workspace_locked_by_another_process_is_503_retryable(tmp_path):
                 assert str(tmp_path) not in response.text
             # A held lock means an operation is running, not that this
             # instance is unusable: ready, with the lock check reported busy.
-            ready = client.get("/ready")
+            ready = client.get("/ready", headers=AUTH)
             assert ready.status_code == 200, ready.text
             assert ready.json()["checks"] == {"workspace_read_only_open": "busy"}
             assert client.get("/health").status_code == 200
@@ -313,7 +322,7 @@ def test_workspace_locked_by_another_process_is_503_retryable(tmp_path):
             for stream in (holder.stdin, holder.stdout, holder.stderr):
                 stream.close()
         assert holder.returncode == 0
-        assert client.get("/ready").status_code == 200
+        assert client.get("/ready", headers=AUTH).status_code == 200
         assert client.get(f"/v2/cases/{case_id}", headers=AUTH).status_code == 200
         assert client.post("/v2/cases", json=START, headers=AUTH).status_code == 200
         metrics = client.get("/metrics", headers=AUTH).text
@@ -345,18 +354,15 @@ def test_read_only_database_file_fails_writes_without_corruption(tmp_path):
             if writable:  # e.g. running as root on POSIX: cannot simulate
                 pytest.skip("cannot make the database read-only for this user")
             refused = client.post("/v2/cases", json=START, headers=AUTH)
-            # The exact code is the review service's mapping (today a 500
-            # storage_inconsistent; a retryable 503 is the open finding), so
-            # only the safety properties are pinned here: a structured error,
-            # no details, no path, never success.
-            assert refused.status_code in (500, 503), refused.text
+            assert refused.status_code == 503, refused.text
+            assert refused.json()["code"] == "workspace_invalid"
             body = refused.json()
             assert set(body) == {"code", "message", "retryable", "details"}
             assert body["details"] == {}
             assert str(tmp_path) not in refused.text
             # Reads and readiness keep working on a read-only database.
             assert client.get(f"/v2/cases/{case_id}", headers=AUTH).status_code == 200
-            assert client.get("/ready").status_code == 200
+            assert client.get("/ready", headers=AUTH).status_code == 200
         finally:
             os.chmod(database, mode | stat.S_IWRITE)
         cases = client.get("/v2/cases", headers=AUTH).json()["cases"]

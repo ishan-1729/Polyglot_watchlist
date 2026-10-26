@@ -149,3 +149,8 @@ Example (from a manual in-process run during development, fictional data; abridg
 | Start-up time | Observed | — | About 13–15 s per launch on this machine, dominated by importing the SDK. Clients with short start-up timeouts may need a longer one. |
 
 Everything here ran on the packaged fictional entities and authored fixture records. Nothing measures matching quality, reviewer benefit or real-world screening suitability, and no output may be read as an identity, wrongdoing, sanctions-status or clearance finding.
+
+
+## Adversarial review follow-up (2026-10-27)
+
+A later independent review on branch `p1-review` changed some behaviour described above and withdrew figures it could not reproduce. Read [the review report](review-p1-final.md) and [its validation record](review-p1-validation.json) alongside this report; where they disagree, the review report is current. The text above is kept as the record of what was reported at the time.

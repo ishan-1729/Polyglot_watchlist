@@ -43,5 +43,16 @@ data/demo/
 # Local container secrets (only placeholders belong in the repository).
 deploy/secrets/
 
+# Defence in depth for local ledgers and older runbook output locations.
+*.sqlite
+*.sqlite-*
+/backups/
+/anchors/
+data/review-v2*/
+data/restored-*/
+# Relative overrides from a subdirectory must not stage generated demo data.
+**/data/demo/
+**/data/eval-fictional/
 # Project 2 downloaded sources, replay cache, local runs and toolchain receipts.
 data/follow_the_money/
+**/data/follow_the_money/

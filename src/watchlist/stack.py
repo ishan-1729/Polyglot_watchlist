@@ -55,8 +55,8 @@ __all__ = [
 ]
 
 DEMO_NAME = "Luma Vesper"
-DEFAULT_DEMO_ROOT = Path("data") / "demo"
 _REPO_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_DEMO_ROOT = _REPO_ROOT / "data" / "demo"
 
 
 class MemoryOptionError(ValidationError):

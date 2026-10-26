@@ -109,6 +109,8 @@ def test_bad_configuration_shows_error_and_notice(monkeypatch):
         str(__import__("test_ui_support").APP_PATH), default_timeout=60
     )
     at.run()
+    at.text_input(key="session_api_key").input(REVIEWER_KEY)
+    button(at, "Sign in").click().run()
     assert not at.exception
     assert_notice(at)
     errors = " ".join(e.value for e in at.error)
@@ -565,3 +567,98 @@ def test_origin_filter_change_resets_page_offset(tmp_path):
         assert at.session_state["cases_offset"] == 0
         assert "No cases on this page." not in page_text(at)
         assert at.session_state["case_id"] in list(at.dataframe[0].value["case_id"])
+
+
+def test_environment_key_does_not_unlock_any_browser_session(monkeypatch):
+    from test_ui_support import APP_PATH
+
+    monkeypatch.setenv("WATCHLIST_API_KEY", REVIEWER_KEY)
+    for _ in range(2):
+        at = AppTest.from_file(str(APP_PATH), default_timeout=60).run()
+        assert not at.exception
+        assert at.text_input(key="session_api_key").value == ""
+        assert not [b for b in at.button if b.label == "Screen name"]
+        assert "_watchlist_ui_client" not in at.session_state
+        assert REVIEWER_KEY not in page_text(at) + html_text(at)
+
+
+def test_session_login_uses_supplied_key_and_logout_drops_evidence(
+    tmp_path, monkeypatch
+):
+    from test_ui_support import APP_PATH
+    from watchlist.ui import client as client_module
+
+    original = client_module.WatchlistClient
+    monkeypatch.setenv("WATCHLIST_API_KEY", VIEWER_KEY)
+    with live_api(tmp_path) as (client, service):
+        monkeypatch.setattr(
+            client_module,
+            "WatchlistClient",
+            lambda config: original(config, http=client._http),
+        )
+        at = AppTest.from_file(str(APP_PATH), default_timeout=60).run()
+        at.text_input(key="session_api_key").input(REVIEWER_KEY)
+        button(at, "Sign in").click().run()
+        assert not at.exception
+        assert "session_api_key" not in at.session_state
+        at = screen(at, "Luma Vesper")
+        assert not at.exception
+        (case,) = service.list_cases()
+        assert service.get_case(case.case_id).header.actor == "fictional-reviewer"
+        button(at, "Sign out").click().run()
+        assert not at.exception
+        for key in ("_watchlist_ui_client", "case_payload", "forms", "audit"):
+            assert key not in at.session_state
+        assert at.text_input(key="session_api_key").value == ""
+
+
+def test_documented_ui_launches_reject_rebound_hosts(monkeypatch):
+    import shlex
+    import yaml
+    from click.testing import CliRunner
+    from streamlit.web import cli
+    from streamlit.web.server.starlette import starlette_websocket as ws
+    from test_ui_support import APP_PATH
+
+    root = APP_PATH.parents[3]
+    makefile = (root / "Makefile").read_text(encoding="utf-8")
+    target = (
+        makefile.split("serve-ui:\n", 1)[1].split("\n\n", 1)[0].replace("\\\n", " ")
+    )
+    # Preserve the actual launch flags, replacing only Make's port variable.
+    flags = shlex.split(
+        target.split("src/watchlist/ui/app.py", 1)[1].replace("$(UI_PORT)", "8501")
+    )
+    compose = yaml.safe_load((root / "docker-compose.yml").read_text(encoding="utf-8"))
+    command = compose["services"]["ui"]["command"]
+    container_flags = command[command.index("--server.address=0.0.0.0") :]
+    assert "WATCHLIST_API_KEY" not in compose["services"]["ui"]["environment"]
+    assert compose["services"]["api"]["ports"] == ["127.0.0.1:8501:8501"]
+    captured = []
+    monkeypatch.setattr(
+        cli,
+        "_main_run",
+        lambda target, args, flag_options: captured.append((args, flag_options)),
+    )
+    for launch in (flags, container_flags):
+        result = CliRunner().invoke(cli.main, ["run", str(APP_PATH), *launch])
+        assert result.exit_code == 0, result.output
+        args, options = captured.pop()
+        assert not args  # catches misspelled/repeated CLI option syntax
+        assert options["server_allowedHosts"] == ("localhost", "127.0.0.1")
+        assert options["browser_gatherUsageStats"] is False
+        with monkeypatch.context() as patch:
+            original = ws.config.get_option
+            patch.setattr(
+                ws.config,
+                "get_option",
+                lambda key: (
+                    list(options["server_allowedHosts"])
+                    if key == "server.allowedHosts"
+                    else original(key)
+                ),
+            )
+            assert ws._is_host_allowed("localhost:8501")
+            assert ws._is_host_allowed("127.0.0.1:8501")
+            assert not ws._is_host_allowed("attacker.example:8501")
+    assert "--server.address 127.0.0.1" in target

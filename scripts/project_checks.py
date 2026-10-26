@@ -24,7 +24,9 @@ from typing import Iterator
 ROOT = Path(__file__).resolve().parents[1]
 PROTOCOL = "project-checks-v1"
 DETECTOR_VERSION = "1.5.0"
-SCANNER_TIMEOUT_SECONDS = 120
+# Scan the expanded publication scope even on a contended local test host.
+# This bounds the same offline scan; it does not omit files or findings.
+SCANNER_TIMEOUT_SECONDS = 600
 # Isolated Python still loads the selected virtual environment's site-packages.
 # Install the socket guard before loading any detector or verification plugin.
 # Scan each file in this process: Linux's forkserver uses a local socket, and
@@ -121,6 +123,41 @@ SAFE_FINDING_TYPES = frozenset(
 # exception binds the whole file, location and detector type. Changed content
 # or additional findings require a new review; files remain in every scan.
 REVIEWED_NON_SECRET_FINDINGS = {
+    "config/llm.json": {
+        "file_sha256": "f1491ce6fa9840e2881e6cef4b65f138d5ec2f87d5e1bca1d220308b05fecbe5",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(((6, "Secret Keyword"),)),
+        "reason": "Environment-variable name identifying the optional provider key; no key value.",
+    },
+    "config/memory.json": {
+        "file_sha256": "f65f222b3828f187e8185ebb43e893de43e71f84fa74717ed9c2865656c30f4e",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(((28, "Hex High Entropy String"),)),
+        "reason": "Integrity digest of the packaged fictional entity snapshot; not a credential.",
+    },
+    "src/watchlist/ui/app.py": {
+        "file_sha256": "173be4d9e47c6dcc1997b4514a4fc66ab3bd5448fa3a88869cf503403f047943",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(((59, "Secret Keyword"),)),
+        "reason": "Internal Streamlit session-state dictionary key; not an authentication key.",
+    },
+    "src/watchlist/ui/client.py": {
+        "file_sha256": "cf5e411ea5d8bd1a377c528d465c97575e3c9c8ec580cda333aac6b815b4cb49",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(((45, "Secret Keyword"),)),
+        "reason": "Name of the API-key environment variable; no key value.",
+    },
+    "tests/test_llm_contracts.py": {
+        "file_sha256": "54f94e34749c42513ed04f7e7cf5f71156a3551d27c57b69a2ac3ed6af33f786",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(((149, "Secret Keyword"),)),
+        "reason": "Explicit test-key-not-real literal used to test rejection of provider credentials in config.",
+    },
+    "tests/test_training.py": {
+        "file_sha256": "4303f16d8274e5420eb6bd5394c416acb2874db47f228330c6086efb7e593fb1",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(((435, "Hex High Entropy String"),)),
+        "reason": "Model revision in an authored local training fixture; not a credential.",
+    },
+    "tests/test_ui_client.py": {
+        "file_sha256": "b41d02e9936641bb8d981569a88b2fc295c5bbb6dca70e50dad8fe9e3134d832",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(((58, "Basic Auth Credentials"),)),
+        "reason": "Fictional user:pw loopback URL used to prove credential-bearing URLs are rejected.",
+    },
     "config/corpus-adjudication-v1.json": {
         "file_sha256": "4a865ea83fb452f599d6d1dd92caeda5aa20063f13827bb6ad22b7bab09b4107",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
         "findings": frozenset(
@@ -276,8 +313,8 @@ REVIEWED_NON_SECRET_FINDINGS = {
         "reason": "Reviewed integrity commitments for policy, evidence, code, source payloads and empty-ledger state; not authentication credentials.",
     },
     "tests/test_corpus.py": {
-        "file_sha256": "535886506fc2e014a9a4f9476b9f93e534e00a94bb92b85dd458202a83169039",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
-        "findings": frozenset(((1387, "Hex High Entropy String"),)),
+        "file_sha256": "9fa1aba1c5836290068939481f93df2e4709887b7df96562bb6f1a8ffa7d743f",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(((1393, "Hex High Entropy String"),)),
         "reason": "Fixed historical SQL schema SHA256 in a fictional compatibility test; not a credential.",
     },
     "tests/test_full_acquisition.py": {
@@ -386,8 +423,8 @@ REVIEWED_NON_SECRET_FINDINGS = {
         "reason": "Pinned public embedding-model revision, not a credential.",
     },
     "src/watchlist/reranking.py": {
-        "file_sha256": "903399ce7b496275de5f5fed3cfe007370493574786fb9b2bd5d49546781fc3f",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
-        "findings": frozenset((line, "Hex High Entropy String") for line in (23,)),
+        "file_sha256": "c22ca8cc3d1caa75c0a2e650055d579ad300a60f6da40352855aafe3af379524",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset((line, "Hex High Entropy String") for line in (22,)),
         "reason": "Pinned public reranker revision, not a credential.",
     },
     "src/watchlist/review/archive.py": {

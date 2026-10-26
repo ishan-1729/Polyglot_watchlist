@@ -478,3 +478,16 @@ def test_keys_file_with_utf8_byte_order_mark_loads(tmp_path):
         workspace=None, config_path=None, environ={KEYS_FILE_VAR: str(keys_file)}
     )
     assert [k.actor for k in settings.api_keys] == ["fictional-reviewer"]
+
+
+@pytest.mark.parametrize("route", ["/ready", "/metrics"])
+def test_operational_routes_require_viewer_auth(client, route):
+    probe = client.app.state.readiness
+    before = probe.runs
+    assert client.get(route).status_code == 401
+    assert (
+        client.get(route, headers=bearer("invalid-fictional-token")).status_code == 401
+    )
+    assert probe.runs == before
+    for token in (VIEWER, REVIEWER):
+        assert client.get(route, headers=bearer(token)).status_code == 200

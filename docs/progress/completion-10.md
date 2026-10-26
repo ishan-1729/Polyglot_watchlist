@@ -169,3 +169,8 @@ Invalid request `{"name": "", "countries": ["de"], "dates": [{"kind": "build", "
 ## Next action
 
 After the Step 08 reviewed corpus is accepted: add a corpus reader to `preprocessing.evaluate` that produces identical per-profile views for the development partition, then feed those views into the Step 11 baseline matrix and report collision and support-status counts beside the retrieval metrics.
+
+
+## Adversarial review follow-up (2026-10-27)
+
+A later independent review on branch `p1-review` changed some behaviour described above and withdrew figures it could not reproduce. Read [the review report](review-p1-final.md) and [its validation record](review-p1-validation.json) alongside this report; where they disagree, the review report is current. The text above is kept as the record of what was reported at the time.

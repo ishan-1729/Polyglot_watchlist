@@ -235,3 +235,32 @@ def test_cli_default_config_and_relative_parent_workspace_work_outside_the_repo(
         capsys, "list", "--workspace", "../relative-ws", "--origin", "test"
     )
     assert [c["case_id"] for c in json.loads(out)["cases"]] == [first["case_id"]]
+
+
+def test_cli_verify_returns_failure_for_a_wrong_anchor(tmp_path, capsys):
+    workspace = str(tmp_path / "ws")
+    common = ["--workspace", workspace, "--config", str(CONFIG_PATH)]
+    assert run(capsys, "init", *common)[0] == 0
+    code, out, _ = run(
+        capsys,
+        "start",
+        *common,
+        "--name",
+        "Luma Vesper",
+        "--origin",
+        "test",
+        "--actor",
+        "fixture",
+    )
+    assert code == 0
+    case = json.loads(out)
+    anchor = tmp_path / "anchor.json"
+    anchor.write_text(
+        json.dumps({"case_id": case["case_id"], "count": 1, "head_sha256": "0" * 64}),
+        encoding="utf-8",
+    )
+    code, out, err = run(
+        capsys, "verify", *common, "--case-id", case["case_id"], "--anchor", str(anchor)
+    )
+    assert code == 1 and err == ""
+    assert json.loads(out)["ok"] is False

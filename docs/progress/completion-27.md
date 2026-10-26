@@ -160,3 +160,8 @@ Behaviour changes visible to operators: `/ready` no longer returns `503 workspac
 | Linux run | Not run in this step | INTEGRATE / CI | Code uses no POSIX- or Windows-only calls; the read-only-database test skips when the OS user can still write (e.g. root). |
 
 Everything ran on packaged fictional entities and authored fixture records. No metric, span, log line or error is an identity, wrongdoing, sanctions-status or clearance finding.
+
+
+## Adversarial review follow-up (2026-10-27)
+
+A later independent review on branch `p1-review` changed some behaviour described above and withdrew figures it could not reproduce. Read [the review report](review-p1-final.md) and [its validation record](review-p1-validation.json) alongside this report; where they disagree, the review report is current. The text above is kept as the record of what was reported at the time.

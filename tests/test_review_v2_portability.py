@@ -7,6 +7,8 @@ import re
 import subprocess
 import sys
 
+import pytest
+
 from review_v2_support import FakeRetriever, ROOT, make_config, submission, worker_env
 from watchlist.review import contracts as c
 from watchlist.review.service import ReviewService
@@ -61,12 +63,24 @@ def test_right_to_left_and_mixed_script_names_round_trip(tmp_path):
     service = ReviewService.initialize(
         tmp_path / "rtl", make_config(), retriever=FakeRetriever()
     )
-    for name in ("لومى فسبر", "Luma ‏ويسبر", "Лума Веспер"):
+    for name in ("لومى فسبر", "Luma ويسبر", "Лума Веспер"):
         view = service.start_case(name, origin="test", actor="fictional-analyst")
         assert (
             c.CaseView.from_dict(json.loads(json.dumps(view.to_dict()))).header.name
             == name
         )
+
+
+@pytest.mark.parametrize("mark", ["\u061c", "\u200e", "\u200f"])
+def test_direction_marks_are_rejected_before_persistence(tmp_path, mark):
+    service = ReviewService.initialize(
+        tmp_path / "rtl", make_config(), retriever=FakeRetriever()
+    )
+    with pytest.raises(c.ValidationError, match="format"):
+        service.start_case(
+            f"Luma {mark}ويسبر", origin="test", actor="fictional-analyst"
+        )
+    assert service.list_cases() == []
 
 
 IMPORT_PROBE = r"""

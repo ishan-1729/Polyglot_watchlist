@@ -1,9 +1,8 @@
 """Streamlit reviewer interface over the v2 review API (research only).
 
-Run (after starting the API on loopback and setting the environment)::
+Run after starting the API on loopback; enter your own key in the sign-in form::
 
-    WATCHLIST_API_URL=http://127.0.0.1:8000 WATCHLIST_API_KEY=... \
-        streamlit run src/watchlist/ui/app.py --server.address 127.0.0.1
+    make serve-ui
 
 Every operation is an HTTP call through ``watchlist.ui.client``; the API in
 turn calls the one shared v2 ``ReviewService``. This module holds page layout
@@ -14,8 +13,8 @@ HTML without escaping it (see ``components``).
 Session-state keys (one browser session each):
 
 ``_watchlist_ui_client``
-    Optional injected ``WatchlistClient`` (tests); otherwise built from the
-    environment on first use.
+    Optional injected ``WatchlistClient`` (tests); otherwise built from this
+    session's supplied key after an authenticated API read succeeds.
 ``nav``, ``case_id``, ``case_payload``, ``forms``, ``audit``, ``flash``,
 ``screen_request``, ``cases_offset``
     Navigation, the case response the reviewer is looking at, one review
@@ -27,12 +26,15 @@ Session-state keys (one browser session each):
 from __future__ import annotations
 
 from datetime import UTC, datetime
+import os
 from typing import Any
 
 import streamlit as st
 
 from watchlist.ui.client import (
     OUTCOMES,
+    DEFAULT_API_URL,
+    ENV_API_URL,
     ApiClientError,
     ClientConfig,
     ReviewForm,
@@ -91,13 +93,36 @@ def _flash(kind: str, text: str) -> None:
 
 
 def _client() -> WatchlistClient:
-    """The injected client, or one built once per session from the environment."""
+    """Return this session's authenticated client; never use a server-held key."""
     state = _state()
     client = state.get(CLIENT_KEY)
     if client is None:
-        client = WatchlistClient(ClientConfig.from_env())
-        state[CLIENT_KEY] = client
+        raise ApiClientError("unauthenticated", "Sign in with your own API key.")
     return client
+
+
+def _on_sign_in() -> None:
+    """Validate the supplied key through the API before opening the session."""
+    key = _state().pop("session_api_key", "")
+    client = None
+    try:
+        url = os.environ.get(ENV_API_URL, "").strip() or DEFAULT_API_URL
+        client = WatchlistClient(ClientConfig(url.rstrip("/"), key or None))
+        client.list_cases(limit=1)
+    except ApiClientError as exc:
+        if client is not None:
+            client.close()
+        _flash("error", error_text(exc))
+        return
+    _state()[CLIENT_KEY] = client
+
+
+def _on_sign_out() -> None:
+    """Drop the client, credentials, evidence and unsent forms for this session."""
+    client = _state().get(CLIENT_KEY)
+    if client is not None:
+        client.close()
+    _state().clear()
 
 
 def _show_case(payload: dict[str, Any]) -> None:
@@ -241,6 +266,12 @@ def _on_submit(case_id: str) -> None:
         if exc.code in STALE_CODES:
             form["stale"] = True
             form["notes"] = reason
+            if exc.details.get("next_action") == "start_case":
+                _flash(
+                    "error",
+                    "Earlier annotations changed or expired. Start a new case to review fresh context; reloading this frozen case cannot refresh it. Your notes are kept below.",
+                )
+                return
             _flash(
                 "error",
                 error_text(exc)
@@ -547,6 +578,7 @@ def _page_cases() -> None:
 def _sidebar(client: WatchlistClient) -> None:
     with st.sidebar:
         st.radio("Page", PAGES, key="nav")
+        st.button("Sign out", on_click=_on_sign_out)
         st.divider()
         st.caption(md_plain(f"API: {client.config.base_url}"))
         st.caption(
@@ -562,12 +594,18 @@ def main() -> None:
     st.title("Polyglot Watchlist — reviewer (research only)")
     st.warning(md_plain(RESEARCH_NOTICE))
     st.html(_STYLE)
-    try:
-        client = _client()
-    except ApiClientError as exc:
-        st.error(md_plain(error_text(exc)))
-        st.stop()
+    if CLIENT_KEY not in _state():
+        _render_flash()
+        st.caption(
+            "Sign in with your own viewer or reviewer API key. It stays in this session."
+        )
+        with st.form("sign_in"):
+            st.text_input(
+                "API key", type="password", key="session_api_key", max_chars=512
+            )
+            st.form_submit_button("Sign in", on_click=_on_sign_in)
         return
+    client = _client()
     _state().setdefault("nav", PAGES[0])
     _sidebar(client)
     _render_flash()

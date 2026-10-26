@@ -8,8 +8,7 @@
 #      prints {"entry": "...", "token": "..."} once.
 #   2. Put the entry line (actor:role:sha256, no token) into
 #      deploy/secrets/api-keys.txt (git-ignored; create the folder).
-#   3. Export the token for the UI only: export WATCHLIST_API_KEY=<token>
-#      (never commit it; prefer your shell's secret store).
+#   3. Keep the token private; enter it in the UI sign-in form for your session.
 #   4. Open http://127.0.0.1:8501 on this machine. Nothing else is published.
 #
 # The API refuses non-loopback hosts, so it binds 127.0.0.1 inside the api
@@ -74,10 +73,10 @@ services:
       - --server.port=8501
       - --server.headless=true
       - --browser.gatherUsageStats=false
+      - --server.allowedHosts=localhost
+      - --server.allowedHosts=127.0.0.1
     environment:
       WATCHLIST_API_URL: http://127.0.0.1:8000
-      # Placeholder only: compose stops if the variable is unset.
-      WATCHLIST_API_KEY: ${WATCHLIST_API_KEY:?set WATCHLIST_API_KEY to a reviewer token}
       HOME: /tmp
     healthcheck:
       test:

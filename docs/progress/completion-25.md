@@ -95,3 +95,8 @@ Both regression tests for the defects were run against the code with the fix tem
 No dependency change was needed: `streamlit` (ui extra) and `httpx` were already declared and installed.
 
 All outputs remain possible record matches for research and human review over fictional records. Nothing here establishes identity, wrongdoing, sanctions status or clearance.
+
+
+## Adversarial review follow-up (2026-10-27)
+
+A later independent review on branch `p1-review` changed some behaviour described above and withdrew figures it could not reproduce. Read [the review report](review-p1-final.md) and [its validation record](review-p1-validation.json) alongside this report; where they disagree, the review report is current. The text above is kept as the record of what was reported at the time.

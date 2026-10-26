@@ -148,6 +148,15 @@ def reseal_files(directory: Path, files: dict) -> None:
         r"\\host\share\w",
         r"..\weights.bin",
         "../weights.bin",
+        "weights:stream",
+        "folder/NUL.bin",
+        "CON",
+        "COM1.pt",
+        "weights?.bin",
+        "folder./weights.bin",
+        "folder /weights.bin",
+        "folder//weights.bin",
+        "./weights.bin",
         r"\weights.bin",
         "",
     ],
@@ -168,3 +177,47 @@ def test_resealed_empty_file_list_is_refused(tmp_path: Path) -> None:
     reseal_files(directory, {})
     with pytest.raises(ArtifactError, match="no payload"):
         verify_artifact(directory)
+
+
+@pytest.mark.parametrize(
+    "info",
+    [
+        {},
+        {"bytes": True, "sha256": "a" * 64},
+        {"bytes": -1, "sha256": "a" * 64},
+        {"bytes": 1, "sha256": "not-a-digest"},
+    ],
+)
+def test_malformed_payload_metadata_is_an_artifact_error(tmp_path, info):
+    directory = tmp_path / "artifact"
+    sealed(directory)
+    reseal_files(directory, {"weights.bin": info})
+    with pytest.raises(ArtifactError, match="metadata"):
+        verify_artifact(directory)
+
+
+def test_symbolic_link_payload_is_refused_even_when_its_hash_matches(tmp_path):
+    directory = tmp_path / "artifact"
+    sealed(directory)
+    payload = directory / "weights.bin"
+    outside = tmp_path / "outside.bin"
+    outside.write_bytes(payload.read_bytes())
+    payload.unlink()
+    try:
+        payload.symlink_to(outside)
+    except OSError:
+        pytest.skip("creating symbolic links requires OS permission")
+    with pytest.raises(ArtifactError, match="symbolic"):
+        verify_artifact(directory)
+    other = tmp_path / "unsealed"
+    other.mkdir()
+    (other / "weights.bin").symlink_to(outside)
+    with pytest.raises(ArtifactError, match="symbolic"):
+        write_artifact(
+            other,
+            payload_files=["weights.bin"],
+            config={},
+            data_manifest_digest=DIGEST,
+            metrics={},
+            derived_from={},
+        )

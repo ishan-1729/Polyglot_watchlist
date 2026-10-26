@@ -38,6 +38,12 @@ RESOURCES = {
     "watchlist/ingest/schema.sql",
     "watchlist/corpus_schema.sql",
     "watchlist/agent/schema.sql",
+    "watchlist/review/schema.sql",
+    "watchlist/case_memory/schema.sql",
+}
+PACKAGE_ENTRY_POINTS = {
+    f"watchlist/{name}/__init__.py"
+    for name in ("review", "api", "ui", "mcp_server", "case_memory", "llm")
 }
 PACKAGE_PREFIXES = ("watchlist/", "follow_the_money/")
 
@@ -230,7 +236,7 @@ def test_wheel_includes_exact_package_sources_and_runtime_resources(distribution
         actual = {name for name in members if name.startswith(PACKAGE_PREFIXES)}
         expected = source_files()
         assert actual == set(expected)
-        assert RESOURCES <= actual
+        assert RESOURCES | PACKAGE_ENTRY_POINTS <= actual
         for name, source in expected.items():
             assert archive.read(name) == source.read_bytes()
         assert all(
@@ -314,6 +320,9 @@ def test_source_distribution_excludes_local_data_models_and_history(distribution
             }
         )
         assert set(files) == set(expected) | {"PKG-INFO"}
+        assert {
+            "src/" + name for name in RESOURCES | PACKAGE_ENTRY_POINTS
+        } <= files.keys()
         for name, path in expected.items():
             assert archive.extractfile(files[name]).read() == path.read_bytes()
         distributions["receipt"]["sdist_members"] = sorted(files)
@@ -459,7 +468,7 @@ native_scorer = isinstance(scorer.__spec__.loader, ExtensionFileLoader) and any(
     for suffix in EXTENSION_SUFFIXES
 )
 resources = {name: len(files('watchlist').joinpath(name).read_bytes())
-             for name in ('data/synthetic_entities.json', 'ingest/schema.sql', 'agent/schema.sql')}
+             for name in json.loads(sys.argv[1])}
 print(json.dumps({'package_path': watchlist.__file__, 'prefix': sys.prefix,
                   'sys_path': sys.path, 'resources': resources,
                   'entities': len(load_entities()), 'scorer_module': fuzz.WRatio.__module__,
@@ -472,7 +481,14 @@ print(json.dumps({'package_path': watchlist.__file__, 'prefix': sys.prefix,
                                 for item in metadata.distributions()}}))
 """
     inspection = run_checked(
-        [str(python), "-I", "-B", "-c", inspect],
+        [
+            str(python),
+            "-I",
+            "-B",
+            "-c",
+            inspect,
+            json.dumps(sorted(name.removeprefix("watchlist/") for name in RESOURCES)),
+        ],
         cwd=working,
         commands=receipt["commands"],
     )

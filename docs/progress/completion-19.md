@@ -362,3 +362,8 @@ v2 list --origin human   -> {"cases": []}
 1. Run `tests/test_review_v2_*.py` on Linux (the CI runner) to exercise the `flock` backend.
 2. Have the Step 24 engineer build `watchlist.api` strictly on `ReviewService`, using `CaseView.to_dict()` and `ReviewError.to_dict()` with the code→HTTP table in Decision 0007, and deriving `actor` from authentication.
 3. Have the Step 20 engineer implement reviewer memory as a `ContextProvider`.
+
+
+## Adversarial review follow-up (2026-10-27)
+
+A later independent review on branch `p1-review` changed some behaviour described above and withdrew figures it could not reproduce. Read [the review report](review-p1-final.md) and [its validation record](review-p1-validation.json) alongside this report; where they disagree, the review report is current. The text above is kept as the record of what was reported at the time.
