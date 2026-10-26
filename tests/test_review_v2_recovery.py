@@ -323,3 +323,36 @@ def test_crash_inside_a_transaction_is_rolled_back_only_by_a_writable_open(works
         )
     finally:
         db.close()
+
+
+def test_non_hot_journal_is_settled_by_writable_open(workspace):
+    writer = """
+import os, sqlite3, sys
+connection = sqlite3.connect(sys.argv[1], isolation_level=None)
+connection.execute('BEGIN IMMEDIATE')
+connection.execute("INSERT INTO workspace_meta VALUES ('fictional-small-crash', 'uncommitted')")
+os._exit(9)
+"""
+    process = subprocess.run(
+        [sys.executable, "-B", "-c", writer, str(workspace / "review.sqlite")],
+        timeout=60,
+    )
+    assert process.returncode == 9
+    journal = workspace / "review.sqlite-journal"
+    assert journal.exists()
+    with pytest.raises(c.RecoveryRequiredError):
+        ReviewService.open(workspace, make_config(), read_only=True)
+    ReviewService.open(workspace, make_config())
+    assert not journal.exists()
+    reader = ReviewService.open(workspace, make_config(), read_only=True)
+    assert reader.list_cases() == []
+    db = connect(workspace, read_only=True)
+    try:
+        assert (
+            db.execute(
+                "SELECT value FROM workspace_meta WHERE key='fictional-small-crash'"
+            ).fetchone()
+            is None
+        )
+    finally:
+        db.close()

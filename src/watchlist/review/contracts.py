@@ -726,6 +726,9 @@ class ContextRequest(_Contract):
     normalized_name: str
     candidate_entity_ids: tuple[str, ...]
     retriever: RetrieverDescriptor
+    # Distinct labels from the frozen alias evidence. None means no binding
+    # was supplied (older callers); () is valid only for an empty shortlist.
+    candidate_sources: tuple[str, ...] | None = None
 
 
 @runtime_checkable

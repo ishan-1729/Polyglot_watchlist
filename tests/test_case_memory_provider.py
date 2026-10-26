@@ -148,6 +148,7 @@ def test_expiry_boundary_is_exclusive_at_exactly_ninety_days(tmp_path):
             "fictional",
             ("syn-006",),
             env.retriever(SNAP_MAIN).descriptor(),
+            ("fictional-synthetic-v1",),
         )
         return provider.provide(request)["keys"][0]
 
@@ -228,7 +229,14 @@ def test_provider_output_fits_the_context_budget_with_long_notes(tmp_path):
 
 
 def test_memory_config_used_by_env_matches_project_policy():
-    assert memory_config().policy == memory_config().policy  # deterministic load
+    from watchlist.case_memory.state import MemoryConfig
+    from test_case_memory_support import MEMORY_CONFIG
+
+    expected = MemoryConfig.load(MEMORY_CONFIG)
+    actual = memory_config()
+    assert actual.policy == expected.policy
+    assert actual.policy.cards_per_candidate == 3
+    assert actual.policy.visibility_days == 90
 
 
 def _request(env, candidates, *, case_id="00000000-0000-4000-8000-000000000001"):
@@ -241,30 +249,32 @@ def _request(env, candidates, *, case_id="00000000-0000-4000-8000-000000000001")
         "fictional query",
         tuple(candidates),
         env.retriever(SNAP_MAIN).descriptor(),
+        ("fictional-synthetic-v1",),
     )
 
 
 def test_provider_refuses_cross_source_evidence_when_sources_are_supplied(tmp_path):
     """Regression (forward compatible): a ContextRequest exposing evidence sources
     from another namespace gets ``source_mismatch`` and no cards."""
-    from types import SimpleNamespace
+    from dataclasses import replace
 
     env = Env(tmp_path)
     env.review(["syn-001"], origin="test")
     env.publish()
     base = _request(env, ["syn-001"])
-    fields = {name: getattr(base, name) for name in base.__dataclass_fields__}
-    wrong = SimpleNamespace(**fields, candidate_sources=("fictional-alt-v1",))
+    wrong = replace(base, candidate_sources=("fictional-alt-v1",))
     result = env.provider.provide(wrong)
     assert result["status"] == "source_mismatch" and result["keys"] == []
     assert result["mismatched_sources"] == ["fictional-alt-v1"]
     assert "not an empty history" in result["message"]
     assert "source_mismatch" in render_context_text(result)
-    right = SimpleNamespace(**fields, candidate_sources=("fictional-synthetic-v1",))
+    right = replace(base, candidate_sources=("fictional-synthetic-v1",))
     shown = env.provider.provide(right)
     assert shown["status"] == "ok" and len(shown["keys"][0]["cards"]) == 1
-    # Today's ContextRequest has no sources: the snapshot binding applies.
-    assert env.provider.provide(base)["status"] == "ok"
+    assert (
+        env.provider.provide(replace(base, candidate_sources=None))["status"]
+        == "source_mismatch"
+    )
 
 
 def test_packaged_snapshot_fingerprint_covers_evidence_source_labels():
@@ -328,3 +338,91 @@ def test_real_rapidfuzz_ranking_is_identical_with_memory_on_and_off(tmp_path):
     keys = context_keys(on)
     assert [c["case_id"] for c in keys[top]["cards"]] == [first.case_id]
     assert list(keys) == [c.entity_id for c in on.packet.retrieval.candidates]
+
+
+def test_service_rejects_cross_source_memory_with_a_reused_fingerprint(tmp_path):
+    env = Env(tmp_path)
+    earlier = env.review(["syn-001"])
+    env.publish()
+    env.retriever(SNAP_MAIN)._source = "fictional-alt-v1"
+    view = env.start(["syn-001"], memory=True)
+    context = memory_context(view.packet)
+    assert context["status"] == "source_mismatch"
+    assert context["keys"] == []
+    assert earlier.case_id not in str(context)
+    assert view.packet.retrieval.candidates[0].entity_id == "syn-001"
+
+
+@pytest.mark.parametrize("change", ["publish", "expire", "provider_missing"])
+def test_stale_memory_cannot_be_accepted_as_the_frozen_review(tmp_path, change):
+    from review_v2_support import submission
+    from watchlist.review.contracts import StaleSubmissionError
+
+    env = Env(tmp_path)
+    env.review(["syn-001"])
+    env.publish()
+    pending = env.start(["syn-001"], memory=True)
+    before = env.reader().audit(pending.case_id).to_dict()
+    service = env.service(memory=True)
+    if change == "publish":
+        env.review(["syn-001"])
+        env.publish()
+    elif change == "expire":
+        env.clock.set_day(91)
+    else:
+        service = env.service(memory=False)
+    error = (
+        ContextProviderError if change == "provider_missing" else StaleSubmissionError
+    )
+    with pytest.raises(error):
+        service.submit_review(pending.case_id, submission(pending))
+    assert env.reader().get_case(pending.case_id).review is None
+    assert env.reader().audit(pending.case_id).to_dict() == before
+
+
+def test_accepted_review_replay_survives_later_memory_changes(tmp_path):
+    from review_v2_support import submission
+
+    env = Env(tmp_path)
+    pending = env.start(["syn-001"], memory=True)
+    form = submission(pending)
+    accepted = env.service(memory=True).submit_review(pending.case_id, form)
+    env.publish()
+    env.clock.set_day(91)
+    assert env.service(memory=False).submit_review(pending.case_id, form) == accepted
+
+
+def test_memory_lock_covers_durable_review_acceptance(tmp_path, monkeypatch):
+    from concurrent.futures import ThreadPoolExecutor
+    from review_v2_support import submission
+    from watchlist.case_memory.store import MemoryStore
+    from watchlist.case_memory.state import MemoryUnavailableError
+    from watchlist.review.storage import Ledger
+
+    env = Env(tmp_path)
+    pending = env.start(["syn-001"], memory=True)
+    competitor = MemoryStore.open(env.memory_dir, env.store.config, lock_timeout=0)
+    original = Ledger.record_submission
+    observations = []
+
+    def try_lock():
+        try:
+            with competitor.session(write=False):
+                return "unlocked"
+        except MemoryUnavailableError:
+            return "locked"
+
+    def record(ledger, review):
+        with ThreadPoolExecutor(1) as pool:
+            observations.append(pool.submit(try_lock).result(30))
+        return original(ledger, review)
+
+    monkeypatch.setattr(Ledger, "record_submission", record)
+    assert (
+        env.service(memory=True)
+        .submit_review(pending.case_id, submission(pending))
+        .status
+        == "completed"
+    )
+    assert observations == ["locked"]
+    assert try_lock() == "unlocked"

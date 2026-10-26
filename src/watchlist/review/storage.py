@@ -186,6 +186,22 @@ def connect(root: Path, *, read_only: bool) -> sqlite3.Connection:
     return db
 
 
+def settle_journal(db: sqlite3.Connection) -> None:
+    """Let SQLite dispose of a non-hot leftover journal under the workspace lock.
+
+    Call only after identity verification. A value-preserving header write
+    reuses/deletes the journal without changing any ledger or checkpoint row.
+    """
+    version = db.execute("PRAGMA user_version").fetchone()[0]
+    db.execute("BEGIN IMMEDIATE")
+    try:
+        db.execute(f"PRAGMA user_version={version}")
+        db.execute("COMMIT")
+    except BaseException:
+        db.execute("ROLLBACK")
+        raise
+
+
 def connect_checkpoints(root: Path, *, read_only: bool) -> sqlite3.Connection:
     """A separate connection for the LangGraph saver, which manages its own commits."""
     uri = (root / DB_NAME).as_uri() + ("?mode=ro" if read_only else "?mode=rw")
@@ -207,6 +223,14 @@ def sqlite_failure(exc: sqlite3.Error, message: str) -> ReviewError:
         return WorkspaceBusyError(
             f"review database is locked by another process: {text}"
         )
+    code = getattr(exc, "sqlite_errorcode", 0) & 0xFF
+    if code in (
+        sqlite3.SQLITE_READONLY,
+        sqlite3.SQLITE_FULL,
+        sqlite3.SQLITE_IOERR,
+        sqlite3.SQLITE_CANTOPEN,
+    ):
+        return WorkspaceError("review storage is unavailable")
     return StorageIntegrityError(f"{message}: {text}")
 
 

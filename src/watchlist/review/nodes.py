@@ -178,6 +178,7 @@ def make_nodes(deps: NodeDeps) -> dict[str, Callable[[dict[str, Any]], dict[str,
             header.normalized_name,
             tuple(c.entity_id for c in evidence.candidates),
             header.retriever,
+            tuple(sorted({item.source for item in evidence.evidence})),
         )
         context = {}
         for provider in deps.context_providers:

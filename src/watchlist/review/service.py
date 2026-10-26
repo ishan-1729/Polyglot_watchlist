@@ -23,7 +23,7 @@ never selects an outcome, and errors never become negative results.
 
 from __future__ import annotations
 
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -48,6 +48,7 @@ from watchlist.review.contracts import (
     CaseSummary,
     CaseView,
     ContextProvider,
+    ContextProviderError,
     InvalidStateError,
     ReadOnlyError,
     RecoveryRequiredError,
@@ -225,7 +226,14 @@ class ReviewService:
                 )
             db = storage.connect(self._root, read_only=not write)
             try:
+                if write and storage.sidecars(self._root):
+                    storage.verify_identity(db)
+                    storage.settle_journal(db)
                 yield db
+            except sqlite3.Error as exc:
+                raise storage.sqlite_failure(
+                    exc, "cannot open review database"
+                ) from None
             finally:
                 db.close()
 
@@ -540,7 +548,27 @@ class ReviewService:
             review = AcceptedReview(
                 SUBMISSION_SCHEMA, case_id, self._clock(), submission
             )
-            session.ledger.record_submission(review)
+            providers = {provider.name: provider for provider in self._providers}
+            with ExitStack() as guards:
+                for name in assessment.header.context_providers:
+                    provider = providers.get(name)
+                    if provider is None:
+                        raise ContextProviderError(
+                            "a context provider required by this packet is unavailable",
+                            details={"case_id": case_id, "provider": name},
+                        )
+                    guard = getattr(provider, "guard_review", None)
+                    if guard is not None:
+                        try:
+                            guards.enter_context(guard(assessment.packet))
+                        except StaleSubmissionError:
+                            raise
+                        except Exception as exc:
+                            raise ContextProviderError(
+                                "context freshness could not be checked",
+                                details={"case_id": case_id, "provider": name},
+                            ) from exc
+                session.ledger.record_submission(review)
             self._failpoint("after_submission")
             from watchlist.review.workflow import Command
 
