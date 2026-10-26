@@ -22,10 +22,17 @@ def _missing_private_evidence(excinfo) -> str | None:
     """Return the missing private path when that is the whole cause of an error."""
     if excinfo is None or not isinstance(excinfo.value, FileNotFoundError):
         return None
-    filename = excinfo.value.filename
+    error = excinfo.value
+    # A missing file during recovery from another error is not the sole cause.
+    if error.__cause__ is not None or error.__context__ is not None:
+        return None
+    filename = error.filename
     if not filename:
         return None
-    path = Path(os.fspath(filename))
+    try:
+        path = Path(os.fsdecode(filename))
+    except TypeError:
+        return None
     if not path.is_absolute():
         path = Path.cwd() / path
     try:
@@ -39,7 +46,11 @@ def _missing_private_evidence(excinfo) -> str | None:
 def pytest_runtest_makereport(item, call):
     outcome = yield
     report = outcome.get_result()
-    if not report.failed or os.environ.get("WATCHLIST_REQUIRE_PRIVATE_EVIDENCE") == "1":
+    if (
+        not report.failed
+        or call.when == "teardown"
+        or os.environ.get("WATCHLIST_REQUIRE_PRIVATE_EVIDENCE") == "1"
+    ):
         return
     missing = _missing_private_evidence(call.excinfo)
     if missing is None:
