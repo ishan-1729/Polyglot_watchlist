@@ -42,3 +42,6 @@ data/demo/
 
 # Local container secrets (only placeholders belong in the repository).
 deploy/secrets/
+
+# Project 2 downloaded sources, replay cache, local runs and toolchain receipts.
+data/follow_the_money/

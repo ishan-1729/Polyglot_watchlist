@@ -1,0 +1,245 @@
+{
+  "schema": "ftm-source-verification-v1",
+  "recorded_at": "2026-10-26T22:32:23.232818+00:00",
+  "base_commit": "fb32c9f93fa0f76becd4017eb44cd741d2aaf583",
+  "branch": "project-2",
+  "committed": false,
+  "files": [
+    {
+      "path": "scripts/ftm_m365.py",
+      "sha256": "48a5d90b9638e25a9e1a6b49716d5cbbc22120a99d772d2033f93fd610eda8ca",
+      "size_bytes": 7743
+    },
+    {
+      "path": "scripts/ftm_record.py",
+      "sha256": "398f11eb6c6a840c528d6de482b4b902a4271b3b987e91d45a4fa8b29b469e26",
+      "size_bytes": 3131
+    },
+    {
+      "path": "src/follow_the_money/__init__.py",
+      "sha256": "5fc16a7e6c1813a67da3aa088789b7533fce29d71015df37079beb839f34fd29",
+      "size_bytes": 94
+    },
+    {
+      "path": "src/follow_the_money/__main__.py",
+      "sha256": "8fa0e7b72ae1254c540cc8149a45a76dcca60786c29c1a0eaac47aae38d59b57",
+      "size_bytes": 5311
+    },
+    {
+      "path": "src/follow_the_money/acquire.py",
+      "sha256": "56932818b49249414117db255132d026362f57a82894a8e9360866ce2cef61e1",
+      "size_bytes": 5846
+    },
+    {
+      "path": "src/follow_the_money/agent.py",
+      "sha256": "2f13a9d17745ea5adef6c64b049409f2e5c91f40f8c5039549383e859dba9f92",
+      "size_bytes": 25093
+    },
+    {
+      "path": "src/follow_the_money/api.py",
+      "sha256": "d40b42f4c3e92eaabd18411f19e3af4d43de28445d826c063100c91ef22e5c14",
+      "size_bytes": 6312
+    },
+    {
+      "path": "src/follow_the_money/cases.py",
+      "sha256": "5684b3de5968c8dd46886616e627bb560730a8c364d6a3e7de53a2f4fac47526",
+      "size_bytes": 4421
+    },
+    {
+      "path": "src/follow_the_money/clients.py",
+      "sha256": "840502e1f0eec3164f60a22e00ca476ad374a9a2955fbf2dfefa0c80c9d7667f",
+      "size_bytes": 14887
+    },
+    {
+      "path": "src/follow_the_money/contracts.py",
+      "sha256": "a412d4fd8b6777755a461e77f51cfeb9d2f031a05c6c62eb5fc0df41f764e7d2",
+      "size_bytes": 5083
+    },
+    {
+      "path": "src/follow_the_money/critic.py",
+      "sha256": "b828fb338e7a2998fb0706a3b63385973f2c55489ad937db5b2c22cfd005ec87",
+      "size_bytes": 7405
+    },
+    {
+      "path": "src/follow_the_money/datasets.py",
+      "sha256": "72dd78186ae7a3ce045e62e6099c2f212fe21c941e1b80db192af9e1da9b4e30",
+      "size_bytes": 8854
+    },
+    {
+      "path": "src/follow_the_money/evaluation.py",
+      "sha256": "f27a9702519e03ab43d9c6de54cca4415543bf28c81f91a8f036d7654bb5a403",
+      "size_bytes": 16281
+    },
+    {
+      "path": "src/follow_the_money/features.py",
+      "sha256": "4747bf683c866e81497fa399fcc125b11f0b0f60ed0b3e75eb2b3b30249d6c4f",
+      "size_bytes": 2224
+    },
+    {
+      "path": "src/follow_the_money/fixtures.py",
+      "sha256": "235311b9a7f5d08ac5bde231755a2298ed2e521b43859244494255fe3df84c5f",
+      "size_bytes": 8658
+    },
+    {
+      "path": "src/follow_the_money/gold.py",
+      "sha256": "defbeec6a7567e5c6976a579142e50ad3a8b162deb0e2ea4273a12c824eb4b1b",
+      "size_bytes": 6942
+    },
+    {
+      "path": "src/follow_the_money/heuristics.py",
+      "sha256": "72613fad585d5728b33a58124c3286b04c879e2b9c382b01e147c49afe6f9a31",
+      "size_bytes": 13165
+    },
+    {
+      "path": "src/follow_the_money/labels.py",
+      "sha256": "940b97854809a5821dadfddbfdec8c4a6dec4eeb42f63e9f5d8bf2255c459627",
+      "size_bytes": 5084
+    },
+    {
+      "path": "src/follow_the_money/m365.py",
+      "sha256": "9f45a6aae3cadd7856339ac80c555898aeff6c679fa75faf23fde0361514874d",
+      "size_bytes": 8561
+    },
+    {
+      "path": "src/follow_the_money/mcp_server.py",
+      "sha256": "4f487ad6f65e7c409b8990695b788bfc1ec7380050ba5c9a38273eed276a55ee",
+      "size_bytes": 6256
+    },
+    {
+      "path": "src/follow_the_money/memory.py",
+      "sha256": "0747872890f5bee173c1d398caa696f12c7d4090dbc31e9213537e2ad3a5481d",
+      "size_bytes": 13843
+    },
+    {
+      "path": "src/follow_the_money/models.py",
+      "sha256": "e0e1875c0a131483069f4f0f1c875d5c3e8fb64163ac7c4634c6ea253e77d70e",
+      "size_bytes": 5095
+    },
+    {
+      "path": "src/follow_the_money/planner.py",
+      "sha256": "e3a18d40f56047a5ae737961112094c3822ef3dd09f0acabb46dced14b274f19",
+      "size_bytes": 743
+    },
+    {
+      "path": "src/follow_the_money/resolver.py",
+      "sha256": "c06ebfbceb9fb11067ab2c7456e6423f960ea7f83acc2ee4b308b5e3d2873e67",
+      "size_bytes": 1441
+    },
+    {
+      "path": "src/follow_the_money/security.py",
+      "sha256": "da1bb20c0556b6e8d10a99e7d238d8946d53d4e369e1249f86bc2a181461fbb5",
+      "size_bytes": 4241
+    },
+    {
+      "path": "src/follow_the_money/seeds.py",
+      "sha256": "04af26a1aa3a842af1066765c71419cdacd286f8440f72056431c6a4ba92cf0b",
+      "size_bytes": 1109
+    },
+    {
+      "path": "src/follow_the_money/service.py",
+      "sha256": "b2a9d7947ff374a863f96aaff15cf2963d6da83b74d378a682090621dce12e35",
+      "size_bytes": 13175
+    },
+    {
+      "path": "src/follow_the_money/storage.py",
+      "sha256": "1b9fff5e7a9b6f4953726147f3350e3230f3e7dcb9e60dcd0fb1b40562599c33",
+      "size_bytes": 12401
+    },
+    {
+      "path": "src/follow_the_money/training.py",
+      "sha256": "efd126e2ee8c720003a19c151bc704fec01706314f779942ff6de5a1f4b50f11",
+      "size_bytes": 8939
+    },
+    {
+      "path": "src/follow_the_money/transport.py",
+      "sha256": "6aa0cfa1597bc31d5bcd0b6be4420eaafbbca4c932fcdfed0443e2332d9779f3",
+      "size_bytes": 13240
+    },
+    {
+      "path": "src/follow_the_money/ui.py",
+      "sha256": "a46babf1bb49f39015d5a4898c2a3b62014fe4200225087380e579cd9eb1778f",
+      "size_bytes": 6543
+    },
+    {
+      "path": "tests/follow_the_money/conftest.py",
+      "sha256": "5e5b6f6392cbda4701560f1f172300ec70669d423d29b980e0cfde17ab867973",
+      "size_bytes": 3000
+    },
+    {
+      "path": "tests/follow_the_money/test_acquire.py",
+      "sha256": "0122ea30ba7c3830c7a559595be433b8c67da2d1eeb7738aa99e087fafc33058",
+      "size_bytes": 2201
+    },
+    {
+      "path": "tests/follow_the_money/test_agent_service.py",
+      "sha256": "b805459e08d31a8d34d55c3052c48c3ef520eef2e7bc9013e16fb744ad5abc74",
+      "size_bytes": 10297
+    },
+    {
+      "path": "tests/follow_the_money/test_clients.py",
+      "sha256": "706cb1927c641caceea74a486411775112f23a09912375dafe22bd5a78e0e4ae",
+      "size_bytes": 7480
+    },
+    {
+      "path": "tests/follow_the_money/test_contracts.py",
+      "sha256": "e9cc82f13136c2e6a0d6c5fc757d14dff7e5560b476b487314ec87626f2e695d",
+      "size_bytes": 1381
+    },
+    {
+      "path": "tests/follow_the_money/test_evaluation.py",
+      "sha256": "b2023daa24867b5feb06dc540d24e4d6b87c363cedac15376981a62bc532154d",
+      "size_bytes": 4829
+    },
+    {
+      "path": "tests/follow_the_money/test_hardening.py",
+      "sha256": "3c9617922bd3f9192956af2717878b6b64e94ba857b4e0a259dce98c7c034c42",
+      "size_bytes": 4013
+    },
+    {
+      "path": "tests/follow_the_money/test_heuristics.py",
+      "sha256": "6d5255d15606061f68e3f498e62cab8f5feb96e064ccdc1d325b3bc853b77329",
+      "size_bytes": 7130
+    },
+    {
+      "path": "tests/follow_the_money/test_interfaces.py",
+      "sha256": "cf5b17dd6cc84718efe6a1ba57c6bdb4b978b5fa11b303afb74287088900b96d",
+      "size_bytes": 10432
+    },
+    {
+      "path": "tests/follow_the_money/test_labels.py",
+      "sha256": "355ce0198d12381cb42fb80de0eb1a06bdee4d327bd5e02f24f2058574590a79",
+      "size_bytes": 1959
+    },
+    {
+      "path": "tests/follow_the_money/test_m365.py",
+      "sha256": "c4f61d704f2b9e54f80ff461c7f485f21d8e7e2944480fff7b842824cbec3e08",
+      "size_bytes": 4203
+    },
+    {
+      "path": "tests/follow_the_money/test_memory.py",
+      "sha256": "c12da6866892d41ec6495929c9d9d4414c60d1427e4cac085e87932c1033e422",
+      "size_bytes": 5522
+    },
+    {
+      "path": "tests/follow_the_money/test_models.py",
+      "sha256": "ee7230b05386c29e8c4192e785b3645c2478b4628f2fe63a05801378d7d508e1",
+      "size_bytes": 6106
+    },
+    {
+      "path": "tests/follow_the_money/test_seeds.py",
+      "sha256": "8530e03a33295511b6b8508dd55a19b928373a18eaf798e4018f6ce986ee6cf4",
+      "size_bytes": 729
+    },
+    {
+      "path": "tests/follow_the_money/test_transport.py",
+      "sha256": "a0aacb7cea4f699c9a8e456e5a97dc0d9ca345394622d17d49dcdd32f5285429",
+      "size_bytes": 5784
+    },
+    {
+      "path": "tests/test_packaging.py",
+      "sha256": "675e63456cd6feb8b106e2cc1979e3a8762f3b4ae2e99c40aad5d158f1333ec3",
+      "size_bytes": 23838
+    }
+  ],
+  "source_set_sha256": "8a7af2a7fc82d4e800f312da9050d32da3dcb29c4bd4c44ef3b2e4c1db8baa8b"
+}

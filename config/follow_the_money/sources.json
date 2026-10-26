@@ -1,0 +1,61 @@
+{
+  "schema": "ftm-sources-v1",
+  "sources": [
+    {
+      "id": "ransomwhere-1_1_0",
+      "url": "https://zenodo.org/api/records/13999026/files/ransomwhere.json/content",
+      "license": "CC-BY-4.0",
+      "max_bytes": 6000000,
+      "approved": true,
+      "revision": "1.1.0"
+    },
+    {
+      "id": "graphsense-binance",
+      "url": "https://raw.githubusercontent.com/graphsense/graphsense-tagpacks/dda9b42b511a090d843a1695015a49987ae955bd/packs/binance.yaml",
+      "license": "MIT (GraphSense repository); upstream attribution retained",
+      "max_bytes": 10000,
+      "approved": true,
+      "revision": "dda9b42b511a090d843a1695015a49987ae955bd"
+    },
+    {
+      "id": "graphsense-license",
+      "url": "https://raw.githubusercontent.com/graphsense/graphsense-tagpacks/dda9b42b511a090d843a1695015a49987ae955bd/LICENSE",
+      "license": "MIT",
+      "max_bytes": 10000,
+      "approved": true,
+      "revision": "dda9b42b511a090d843a1695015a49987ae955bd"
+    },
+    {
+      "id": "ofac-btc",
+      "url": "https://raw.githubusercontent.com/0xB10C/ofac-sanctioned-digital-currency-addresses/6ae2472c439b9bb2788f8df662052ae31854aa97/sanctioned_addresses_XBT.json",
+      "license": "Public US Treasury factual list; extractor MIT; no completeness warranty",
+      "max_bytes": 100000,
+      "approved": true,
+      "revision": "6ae2472c439b9bb2788f8df662052ae31854aa97"
+    },
+    {
+      "id": "ofac-tron",
+      "url": "https://raw.githubusercontent.com/0xB10C/ofac-sanctioned-digital-currency-addresses/6ae2472c439b9bb2788f8df662052ae31854aa97/sanctioned_addresses_TRX.json",
+      "license": "Public US Treasury factual list; extractor MIT; no completeness warranty",
+      "max_bytes": 100000,
+      "approved": true,
+      "revision": "6ae2472c439b9bb2788f8df662052ae31854aa97"
+    },
+    {
+      "id": "colonial-affidavit",
+      "url": "https://www.justice.gov/archives/opa/press-release/file/1402056/dl?inline",
+      "license": "US federal government court filing; public record",
+      "max_bytes": 5000000,
+      "approved": true,
+      "evidence_kind": "court_document"
+    },
+    {
+      "id": "doj-scam-2025",
+      "url": "https://www.justice.gov/usao-ma/media/1390101/dl?inline=",
+      "license": "US federal government court filing; public record",
+      "max_bytes": 5000000,
+      "approved": true,
+      "evidence_kind": "court_document"
+    }
+  ]
+}

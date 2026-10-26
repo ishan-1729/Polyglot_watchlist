@@ -39,6 +39,7 @@ RESOURCES = {
     "watchlist/corpus_schema.sql",
     "watchlist/agent/schema.sql",
 }
+PACKAGE_PREFIXES = ("watchlist/", "follow_the_money/")
 
 
 def sha256(path: Path) -> str:
@@ -114,7 +115,8 @@ def run_checked(
 def source_files() -> dict[str, Path]:
     return {
         str(path.relative_to(ROOT / "src")): path
-        for path in (ROOT / "src/watchlist").rglob("*")
+        for package in PACKAGE_PREFIXES
+        for path in (ROOT / "src" / package).rglob("*")
         if path.is_file() and "__pycache__" not in path.parts and path.suffix != ".pyc"
     }
 
@@ -225,14 +227,15 @@ def test_wheel_includes_exact_package_sources_and_runtime_resources(distribution
     with zipfile.ZipFile(distributions["wheel"]) as archive:
         members = archive.namelist()
         assert len(members) == len(set(members))
-        actual = {name for name in members if name.startswith("watchlist/")}
+        actual = {name for name in members if name.startswith(PACKAGE_PREFIXES)}
         expected = source_files()
         assert actual == set(expected)
         assert RESOURCES <= actual
         for name, source in expected.items():
             assert archive.read(name) == source.read_bytes()
         assert all(
-            name.startswith("watchlist/") or ".dist-info/" in name for name in members
+            name.startswith(PACKAGE_PREFIXES) or ".dist-info/" in name
+            for name in members
         )
         assert all(
             ".." not in PurePosixPath(name).parts and not name.startswith("/")
@@ -270,10 +273,10 @@ def test_wheel_metadata_and_record_hashes_are_complete(distributions):
                 or requirement.marker.evaluate({"extra": extra})
             ]
             assert {
-                (requirement.name, str(requirement.specifier))
+                (canonicalize_name(requirement.name), str(requirement.specifier))
                 for requirement in included
             } == {
-                (requirement.name, str(requirement.specifier))
+                (canonicalize_name(requirement.name), str(requirement.specifier))
                 for requirement in expected
             }
         record_name = next(name for name in names if name.endswith(".dist-info/RECORD"))

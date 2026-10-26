@@ -1,4 +1,27 @@
-# Polyglot Watchlist — research name matching
+# Polyglot Watchlist and Follow the Money — research agents
+
+
+This repository contains two local research projects. **Project 1, Polyglot
+Watchlist**, retrieves possible multilingual name matches for human review.
+**Project 2, Follow the Money**, traces Bitcoin and USDT TRC-20 research leads
+under a budget, challenges every claim, pauses for human approval, and remembers
+reviewed non-service cluster overlap. Neither establishes identity or wrongdoing.
+
+Project 2 includes replay-first explorer tools, temporal GraphSAGE/GAT/XGBoost
+experiments, a LangGraph critic/review loop, case memory, FastAPI, MCP (stdio and
+streamable HTTP), Streamlit and a locally exercised Microsoft Agents SDK /
+Agents Playground wrapper. Real Elliptic training, live TRON, tenant/Azure
+publication and real-world effectiveness remain blocked.
+
+Start with the [Project 2 guide](docs/follow_the_money/README.md),
+[three Microsoft 365 agent types](docs/follow_the_money/README.md#microsoft-365-three-types-of-agent),
+[data provenance](docs/follow_the_money/data-card.md),
+[measured results](config/follow_the_money/evaluation-results.json), and
+[final delivery report](docs/progress/follow-the-money-final.md).
+`make demo-ftm PYTHON=.venv/bin/python` creates a fresh fictional trace and stops
+for review. Install the `ftm` extra first; add `ftm-ml` for experiments.
+
+The existing Project 1 documentation below retains its own evidence and blockers.
 
 A local multilingual candidate-retrieval prototype with a resumable human-review workflow. It suggests possible reference-record matches; it does not establish identity, wrongdoing, current sanctions status, or clearance. It is not a live screening/compliance service and is not affiliated with INTERPOL.
 

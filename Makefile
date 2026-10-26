@@ -143,6 +143,7 @@ QUALITY_FILES = \
 	tests/test_ui_client.py \
 	tests/test_ui_components.py \
 	tests/test_ui_support.py
+QUALITY_FILES += $(wildcard src/follow_the_money/*.py tests/follow_the_money/*.py scripts/ftm_*.py)
 export PYTHON QA_PYTHON UV
 
 # These targets verify local inputs; they never acquire packages or models.
@@ -302,3 +303,16 @@ eval-fictional:
 
 demo:
 	"$(PYTHON)" -B -m watchlist.stack demo $(if $(DEMO_OUTPUT),--output-root "$(DEMO_OUTPUT)")
+
+.PHONY: test-ftm eval-ftm demo-ftm
+
+FTM_RUN ?= data/follow_the_money/run-$(shell date -u +%Y%m%dT%H%M%SZ)
+
+test-ftm:
+	"$(PYTHON)" -B -m pytest -q tests/follow_the_money -p no:cacheprovider
+
+eval-ftm:
+	"$(PYTHON)" -B -m follow_the_money evaluate --output "$(FTM_RUN)/evaluation"
+
+demo-ftm:
+	"$(PYTHON)" -B -m follow_the_money demo --workspace "$(FTM_RUN)/demo"

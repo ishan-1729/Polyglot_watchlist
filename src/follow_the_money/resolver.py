@@ -1,0 +1,41 @@
+"""Sanctioned-wallet published names call Project 1's public v2 service only."""
+
+from dataclasses import dataclass
+from typing import Any
+from uuid import NAMESPACE_URL, uuid5
+
+from follow_the_money.contracts import Label, digest
+
+
+@dataclass
+class EntityResolver:
+    service: Any = None
+
+    def resolve_entity_name(self, label: Label, *, case_id: str) -> dict:
+        if label.category != "sanctioned" or not label.owner_name:
+            return {
+                "status": "not_applicable",
+                "reason": "No published sanctioned-wallet owner name",
+            }
+        if self.service is None:
+            return {
+                "status": "unavailable",
+                "reason": "Project 1 v2 service is not configured",
+                "label_sha256": digest(label.to_dict()),
+            }
+        request_id = str(
+            uuid5(NAMESPACE_URL, f"ftm:{case_id}:{digest(label.to_dict())}")
+        )
+        view = self.service.start_case(
+            label.owner_name,
+            origin="unknown",
+            actor="ftm-resolver",
+            request_id=request_id,
+        )
+        return {
+            "status": "human_review_required",
+            "project1_case_id": view.case_id,
+            "project1_status": view.status,
+            "label_sha256": digest(label.to_dict()),
+            "notice": "Possible record matches only. The published name and wallet attribution remain unverified.",
+        }
