@@ -13,13 +13,13 @@ The [Step 29 report](progress/completion-29.md) records which of these commands 
 
 | Item | Requirement | Notes |
 | --- | --- | --- |
-| Python | CPython **3.14** (`requires-python = ">=3.14,<3.15"`) | The lock pins `==3.14.*`. Hosted CI uses 3.14.0. |
+| Python | CPython **3.14** (`requires-python = ">=3.14,<3.15"`) | The lock pins `==3.14.*`. This review uses the installed locked environment; hosted CI was not run. |
 | uv | **0.13.5** exactly (`[tool.uv] required-version`) | Other versions refuse to run. |
 | Checkout | This repository, with `uv.lock` unchanged | Do not regenerate the lock to make a run pass. |
 | Network | Only for the first `uv sync`, which downloads locked wheels | Everything after that runs offline. Downloading needs your own approval. Nothing downloads models or data. |
 | Disk | The `embeddings` extra pulls Torch, which is large on Linux because of the NVIDIA wheels | `--skip-torch` / the reduced extras below avoid it. |
 
-Never put API keys, tokens or real names into the repository. Generated workspaces, memory stores, evaluation outputs and demo outputs go under `data/`, which is git-ignored.
+Never put API keys, tokens or real names into the repository. Generated workspaces, memory stores, evaluation outputs and demo outputs go under the documented ignored roots (`data/review/`, `data/demo/`, `data/eval-fictional/`). Not all of `data/` is ignored.
 
 ## 1. Linux or WSL (bash)
 
@@ -38,7 +38,7 @@ env UV_PYTHON_DOWNLOADS=never UV_PROJECT_ENVIRONMENT="$PWD/.tools/qa" \
   uv sync --locked --only-group qa --no-install-project --python python3.14
 ```
 
-To install without Torch, replace `--all-extras` with `--extra agent --extra api --extra ui --extra mcp --extra preprocessing --extra index --extra llm`. The training and calibration tests then skip, and `make eval-fictional` needs `EVAL_FLAGS=--skip-torch`.
+To install without Torch, replace `--all-extras` with `--extra agent --extra api --extra ui --extra mcp --extra preprocessing --extra index --extra llm`. Torch-dependent test modules then skip, and `make eval-fictional` needs `EVAL_FLAGS=--skip-torch`.
 
 If the wheels are already in uv's cache, add `--offline`. Stop if a wheel is missing from the cache: a cache miss needs a separately approved download.
 
@@ -52,15 +52,15 @@ M="make PYTHON=.venv/bin/python QA_PYTHON=.tools/qa/bin/python UV=$(command -v u
 $M lint            # ruff check + format --check over the reviewed scope
 $M lock-check      # lock consistency, offline
 $M test-v2         # v2 stack + completion-step modules (list in Makefile V2_TESTS)
-$M test            # every non-integration test (includes packaging checks, which need a wheelhouse; see README)
-$M eval-smoke      # deterministic 157-query fictional regression check
+$M test            # every non-integration test; packaging checks also need WATCHLIST_WHEELHOUSE
+$M eval-smoke      # legacy fictional regression target; outside this review
 $M eval-fictional  # Steps 10-17 + 20-21 fictional evaluations into a NEW data/eval-fictional/run-<UTC>/
 $M eval-fictional EVAL_FLAGS=--skip-torch   # same, without the training -> calibration -> policy chain
 $M demo            # fictional walkthrough into a NEW data/demo/run-<UTC>/
 ```
 
 What two of these targets do:
-- **`eval-fictional`** writes a `manifest.json` that lists each command, its exit code and wall time, and the SHA-256 of every output file. Timing fields differ from run to run. The other outputs are expected to be identical for the same lock, platform and inputs. The script does not assert that; compare two manifests to check it.
+- **`eval-fictional`** writes a `manifest.json` that lists each command, its exit code and wall time, and the SHA-256 of every output file. Timing fields differ from run to run. UUIDs, timestamps and environment fields also differ. Compare deterministic results separately; the manifest records checksums, not a claim of byte-for-byte reproducibility.
 - **`demo`** runs the API in-process, with no listening socket and a key that exists only for that run. It then:
   1. starts a case for the fictional name `Luma Vesper`;
   2. records one fictional review annotation;
@@ -86,7 +86,7 @@ export WATCHLIST_API_KEYS='<the printed "entry" value>'
 $M serve-api WORKSPACE=data/review/v2-local MEMORY_STORE=data/review/memory-local
 
 # Terminal 2: reviewer UI on 127.0.0.1:8501.
-export WATCHLIST_API_KEY='<the printed "token" value>'
+# Enter your private token in the UI sign-in form; do not export it to the server.
 $M serve-ui
 
 # After reviews are completed, publish them so later cases show them as context.
@@ -101,9 +101,9 @@ How these commands behave:
 - **The API only binds to loopback.** `watchlist.api serve` refuses any non-loopback host.
 - **The MCP server needs absolute paths.** It refuses relative paths for the workspace, the config and the memory options.
 
-## 2. Windows (PowerShell, no make)
+## 2. Windows alternatives (not executed in this review)
 
-The same commands work with `.venv\Scripts\python.exe`. Set the offline flags yourself:
+Use Ubuntu 24.04 WSL for this project. For native-Windows users the equivalent command forms use `.venv\Scripts\python.exe`. Set the offline flags yourself:
 
 ```powershell
 cd D:\path\to\polyglot-watchlist
@@ -139,14 +139,14 @@ $env:WATCHLIST_API_KEYS = "<entry>"
 .venv\Scripts\python.exe -B -m watchlist.api serve --workspace data\review\v2-local --config config\review-v2.json `
   --memory-store data\review\memory-local --memory-config config\memory.json
 # second window:
-$env:WATCHLIST_API_URL = "http://127.0.0.1:8000"; $env:WATCHLIST_API_KEY = "<token>"
+$env:WATCHLIST_API_URL = "http://127.0.0.1:8000"
 .venv\Scripts\python.exe -B -m streamlit run src\watchlist\ui\app.py --server.address 127.0.0.1 `
-  --server.headless true --browser.gatherUsageStats false
+  --server.headless true --browser.gatherUsageStats false --server.allowedHosts localhost --server.allowedHosts 127.0.0.1
 ```
 
-**Lint scope.** In the Step 29 run the directory form above reported the same 136 files as `make lint`. With Git Bash and a `make` binary you can also run `make PYTHON=.venv/Scripts/python.exe QA_PYTHON=.tools/qa/Scripts/python.exe lint`, which is how Step 29 ran it.
+**Lint scope.** The directory form follows the configured include list; the Make target lists explicit files. This review records its own scoped Ruff invocation separately. No native-Windows lint execution is claimed.
 
-**Portability.** The v2 review service, API, UI, MCP and memory modules use `portalocker` locks, `pathlib` and explicit UTF-8, and their tests run on Windows. The historical v1 agent (`src/watchlist/agent/`) still uses POSIX file locks and is **not** a Windows target.
+**Portability.** The v2 review service, API, UI, MCP and memory modules use `portalocker` locks, `pathlib` and explicit UTF-8, and include portability tests. This review executed Linux tests only. The historical v1 agent (`src/watchlist/agent/`) still uses POSIX file locks and is **not** a Windows target.
 
 ## 3. Container (Linux)
 
@@ -160,7 +160,7 @@ $env:WATCHLIST_API_URL = "http://127.0.0.1:8000"; $env:WATCHLIST_API_KEY = "<tok
 mkdir -p deploy/secrets
 .venv/bin/python -B -m watchlist.api new-key --actor demo-reviewer --role reviewer
 # Write only the "entry" value to deploy/secrets/api-keys.txt (git-ignored).
-export WATCHLIST_API_KEY='<token>'
+# Enter your private token in the UI sign-in form; do not export it to the server.
 docker compose up --build        # or: podman compose up --build
 # open http://127.0.0.1:8501
 ```
@@ -172,4 +172,4 @@ docker compose up --build        # or: podman compose up --build
 - **Real-data results.** These need the reviewed Step 08 corpus and human labels, which are BLOCKED. All evaluation outputs here are software-mechanics evidence on fictional, authored or generated data.
 - **Model-dependent runs.** The E5 and MiniLM runs need already-local, approved weights; `make test-local-models` opts into them. Nothing downloads weights.
 - **Live LLM calls.** These need an approved provider account and key. The LLM harness runs with recorded or fake replies only.
-- **Every README number from one `make eval`.** Historical numbers stay in their own completion reports, each with its own command. `eval-fictional` regenerates the fictional Step 10–21 outputs into a new folder.
+- **Historical benchmark totals.** The scoped reports have been revised to separate implemented mechanics from this review’s actual evidence. Unverified timings and totals were removed.

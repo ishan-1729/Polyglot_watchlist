@@ -453,42 +453,51 @@ class FreshnessReport(_Contract):
 def check_freshness(
     store: MemoryStore, context: dict[str, Any], *, now: str | None = None
 ) -> FreshnessReport:
-    """Compare a frozen ``case_memory`` context with current memory state.
-
-    Interfaces should call this immediately before ``submit_review``. It is
-    **not** enforced under the review acceptance lock yet (that needs a v2
-    service hook; see docs/progress/completion-20-21.md), so a change between
-    this check and acceptance is possible.
-    """
-    if context.get("status") != "ok":
-        return FreshnessReport(True, iso(parse_time(now or store.now(), "now")), (), ())
-    moment = parse_time(now or store.now(), "now")
-    policy = store.config.policy
-    changed, ineligible = [], []
+    """Inspect freshness; review acceptance uses the same check under both locks."""
     with store.session(write=False) as mdb:
-        pairs = [(k["record_key"], k["snapshot_sha256"]) for k in context["keys"]]
-        current = mdb.key_revisions(pairs)
-        for key in context["keys"]:
-            pair = (key["record_key"], key["snapshot_sha256"])
-            if current[pair] != key["revision"]:
-                changed.append(key["source_entity_id"])
-            ids = [card["annotation_id"] for card in key["cards"]]
-            corrections = _corrections(mdb, ids)
-            for card in key["cards"]:
-                annotation = mdb.annotation(card["annotation_id"])
-                if annotation is None:
-                    ineligible.append(card["annotation_id"])
-                    continue
-                status = _status(
-                    annotation,
-                    corrections,
-                    policy=policy,
-                    case_origin=context.get("case_origin"),
-                    now=moment,
-                    exclude_case_id=None,
-                )
-                if status != "eligible":
-                    ineligible.append(card["annotation_id"])
+        return check_freshness_in_session(
+            mdb, context, store.config.policy, now=now or store.now()
+        )
+
+
+def check_freshness_in_session(
+    mdb: MemoryDb, context: dict[str, Any], policy: MemoryPolicy, *, now: str
+) -> FreshnessReport:
+    """Check revisions and visibility with the caller holding the memory lock."""
+    if context.get("status") != "ok":
+        return FreshnessReport(True, iso(parse_time(now, "now")), (), ())
+    moment = parse_time(now, "now")
+    if context.get("policy_sha256") != policy.sha256:
+        return FreshnessReport(
+            False,
+            iso(moment),
+            tuple(k["source_entity_id"] for k in context["keys"]),
+            (),
+        )
+    changed, ineligible = [], []
+    pairs = [(k["record_key"], k["snapshot_sha256"]) for k in context["keys"]]
+    current = mdb.key_revisions(pairs)
+    for key in context["keys"]:
+        pair = (key["record_key"], key["snapshot_sha256"])
+        if current[pair] != key["revision"]:
+            changed.append(key["source_entity_id"])
+        ids = [card["annotation_id"] for card in key["cards"]]
+        corrections = _corrections(mdb, ids)
+        for card in key["cards"]:
+            annotation = mdb.annotation(card["annotation_id"])
+            if annotation is None:
+                ineligible.append(card["annotation_id"])
+                continue
+            status = _status(
+                annotation,
+                corrections,
+                policy=policy,
+                case_origin=context.get("case_origin"),
+                now=moment,
+                exclude_case_id=None,
+            )
+            if status != "eligible":
+                ineligible.append(card["annotation_id"])
     return FreshnessReport(
         not changed and not ineligible,
         iso(moment),

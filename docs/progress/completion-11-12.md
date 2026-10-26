@@ -147,3 +147,8 @@ Run: `PYTHONPATH=src .venv/Scripts/python.exe -B -m watchlist.hybrid_retrieval s
 ## Next action
 
 After Step 08 delivers an accepted reviewed corpus and frozen views: add a `real` dataset loader to `evaluate_baselines.py`, run the same command on its development partition, obtain approval/verified local weights for E5 (and LaBSE if approved) and plug them into `DenseRetriever` (it accepts any encoder with `encode` and `metadata`), then select and freeze the fusion rule, depths and HNSW parameters on development before any test-partition run.
+
+
+## Adversarial review follow-up (2026-10-27)
+
+A later independent review on branch `p1-review` changed some behaviour described above and withdrew figures it could not reproduce. Read [the review report](review-p1-final.md) and [its validation record](review-p1-validation.json) alongside this report; where they disagree, the review report is current. The text above is kept as the record of what was reported at the time.

@@ -9,21 +9,29 @@ Completion Step 25. Package: `src/watchlist/ui/`. The interface is a thin client
 Requires the `api`, `agent` and `ui` extras. Use a temporary workspace; all data is fictional.
 
 ```sh
-python -B -m watchlist.review v2 init --workspace ../data/review-v2
+python -B -m watchlist.review v2 init --workspace ../data/review/v2-local
 python -B -m watchlist.api new-key --actor fictional-reviewer --role reviewer
 #   {"entry": "fictional-reviewer:reviewer:<sha256>", "token": "<keep secret>"}
 export WATCHLIST_API_KEYS=fictional-reviewer:reviewer:<sha256>
-python -B -m watchlist.api serve --workspace ../data/review-v2 \
+python -B -m watchlist.api serve --workspace ../data/review/v2-local \
     --config config/review-v2.json --host 127.0.0.1 --port 8765
 
 # second terminal
 export WATCHLIST_API_URL=http://127.0.0.1:8765
-export WATCHLIST_API_KEY=<token from new-key>
+# Enter your private token in the UI sign-in form; do not export it to the server.
 streamlit run src/watchlist/ui/app.py --server.address 127.0.0.1 --server.port 8766 \
-    --server.headless true --browser.gatherUsageStats false
+    --server.headless true --browser.gatherUsageStats false --server.allowedHosts localhost --server.allowedHosts 127.0.0.1
 ```
 
 Open `http://127.0.0.1:8766`. The sidebar shows the API URL and `API key: configured`; the key itself is never displayed. Plain `http` is accepted only for loopback hosts; any other host needs `https` (and external hosting is not approved, see Step 28). If the configuration is invalid the page shows the error code `client_config_invalid` and the research notice, and nothing else.
+
+Before screening, enter your own API key in the password field and press **Sign in**.
+The API validates it before the session opens. A server-side `WATCHLIST_API_KEY`
+is ignored by the UI. **Sign out** closes the client and clears that session's
+cases, forms and evidence. Bearer keys identify the issued actor label; they do
+not verify that the key holder is a particular human. Keep the UI on loopback,
+keep the Host allowlist, and use one private key per reviewer. Browser automation,
+accessibility and human usability remain unverified in this review.
 
 ## 2. Screen a name
 
@@ -81,15 +89,10 @@ Errors show a short guidance sentence, the stable code, the HTTP status (or "no 
 | `api_unreachable` | the API is not running or not reachable |
 | `unauthenticated`, `forbidden` | key refused, or a viewer key tried to write |
 | `retrieval_failed`, `context_provider_failed` | no result inferred; recover the case later |
-| `client_config_invalid` | `WATCHLIST_API_URL`/`WATCHLIST_API_KEY` invalid |
+| `client_config_invalid` | API URL or session key invalid |
 
-## 7. Recorded fictional walkthrough
+## 7. Validation status
 
-Run on 2026-10-26 on the Windows development machine with the commands in section 1 (temporary workspace in the session scratch directory, RapidFuzz retriever over the packaged fictional entities) and the built-in browser pane:
+The [review receipt](progress/review-p1-final.md) records Linux AppTest and API checks. These are programmatic UI checks; no real browser session, accessibility assessment or human usability study was performed during this review. The previous browser walkthrough and scores are not asserted as current evidence.
 
-1. Screened `سيرا لومين` with origin `simulated_demo`. Five candidates were shown: `syn-007` (matched alias `سيرا لومين`, score 100.00), `syn-008` (`دارو نوفيم`, 40.00), `syn-006`, `syn-011`, `syn-012` (10.00 each), all `normalized_levenshtein_similarity_x100`, source `fictional-synthetic-v1`, synthetic, provenance "none recorded". In the browser DOM the screened name and Arabic aliases were inside `dir="auto"` elements. No memory provider was attached.
-2. Chose `candidate_for_follow_up`, selected `#1 syn-007`, typed a reason, and **double-clicked** Submit review. The API log shows exactly one `POST /v2/cases/{id}/review` (200); the page showed the recorded review and the evidence explanation.
-3. Opened the case from the **Case list** and pressed **Load audit and verify**: "Audit chain verified locally: 5 events" (`case_created`, `evidence_recorded`, `review_ready`, `review_submitted`, `case_finalized`).
-4. Screened `<img src=x onerror=document.title='XSS'>Luma`: the text was displayed literally, no `<img>` element was created and the page title did not change.
-
-These are software-behaviour observations on fictional data, not matching-quality or usability-study results.
+If the API reports that reviewer memory changed or expired, start a fresh case; reloading the old frozen packet cannot refresh its history. The UI preserves unsent notes. Review the new evidence before reusing any notes.

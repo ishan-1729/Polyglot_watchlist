@@ -1060,9 +1060,6 @@ def _operation_attrs(
 
 SCOPE_REQUEST_ID = "watchlist.request_id"
 _ERROR_BODY_CAP = 16384
-_CREDENTIAL_HEADERS = frozenset(
-    {b"authorization", b"proxy-authorization", b"cookie", b"x-api-key"}
-)
 _METHODS = frozenset({"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"})
 
 
@@ -1090,43 +1087,18 @@ class ObservabilityMiddleware:
     strings in URLs cannot create unbounded metric series or reach logs.
     """
 
-    def __init__(
-        self,
-        app: Any,
-        observability: Observability,
-        *,
-        is_credential: Callable[[str], bool] | None = None,
-    ):
+    def __init__(self, app: Any, observability: Observability):
         self.app = app
         self.obs = observability
-        self.is_credential = is_credential
-
-    def _looks_like_credential(self, value: str, headers: Sequence[bytes]) -> bool:
-        """True if ``value`` is inside a credential header or is a valid API key."""
-        raw = value.encode("ascii")
-        if any(raw in header for header in headers):
-            return True
-        if self.is_credential is None:
-            return False
-        try:
-            return bool(self.is_credential(value))
-        except Exception:  # a failing check must not fail the request
-            return True
 
     async def __call__(self, scope: Any, receive: Any, send: Any) -> None:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
-        incoming = None
-        credentials: list[bytes] = []
-        for name, value in scope.get("headers", []):
-            if name == b"x-request-id" and incoming is None:
-                incoming = accept_request_id(value)
-            elif name in _CREDENTIAL_HEADERS:
-                credentials.append(value)
-        if incoming is not None and self._looks_like_credential(incoming, credentials):
-            incoming = None  # never echo a credential back as a correlation ID
-        request_id = incoming or new_request_id()
+        # Never echo or authenticate a caller-supplied correlation value.
+        # Otherwise a token in X-Request-ID leaks into traces, or the choice
+        # to replace it reveals whether a guessed token authenticates.
+        request_id = new_request_id()
         scope[SCOPE_REQUEST_ID] = request_id
         method = scope.get("method", "GET")
         method = method if method in _METHODS else "OTHER"

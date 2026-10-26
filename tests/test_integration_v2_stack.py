@@ -334,3 +334,15 @@ def test_demo_walkthrough_runs_in_a_new_directory(tmp_path):
     with pytest.raises(ReviewError) as caught:
         stack.run_demo(tmp_path / "demo", log=lines.append)
     assert caught.value.code == "invalid_input"
+
+
+def test_default_demo_output_is_bound_to_checkout_not_current_directory(
+    tmp_path, monkeypatch, capsys
+):
+    recorded = []
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(stack, "run_demo", lambda path: recorded.append(path) or {})
+    assert stack.main(["demo"]) == 0
+    assert recorded[0].parent == ROOT / "data" / "demo"
+    assert recorded[0].name.startswith("run-")
+    assert not (tmp_path / "data").exists()

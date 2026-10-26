@@ -180,15 +180,28 @@ class WriteQueue:
                     headers={"retry-after": "1"},
                 )
             self._outstanding += 1
+
+        def run() -> T:
+            try:
+                return fn()
+            finally:
+                # Release before Future publishes the result to its waiters.
+                self._release(None)
+
         try:
-            future = self._executor.submit(fn)
+            future = self._executor.submit(run)
         except RuntimeError:
             self._release(None)
             raise ApiError(
                 503, "service_unavailable", "The API is shutting down.", retryable=True
             ) from None
-        future.add_done_callback(self._release)
+        future.add_done_callback(self._release_cancelled)
         return future
+
+    def _release_cancelled(self, future: Future) -> None:
+        # A queued callable cancelled before starting never runs its finally.
+        if future.cancelled():
+            self._release(None)
 
     def _release(self, _future: object) -> None:
         with self._lock:
@@ -381,7 +394,8 @@ class BodyLimitMiddleware:
                         error_body("bad_request", "Invalid Content-Length.", False),
                     )
                     return
-                if int(value) > self.limit:
+                digits = value.lstrip(b"0") or b"0"
+                if len(digits) > len(str(self.limit)) or int(digits) > self.limit:
                     await _send_error(send, 413, too_large)
                     return
         chunks: list[bytes] = []
@@ -608,7 +622,7 @@ async def _on_unexpected(request: Request, exc: Exception) -> JSONResponse:
     logger.error(
         "unexpected error type=%s path=%s",
         type(exc).__name__,
-        request.url.path,
+        getattr(request.scope.get("route"), "path", "unrouted"),
         extra={"request_id": request_id if isinstance(request_id, str) else "-"},
     )
     headers = dict(SECURITY_HEADERS)
@@ -728,14 +742,21 @@ def _check_workspace_readable(service: Any) -> str:
 class ReadinessProbe:
     """Coalesced, briefly cached readiness check (Step 27 hardening).
 
-    ``/ready`` needs no key, so unauthenticated probe floods must not contend
+    ``/ready`` requires a viewer key; authenticated probe floods must not contend
     for the single workspace lock that every real request needs. Concurrent
     probes share one check (a thread lock), and a healthy result is reused for
     ``cache_seconds``, so at most about one lock attempt per window is made.
     Failures are not cached: recovery is visible on the next probe.
     """
 
-    def __init__(self, check: Callable[[], str], cache_seconds: float):
+    def __init__(
+        self,
+        check: Callable[[], str],
+        cache_seconds: float,
+        *,
+        clock: Callable[[], float] = time.monotonic,
+    ):
+        self._clock = clock
         self._check = check
         self._cache_seconds = cache_seconds
         self._lock = threading.Lock()
@@ -745,7 +766,7 @@ class ReadinessProbe:
     def cached(self) -> str | None:
         """The cached healthy result if still fresh (no locking, no I/O)."""
         cached = self._cached
-        if cached is not None and time.monotonic() - cached[0] < self._cache_seconds:
+        if cached is not None and self._clock() - cached[0] < self._cache_seconds:
             return cached[1]
         return None
 
@@ -757,7 +778,7 @@ class ReadinessProbe:
                 return fresh
             self.runs += 1
             result = self._check()
-            self._cached = (time.monotonic(), result)
+            self._cached = (self._clock(), result)
             return result
 
 
@@ -824,13 +845,9 @@ def _assemble(settings: ApiSettings, runtime: _Runtime | None) -> FastAPI:
     )
     app.add_middleware(UnexpectedErrorMiddleware)
     app.add_middleware(SecurityHeadersMiddleware)
-    keys = runtime.keys if runtime is not None else None
     app.add_middleware(
         ObservabilityMiddleware,
         observability=observability,
-        is_credential=None
-        if keys is None
-        else (lambda value: keys.authenticate(value) is not None),
     )
     readiness = (
         ReadinessProbe(
@@ -852,10 +869,10 @@ def _assemble(settings: ApiSettings, runtime: _Runtime | None) -> FastAPI:
         }
 
     @app.get("/ready", include_in_schema=False)
-    async def ready(request: Request) -> dict[str, Any]:
+    async def ready(request: Request, _principal: Viewer) -> dict[str, Any]:
         """Readiness: the workspace files are complete and open read-only.
 
-        Needs no key; reveals only a stable cause code, never paths. A lock
+        Requires a viewer key; reveals only a stable cause code, never paths. A lock
         held by a running operation is reported as ready with check ``busy``.
         Results are coalesced and briefly cached (``ReadinessProbe``).
         """

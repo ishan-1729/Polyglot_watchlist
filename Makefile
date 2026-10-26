@@ -50,6 +50,8 @@ QUALITY_FILES = \
 	src/watchlist/model_artifacts.py \
 	src/watchlist/preprocessing.py \
 	src/watchlist/reconciliation.py \
+	src/watchlist/review/public_errors.py \
+	src/watchlist/review/cli.py \
 	src/watchlist/review/contracts.py \
 	src/watchlist/review/locking.py \
 	src/watchlist/review/nodes.py \
@@ -219,7 +221,7 @@ help:
 	  'memory-init    Create a new reviewer-memory store at MEMORY_STORE.' \
 	  'memory-publish Publish completed cases of WORKSPACE into MEMORY_STORE.' \
 	  'serve-api      Serve the review API on loopback (keys from WATCHLIST_API_KEYS[_FILE]).' \
-	  'serve-ui       Serve the Streamlit reviewer UI on loopback (needs WATCHLIST_API_KEY).' \
+	  'serve-ui       Serve the Streamlit reviewer UI on loopback (per-session key sign-in).' \
 	  'serve-mcp      Serve the MCP tools over stdio for a local MCP client.' \
 	  'test-v2        Run the v2 stack and completion-step test modules.' \
 	  'eval-fictional Rerun the fictional evaluations into a new EVAL_OUTPUT (default: data/eval-fictional/run-<UTC>).' \
@@ -285,10 +287,10 @@ serve-api:
 		--host "$(API_HOST)" --port "$(API_PORT)" $(MEMORY_ARGS)
 
 serve-ui:
-	@test -n "$$WATCHLIST_API_KEY" || { printf '%s\n' 'Set WATCHLIST_API_KEY (a reviewer or viewer key) in the environment.' >&2; exit 2; }
 	WATCHLIST_API_URL="$${WATCHLIST_API_URL:-http://$(API_HOST):$(API_PORT)}" \
 		"$(PYTHON)" -B -m streamlit run src/watchlist/ui/app.py --server.address 127.0.0.1 \
-		--server.port "$(UI_PORT)" --server.headless true --browser.gatherUsageStats false
+		--server.port "$(UI_PORT)" --server.headless true --browser.gatherUsageStats false \
+		--server.allowedHosts localhost --server.allowedHosts 127.0.0.1
 
 serve-mcp:
 	"$(PYTHON)" -B -m watchlist.mcp_server --workspace "$(abspath $(WORKSPACE))" \

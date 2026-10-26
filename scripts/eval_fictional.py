@@ -14,9 +14,9 @@ never touched.
 
 Scope and limits: fictional/authored/generated data only, no network, no model
 download, no API key. ``--skip-torch`` leaves out the training pilot chain when
-the ``embeddings`` extra (torch) is not installed. Timing fields and wall times
-differ between runs; everything else is expected to be deterministic for the
-same lock, platform and inputs, but this script does not itself assert that.
+the ``embeddings`` extra (torch) is not installed. Timing fields, UUIDs, timestamps and environment metadata can differ
+between runs. Compare deterministic result fields separately; the manifest
+records checksums but does not prove byte-for-byte reproducibility.
 These are software-mechanics results, not matching-quality, calibration or
 reviewer-benefit claims.
 

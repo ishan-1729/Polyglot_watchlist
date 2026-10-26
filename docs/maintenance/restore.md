@@ -15,29 +15,29 @@ All commands are local and offline. Paths are examples.
 
 ```sh
 # 1. Backup (new directory only)
-python -m watchlist.review.backup create --workspace data/review-v2 \
-    --memory data/review-v2-memory --destination backups/2026-10-26T1200
+python -m watchlist.review.backup create --workspace data/review/v2-local \
+    --memory data/review/v2-memory --destination data/review-archives/2026-10-26T1200
 
 # 2. Verify a backup set
-python -m watchlist.review.backup verify --backup backups/2026-10-26T1200
+python -m watchlist.review.backup verify --backup data/review-archives/2026-10-26T1200
 
 # 3. Restore drill: restore to a temporary directory, verify, remove it
-python -m watchlist.review.backup restore --backup backups/2026-10-26T1200 \
+python -m watchlist.review.backup restore --backup data/review-archives/2026-10-26T1200 \
     --dry-run --review-config config/review-v2.json
 
 # 4. Real restore into a NEW directory, with deep audit verification
-python -m watchlist.review.backup restore --backup backups/2026-10-26T1200 \
-    --destination data/restored-2026-10-26 --review-config config/review-v2.json
+python -m watchlist.review.backup restore --backup data/review-archives/2026-10-26T1200 \
+    --destination data/review-archives/restored-2026-10-26 --review-config config/review-v2.json
 
 # 5. Export an anchor (exclusive create; copy it off this disk)
-python -m watchlist.review.backup anchor --workspace data/review-v2 \
-    --review-config config/review-v2.json --memory data/review-v2-memory \
-    --memory-config config/memory.json --anchor anchors/2026-10-26.json
+python -m watchlist.review.backup anchor --workspace data/review/v2-local \
+    --review-config config/review-v2.json --memory data/review/v2-memory \
+    --memory-config config/memory.json --anchor data/review-archives/anchors/2026-10-26.json
 
 # 6. Later: verify current stores against that anchor
-python -m watchlist.review.backup verify-anchor --workspace data/review-v2 \
-    --review-config config/review-v2.json --memory data/review-v2-memory \
-    --memory-config config/memory.json --anchor anchors/2026-10-26.json
+python -m watchlist.review.backup verify-anchor --workspace data/review/v2-local \
+    --review-config config/review-v2.json --memory data/review/v2-memory \
+    --memory-config config/memory.json --anchor data/review-archives/anchors/2026-10-26.json
 ```
 
 Each command prints JSON and exits 0 on success, 1 when a verification reports issues, 2 on a structured error (`{"error": code, ...}`).
@@ -60,9 +60,9 @@ Each command prints JSON and exits 0 on success, 1 when a verification reports i
 - Malformed anchor files (wrong keys or types) are rejected with `backup_failed` before any comparison.
 - There are no schema migrations yet (`review-workspace-v2`, `case-memory-store-v1`). A future migration must restore into a new directory, migrate there and verify before activation; this runbook's steps 2–6 apply unchanged.
 
-## Measured on this machine (fictional data)
+## Fixture validation
 
-The restore drill in `tests/test_review_backup.py` restores a 3-case workspace plus a 2-annotation memory store into a new directory, verifies every audit chain through the read-only service, and confirms the restored pending case can be reviewed there while the live case is unchanged. The recovery time it measures is printed in the report as `elapsed_seconds`; numbers for this step are recorded in [completion-20-21](../progress/completion-20-21.md).
+The restore drill in `tests/test_review_backup.py` restores a 3-case workspace plus a 2-annotation memory store into a new directory, verifies every audit chain through the read-only service, and confirms the restored pending case can be reviewed there while the live case is unchanged. The recovery time it measures is printed in the report as `elapsed_seconds`; current executed test results are recorded in the [review receipt](../progress/review-p1-final.md); no recovery-time guarantee is claimed.
 
 ## Retention of backups
 

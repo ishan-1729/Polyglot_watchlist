@@ -121,6 +121,8 @@ def _serve(args: argparse.Namespace) -> int:
         date_header=True,
         proxy_headers=False,
         log_level="info",
+        access_log=False,
+        timeout_keep_alive=5,
     )
     return 0
 

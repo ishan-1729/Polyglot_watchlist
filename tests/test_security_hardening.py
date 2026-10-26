@@ -268,14 +268,6 @@ LRM, RLM, ALM = chr(0x200E), chr(0x200F), chr(0x061C)
 RLO, RLI, PDI = chr(0x202E), chr(0x2067), chr(0x2069)
 ZWSP, ZWNJ, ZWJ = chr(0x200B), chr(0x200C), chr(0x200D)
 UNSAFE = frozenset((LRM, RLM, ALM, RLO, RLI, PDI, ZWSP, ZWNJ, ZWJ))
-# Non-strict on purpose: when the review owner fixes the finding these
-# cases XPASS without failing a file that owner does not own.
-BIDI_MARK_FINDING = pytest.mark.xfail(
-    strict=False,
-    reason="FINDING: review/validation.py _BIDI_CONTROLS omits the implicit bidi "
-    "marks U+200E/U+200F/U+061C, so names may carry them (owner: review service; "
-    "see docs/progress/completion-27.md)",
-)
 
 
 @pytest.mark.parametrize(
@@ -284,9 +276,9 @@ BIDI_MARK_FINDING = pytest.mark.xfail(
         f"Luma{RLO}Vesper",
         f"{RLI}Luma Vesper{PDI}",
         ZWSP * 2,
-        pytest.param(f"Luma{LRM}Vesper", marks=BIDI_MARK_FINDING),
-        pytest.param(f"Luma{RLM}Vesper", marks=BIDI_MARK_FINDING),
-        pytest.param(f"Luma{ALM}Vesper", marks=BIDI_MARK_FINDING),
+        f"Luma{LRM}Vesper",
+        f"Luma{RLM}Vesper",
+        f"Luma{ALM}Vesper",
     ],
 )
 def test_bidi_controls_and_invisible_only_names_are_refused(tmp_path, name, caplog):
@@ -408,7 +400,10 @@ def test_raw_header_injection_is_not_reflected(tmp_path):
         "/health",
         [(b"x-request-id", b"first-ok"), (b"x-request-id", b"second-ok")],
     )
-    assert [v for n, v in headers if n == b"x-request-id"] == [b"first-ok"]
+    assert [v for n, v in headers if n == b"x-request-id"][0] not in (
+        b"first-ok",
+        b"second-ok",
+    )
 
     status, headers, _ = asgi_request(
         app, "GET", "/health", [(b"x-request-id", "r\u00e9q".encode("utf-8"))]
@@ -599,3 +594,12 @@ def test_real_uvicorn_logs_no_exception_text_for_an_unexpected_500(tmp_path):
     assert "unexpected error type=RuntimeError" in text
     assert "Traceback" not in text and "Exception in ASGI application" not in text
     assert hidden_reason not in text and NAME not in text
+
+
+def test_enormous_content_length_is_a_client_error_not_an_internal_error(tmp_path):
+    app = build(tmp_path)
+    status, headers, body = asgi_request(
+        app, "POST", "/v2/cases", [(b"content-length", b"9" * 5000)]
+    )
+    assert status == 413
+    assert json.loads(body)["code"] == "body_too_large"

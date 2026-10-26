@@ -333,3 +333,40 @@ def test_sdk_client_receives_adversarial_record_text_as_escaped_data(
 def test_module_exports() -> None:
     assert mcp_server.SERVER_NAME == "polyglot-watchlist-review"
     assert "screen_name" in mcp_server.TOOL_NAMES
+
+
+def test_workspace_failure_is_sanitized_in_both_mcp_payloads(tmp_path):
+    import json
+
+    workspace = tmp_path / "private-operator-workspace"
+    runtime = open_runtime(_settings(workspace))
+    server = build_server(runtime)
+    workspace.rename(tmp_path / "moved")
+
+    async def call():
+        return await server.call_tool("list_cases", {})
+
+    result = anyio.run(call)
+    assert result.is_error
+    payload = result.structured_content
+    assert payload["error"] == "workspace_invalid"
+    assert payload["message"] == "The review workspace is unavailable."
+    assert payload["details"] == {}
+    assert json.loads(result.content[0].text) == payload
+    assert str(tmp_path) not in result.content[0].text
+
+
+def test_unexpected_mcp_errors_never_log_exception_text(server, monkeypatch, caplog):
+    def broken(*args, **kwargs):
+        raise RuntimeError("private-name private-token /private/workspace")
+
+    monkeypatch.setattr(tools, "list_cases", broken)
+
+    async def call():
+        return await server.call_tool("list_cases", {})
+
+    result = anyio.run(call)
+    assert result.is_error
+    assert result.structured_content["error"] == "internal_error"
+    assert "private-" not in caplog.text
+    assert "/private/" not in caplog.text

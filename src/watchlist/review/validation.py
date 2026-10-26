@@ -35,7 +35,7 @@ from watchlist.review.contracts import (
 
 # Bidirectional embedding/override/isolate controls can make stored text display
 # differently from its characters; real names and labels do not need them.
-_BIDI_CONTROLS = frozenset("‪‫‬‭‮⁦⁧⁨⁩")
+_BIDI_CONTROLS = frozenset("؜‎‏‪‫‬‭‮⁦⁧⁨⁩")
 _LINE_CONTROLS = frozenset("\n\r\t")
 
 

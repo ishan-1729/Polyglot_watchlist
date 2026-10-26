@@ -36,6 +36,7 @@ from watchlist.review.contracts import (
     ValidationError,
 )
 from watchlist.review.service import ReviewService
+from watchlist.review.public_errors import review_error_body
 from watchlist.review.validation import validate_case_id
 
 __all__ = [
@@ -74,7 +75,7 @@ SCORE_SEMANTICS = (
 )
 REVIEW_PATH = (
     "Submitting a review is not available through MCP. A human reviewer uses "
-    "'python -B -m watchlist.review v2 submit' (or a later authenticated "
+    "'python -B -m watchlist.review v2 review' (or the authenticated "
     "interface) with this case_id and packet_sha256."
 )
 
@@ -131,7 +132,8 @@ class ToolRuntime:
 
 def error_payload(exc: ReviewError) -> dict[str, Any]:
     """Structured tool error: the stable service code plus the limitation notice."""
-    payload = exc.to_dict()
+    payload = review_error_body(exc)
+    payload["error"] = payload.pop("code")
     payload["ok"] = False
     payload["limitation"] = LIMITATION_NOTICE
     return payload

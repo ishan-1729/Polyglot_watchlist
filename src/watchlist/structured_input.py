@@ -73,7 +73,7 @@ _IMO = re.compile(r"(?:IMO[ ]?)?(?P<digits>[0-9]{7})")
 _ID_SEPARATORS = str.maketrans("", "", " -./" + HYPHEN_VARIANTS)
 # Embedding, override and isolate controls can make displayed text differ from
 # its logical order. ZWJ/ZWNJ stay allowed: Arabic, Persian and Indic need them.
-BIDI_CONTROLS = frozenset("‪‫‬‭‮⁦⁧⁨⁩")
+BIDI_CONTROLS = frozenset("؜‎‏‪‫‬‭‮⁦⁧⁨⁩")
 
 
 @dataclass(frozen=True)

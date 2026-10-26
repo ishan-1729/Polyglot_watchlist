@@ -180,6 +180,9 @@ def _run_v2(args: argparse.Namespace) -> int:
         else:
             anchor = _read_json(args.anchor) if args.anchor else None
             result = service.verify_audit(args.case_id, anchor).to_dict()
+            if not result["ok"]:
+                print(json.dumps(result, indent=2, ensure_ascii=True))
+                return 1
     except ReviewError as exc:
         print(
             json.dumps(exc.to_dict(), sort_keys=True, ensure_ascii=True),

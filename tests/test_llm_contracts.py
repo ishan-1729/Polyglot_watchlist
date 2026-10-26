@@ -590,3 +590,55 @@ def test_validation_evaluate_live_is_refused_and_creates_nothing(
     assert not out.exists()
     err = capsys.readouterr().err
     assert "live_blocked" in err and "exactly one of --receipts" in err
+
+
+def test_concurrent_calls_share_one_request_cap(tmp_path, monkeypatch):
+    from concurrent.futures import ThreadPoolExecutor
+    import threading
+
+    fake = FakeSDK()
+    monkeypatch.setitem(sys.modules, "anthropic", fake.module)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-not-real")
+    client = AnthropicClient(
+        approved_config(tmp_path, max_requests_per_run=1), allow_live=True
+    )
+    entered, release, contended = (
+        threading.Event(),
+        threading.Event(),
+        threading.Event(),
+    )
+    lock = client._call_lock
+
+    class ObservedLock:
+        def __enter__(self):
+            # First call is deliberately inside _client before its reservation.
+            # Signal only when the second actually reaches the contested lock.
+            if entered.is_set():
+                contended.set()
+            lock.acquire()
+
+        def __exit__(self, *_):
+            lock.release()
+
+    monkeypatch.setattr(client, "_call_lock", ObservedLock())
+    original = client._client
+
+    def gated_client():
+        entered.set()
+        assert release.wait(60)
+        return original()
+
+    monkeypatch.setattr(client, "_client", gated_client)
+    request = prompts.parse_request("Luma Vesper, 1980")
+    with ThreadPoolExecutor(2) as pool:
+        first = pool.submit(client.complete, request)
+        try:
+            assert entered.wait(60)
+            other = pool.submit(client.complete, request)
+            assert contended.wait(60)
+        finally:
+            release.set()
+        assert first.result(60).evidence_kind == "live_provider"
+        with pytest.raises(LLMError, match="budget_exhausted"):
+            other.result(60)
+    assert client.requests_made == 1 and len(fake.created) == 1

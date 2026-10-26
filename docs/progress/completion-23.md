@@ -118,3 +118,8 @@ Deterministic explanation (no client) of the two-candidate fictional packet begi
 - Ruff `include` in `pyproject.toml`: add `src/watchlist/llm/*.py` and the four test files.
 - No dependency change: `anthropic` is already in the `llm` extra (installed SDK 2.3.0). The `llm` extra appears in the working tree, not in HEAD; whoever owns `pyproject.toml` should confirm it is committed.
 - Optional README/Makefile lines: `python -m watchlist.llm.validation evaluate ...` and `python -m watchlist.llm.comparison preflight ...` (commands in `docs/llm.md`).
+
+
+## Adversarial review follow-up (2026-10-27)
+
+A later independent review on branch `p1-review` changed some behaviour described above and withdrew figures it could not reproduce. Read [the review report](review-p1-final.md) and [its validation record](review-p1-validation.json) alongside this report; where they disagree, the review report is current. The text above is kept as the record of what was reported at the time.

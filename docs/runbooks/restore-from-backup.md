@@ -1,6 +1,6 @@
 # Runbook — restore from backup
 
-Research prototype over fictional data. The detailed procedure, principles and anchor handling are in [docs/maintenance/restore.md](../maintenance/restore.md); this page is the short operator checklist with Step 27 measurements.
+Research prototype over fictional data. The detailed procedure, principles and anchor handling are in [docs/maintenance/restore.md](../maintenance/restore.md); this page is the short operator checklist for the local research stack.
 
 ## When
 
@@ -20,20 +20,9 @@ Research prototype over fictional data. The detailed procedure, principles and a
    `python -B -m watchlist.review.backup restore --backup <backup dir> --destination <new dir> --review-config config/review-v2.json`
    `"ok": true` and `"issues": []` are required. With `--review-config` every case's audit chain is verified through the read-only service.
 5. **Measure the loss window**: run `verify-anchor` against the newest anchor kept elsewhere using the restored directory; cases or events it reports as missing are what was lost since the backup. Record them. Do not claim zero loss without this check.
-6. **Activate**: start the API on `<new dir>/review` (`python -B -m watchlist.api serve --workspace <new dir>/review --config config/review-v2.json …`) and check `GET /ready` → `200`, then spot-check `GET /v2/cases` and one `…/audit/verify`.
+6. **Activate**: start the API on `<new dir>/review` (`python -B -m watchlist.api serve --workspace <new dir>/review --config config/review-v2.json …`) and check authenticated `GET /ready` → `200`, then spot-check `GET /v2/cases` and one `…/audit/verify`.
 7. Keep the old workspace untouched until the restored one has been used successfully; retire it later with the retention procedure.
 
-## Measured drill (2026-10-26, this machine, fictional data)
+## Validation boundary
 
-Scratch workspace with 3 fictional cases (`awaiting_review`), created with `v2 init` + 3× `v2 start`, all in the session scratch directory (not the repository):
-
-| Command | Result | Time |
-| --- | --- | --- |
-| `backup create` | exit 0 | 4.75 s wall (process start included) |
-| `backup verify` | exit 0, `ok: true` | — |
-| `backup restore --destination … --review-config …` | exit 0, `ok: true`, `case_count: 3`, `issues: []` | `elapsed_seconds` 17.06; 21.24 s wall |
-| `backup restore --dry-run --review-config …` | `ok: true`, `case_count: 3` | `elapsed_seconds` 16.21 |
-
-The restore time is dominated by the deep audit verification through the read-only review service (workflow imports and per-case checks), not by copying bytes. Loss window in this drill: none, because no writes happened after the backup; a live restore must measure it with step 5.
-
-Not drilled in Step 27: restore of a memory store, restore across machines/OSes, restore into a container volume.
+The [review receipt](../progress/review-p1-final.md) records the executed backup/restore tests. Historical scratch-drill timings were removed because this review did not reproduce them. No cross-machine, native-Windows or container-volume restore was performed. Measure the recovery and loss windows for the actual generation; do not infer them from fixture tests.
