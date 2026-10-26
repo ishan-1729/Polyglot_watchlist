@@ -17,6 +17,7 @@ import json
 import os
 from pathlib import Path, PurePosixPath, PureWindowsPath
 import platform
+import re
 import sys
 import tempfile
 
@@ -96,6 +97,16 @@ def _safe_payload_name(name: object) -> bool:
     if not isinstance(name, str) or not name or name != name.strip():
         return False
     posix, windows = PurePosixPath(name), PureWindowsPath(name)
+    if any(ord(c) < 32 or c in '\\:<>"|?*' for c in name):
+        return False
+    for part in name.split("/"):
+        if part in ("", ".", "..") or part.endswith((".", " ")):
+            return False
+        stem = part.split(".", 1)[0].upper()
+        if stem in {"CON", "PRN", "AUX", "NUL"} or re.fullmatch(
+            r"(?:COM|LPT)[1-9¹²³]", stem
+        ):
+            return False
     return not (
         posix.is_absolute()
         or windows.is_absolute()
@@ -104,6 +115,21 @@ def _safe_payload_name(name: object) -> bool:
         or ".." in posix.parts
         or ".." in windows.parts
     )
+
+
+def _contained_payload(directory: Path, name: str) -> Path:
+    """Require a regular payload with no symbolic-link component."""
+    root = directory.resolve()
+    payload = directory / name
+    relative = payload.relative_to(directory)
+    current = directory
+    for part in relative.parts:
+        current = current / part
+        if current.is_symlink():
+            raise ArtifactError("artifact payload must not use symbolic links")
+    if not payload.resolve().is_relative_to(root):
+        raise ArtifactError("artifact payload is outside the artifact")
+    return payload
 
 
 def code_fingerprint() -> dict[str, str]:
@@ -180,8 +206,12 @@ def write_artifact(
         raise ArtifactError("an artifact must contain at least one payload file")
     files = {}
     for name in sorted(payload_files):
-        path = directory / name
-        if not _safe_payload_name(name) or not path.is_file():
+        if not _safe_payload_name(name):
+            raise ArtifactError(
+                f"payload file is missing or outside the artifact: {name}"
+            )
+        path = _contained_payload(directory, name)
+        if not path.is_file():
             raise ArtifactError(
                 f"payload file is missing or outside the artifact: {name}"
             )
@@ -232,7 +262,15 @@ def verify_artifact(directory: Path) -> dict:
             raise ArtifactError(
                 f"artifact payload name is not a plain relative path: {name}"
             )
-        payload = Path(directory) / name
+        if (
+            set(info) != {"bytes", "sha256"}
+            or type(info.get("bytes")) is not int
+            or info["bytes"] < 0
+            or not isinstance(info.get("sha256"), str)
+            or re.fullmatch(r"[0-9a-f]{64}", info["sha256"]) is None
+        ):
+            raise ArtifactError("artifact payload metadata is invalid")
+        payload = _contained_payload(Path(directory), name)
         if not payload.is_file():
             raise ArtifactError(f"artifact payload is missing: {name}")
         if (
