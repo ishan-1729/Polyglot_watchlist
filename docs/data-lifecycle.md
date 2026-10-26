@@ -44,3 +44,10 @@ Every annotation carries the case origin (`human`, `simulated_demo`, `test`, `un
 - Expiry and withdrawal are not deletion. Deletion is SQLite row removal and filesystem removal, **not secure erasure** of SSD blocks, snapshots, OS caches or backups held elsewhere.
 - v2 does not yet separate content payloads from minimal audit receipts, so per-case deletion of ledger content is impossible without breaking verification. See the BLOCKED items in [completion-20-21](progress/completion-20-21.md).
 - All data handled so far is fictional. Real-person or public-derived memory requires a separately approved purpose, terms review and retention decision first.
+
+Review acceptance now takes the workspace lock, then the memory-store lock,
+rechecks the frozen key revisions and shown cards' eligibility, and holds both
+through the durable submission. A changed policy also invalidates the form.
+Accepted submissions replay without consulting later memory. Context requests
+carry frozen evidence-source labels; absent or foreign labels suppress memory
+cards instead of treating a reused ID as the same record.

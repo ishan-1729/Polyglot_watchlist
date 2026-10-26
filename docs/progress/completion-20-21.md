@@ -201,3 +201,8 @@ CLI drill (scratch directory under the session scratchpad, not the repo): a 3-ca
 ## Next step
 
 Step 22 (memory usefulness study and feedback labels) can consume `Annotation` records, but must keep display-only memory effects separate from model effects and must extend the copy inventory in `docs/data-lifecycle.md` before any label leaves the review stores.
+
+
+## Adversarial review follow-up (2026-10-27)
+
+A later independent review on branch `p1-review` changed some behaviour described above and withdrew figures it could not reproduce. Read [the review report](review-p1-final.md) and [its validation record](review-p1-validation.json) alongside this report; where they disagree, the review report is current. The text above is kept as the record of what was reported at the time.

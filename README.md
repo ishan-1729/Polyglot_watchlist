@@ -6,6 +6,8 @@ The default demonstration uses invented names. All existing fictional, public-su
 
 ## Current state
 
+> **Review follow-up (2026-10-27).** An independent adversarial review of the v2 stack fixed security and robustness issues: the reviewer UI now requires each reviewer to sign in with their own API key (no shared server token), Streamlit binds to loopback with restricted hosts, readiness and metrics need authentication, request IDs are server-generated, and error payloads no longer expose paths or SQLite details. Some figures reported in the step reports below could not be reproduced and were withdrawn. See [the review report](docs/progress/review-p1-final.md); where it disagrees with older text, it is current.
+
 **Updated in Completion Step 29 (2026-10-27).** On top of the earlier work there is now a **v2 stack, implemented and tested on fictional data only**:
 
 - one versioned review service, which every interface uses;
@@ -43,7 +45,7 @@ $M memory-init MEMORY_STORE=data/review/memory-local          # optional
 .venv/bin/python -B -m watchlist.api new-key --actor demo-reviewer --role reviewer
 export WATCHLIST_API_KEYS='<entry>'                              # hash entry only
 $M serve-api WORKSPACE=data/review/v2-local MEMORY_STORE=data/review/memory-local
-WATCHLIST_API_KEY='<token>' $M serve-ui                          # http://127.0.0.1:8501
+$M serve-ui                                                     # http://127.0.0.1:8501; sign in with your own token
 $M memory-publish WORKSPACE=data/review/v2-local MEMORY_STORE=data/review/memory-local
 $M serve-mcp WORKSPACE=data/review/v2-local MCP_ORIGIN=test     # stdio, for a local MCP client
 ```

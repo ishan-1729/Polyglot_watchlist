@@ -147,3 +147,8 @@ Graceful shutdown (by code reading; not separately drilled in this step): on Ctr
 * Many concurrent reads still contend for the single exclusive workspace lock (20 ms polling, no fairness). Under heavy in-process CPU load (e.g. 30 client threads flooding *any* endpoint, even `/health`, in the same interpreter) some authenticated reads exceed the 5 s lock timeout and return retryable `503 workspace_busy`; measured in completion-27. This is the review service's lock design, not readiness.
 * The in-flight limit is per process and counts requests, not their cost.
 * Tracing system choice (plan item 1 proposes local Phoenix or LangSmith) is **not** made here; this stdlib JSONL format is the interim, dependency-free record. See completion-27 for the open decision.
+
+
+## Adversarial review follow-up (2026-10-27)
+
+A later independent review on branch `p1-review` changed some behaviour described above and withdrew figures it could not reproduce. Read [the review report](progress/review-p1-final.md) and [its validation record](progress/review-p1-validation.json) alongside this report; where they disagree, the review report is current. The text above is kept as the record of what was reported at the time.
