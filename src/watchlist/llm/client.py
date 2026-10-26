@@ -12,6 +12,7 @@ import math
 import os
 from pathlib import Path
 import time
+import threading
 from typing import Protocol, runtime_checkable
 
 from watchlist.llm.schemas import (
@@ -400,6 +401,7 @@ class AnthropicClient:
         self.requests_made = 0
         self.spent_usd = 0.0
         self._sdk_client = None
+        self._call_lock = threading.Lock()
 
     def __repr__(self) -> str:
         return (
@@ -424,7 +426,12 @@ class AnthropicClient:
         return self._sdk_client
 
     def complete(self, request: LLMRequest) -> LLMResponse:
-        """One bounded call. Size, request cap and worst-case cost are checked before sending."""
+        """Serialize calls so request/cost reservations cannot race across threads."""
+        with self._call_lock:
+            return self._complete(request)
+
+    def _complete(self, request: LLMRequest) -> LLMResponse:
+        """One bounded call; reserve the request and cost before sending."""
         if request.size_chars() > self.config.max_request_chars:
             raise LLMError(
                 "request_too_large",
