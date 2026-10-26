@@ -34,6 +34,7 @@ QUALITY_FILES = \
 	tests/test_wikidata_api.py \
 	tests/test_metadata_preflight.py \
 	tests/conftest.py \
+	tests/test_private_evidence.py \
 	src/watchlist/baselines.py \
 	src/watchlist/calibration.py \
 	src/watchlist/evaluate_baselines.py \
