@@ -17,7 +17,7 @@ from follow_the_money.contracts import (
     digest,
 )
 from follow_the_money.heuristics import (
-    detect_change,
+    seen_addresses_before,
     detect_coinjoin,
     detect_peel_chain,
 )
@@ -86,24 +86,41 @@ def challenge(raw: dict, evidence: dict, labels: list[dict]) -> dict:
             in {"common_input_hypothesis", "change_hypothesis", "peel_hypothesis"}
             and claim.chain == "bitcoin"
         ):
-            txs = [
-                BitcoinTx.model_validate_json(json.dumps(r["value"]))
-                for r in records
-                if r["chain"] == "bitcoin"
-            ]
+            # The same transaction can be observed on several address pages.
+            txs = list(
+                {
+                    r["value"]["txid"]: BitcoinTx.model_validate_json(
+                        json.dumps(r["value"])
+                    )
+                    for r in records
+                    if r["chain"] == "bitcoin"
+                }.values()
+            )
             if claim.kind == "common_input_hypothesis":
                 supported = any(
                     set(claim.addresses)
                     <= {i.prevout.address for i in tx.inputs if i.prevout}
                     and len(claim.addresses) >= 2
+                    and tx.confirmed
+                    and not any(i.coinbase for i in tx.inputs)
                     and not detect_coinjoin(tx).suspected
+                    and len({i.prevout.address for i in tx.inputs if i.prevout}) <= 500
+                    and not any(
+                        label["chain"] == "bitcoin"
+                        and label["category"] in {"exchange", "service", "mixer"}
+                        and label["address"]
+                        in {i.prevout.address for i in tx.inputs if i.prevout}
+                        for label in labels
+                    )
                     for tx in txs
                 )
             elif claim.kind == "change_hypothesis":
                 supported = any(
                     claim.output_index is not None
                     and claim.output_index < len(tx.outputs)
-                    and detect_change(tx).candidate == claim.output_index
+                    and structurally_supported_change(
+                        tx, claim.output_index, seen_addresses_before(tx, evidence)
+                    )
                     and tx.outputs[claim.output_index].address in claim.addresses
                     for tx in txs
                 )
@@ -187,3 +204,24 @@ def build_critic():
     graph.add_edge(START, "challenge_every_claim")
     graph.add_edge("challenge_every_claim", END)
     return graph.compile()
+
+
+def structurally_supported_change(tx: BitcoinTx, index: int, seen: set[str]) -> bool:
+    """Independent veto rules; do not re-run the producer's weighted estimator.
+
+    Unique input reuse dominates. Otherwise require a unique script match or
+    non-round output against a round payment, without contradicted freshness.
+    """
+    if len(tx.outputs) != 2 or not tx.confirmed or any(i.coinbase for i in tx.inputs):
+        return False
+    inputs = {i.prevout.address for i in tx.inputs if i.prevout}
+    reused = [i for i, o in enumerate(tx.outputs) if o.address in inputs]
+    if reused:
+        return reused == [index]
+    output, other = tx.outputs[index], tx.outputs[1 - index]
+    scripts = {i.prevout.script_type for i in tx.inputs if i.prevout}
+    if not output.address or output.address in seen and other.address not in seen:
+        return False
+    return (output.script_type in scripts and other.script_type not in scripts) or (
+        output.value % 1000 != 0 and other.value % 1000 == 0
+    )

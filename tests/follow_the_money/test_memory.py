@@ -4,6 +4,15 @@ from uuid import uuid4
 
 import pytest
 
+
+pytest.importorskip("pydantic")
+pytest.importorskip("yaml")
+pytest.importorskip("langgraph")
+pytest.importorskip("langgraph.checkpoint.sqlite")
+pytest.importorskip("portalocker")
+pytest.importorskip("fastapi")
+pytest.importorskip("httpx")
+
 from follow_the_money.cases import Approval, TraceRequest
 from follow_the_money.contracts import FtmError, digest
 from follow_the_money.fixtures import build_fixtures

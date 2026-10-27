@@ -15,12 +15,8 @@
       "description": "Start Trace"
     },
     {
-      "name": "get_case",
-      "description": "Get Case"
-    },
-    {
-      "name": "get_audit",
-      "description": "Get Audit"
+      "name": "get_case_summary",
+      "description": "Get Case Summary"
     },
     {
       "name": "query_case_memory",
@@ -38,8 +34,7 @@
         "url": "openapi-tools.json"
       },
       "run_for_functions": [
-        "get_audit",
-        "get_case",
+        "get_case_summary",
         "list_cases",
         "query_case_memory",
         "start_trace"

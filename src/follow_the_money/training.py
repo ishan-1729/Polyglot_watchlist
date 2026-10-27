@@ -205,7 +205,10 @@ def experiment(
         - runs[i + 1]["test"]["average_precision"]
         for i, kind in zip((0, 2, 4), ("sage", "gat", "xgboost"))
     }
-    change = train_change(synthetic_change_examples(), train_end=6000, test_start=7000)
+    examples = list(synthetic_change_examples(observed_by=6000)) + [
+        r for r in synthetic_change_examples() if r.timestamp >= 7000
+    ]
+    change = train_change(examples, train_end=6000, test_start=7000)
     change_model = change.pop("model")
     change["coefficients"] = change_model.coef_.tolist()
     change["intercept"] = change_model.intercept_.tolist()
@@ -215,7 +218,7 @@ def experiment(
         "runs": runs,
         "full_minus_live_test_ap": differences,
         "change_classifier": {"evidence_kind": "synthetic", **change},
-        "notice": "Pipeline verification only. Synthetic metrics do not estimate real-world tracing or illicit-address performance.",
+        "notice": "Single seed (47), no confidence intervals. GAT is near the test positive base rate (0.5167); its full-to-live drop is not meaningful evidence of robustness. Change signals vary and weak paired negatives remain assumptions. Pipeline verification only. Synthetic metrics do not estimate real-world tracing or illicit-address performance.",
         "elliptic_plus_plus": "BLOCKED: dataset licence not verified",
         "elliptic2": "BLOCKED: 25,805,701,153 bytes exceeds limit",
     }

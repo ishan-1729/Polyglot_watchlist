@@ -40,7 +40,7 @@ below. No model-quality metric has been computed.
 
 ## Example and provenance
 
-Input: `EsploraClient(replay_transport).get_tx("4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b")`.
+Input: `EsploraClient(replay_transport).get_tx("4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b")`. <!-- pragma: allowlist secret -- public Bitcoin genesis transaction ID -->
 Observed output: one genesis output of **5,000,000,000 satoshis**,
 `evidence_kind=public_recording`; outspends returns one record. This tests
 transport/parser behavior, not tracing performance.
@@ -87,3 +87,11 @@ Next: capped common-input hypotheses, conservative CoinJoin/service stops,
 probabilistic change estimates, peel continuity and account-model signals.
 
 Final Phase 01 rerun: **59 passed in 96.66s (0:01:36)**; exit 0.
+
+
+Review reproduction note (2026-10-27): the historical mirror command above used
+an overly broad `--exclude data`. Do not reuse it: the corrected command uses
+`--exclude /data`, retaining `src/watchlist/data`. This repair verified that the
+packaged synthetic data is present and byte-checked it in packaging tests. The
+seven registered source hashes were checked against existing local receipts and
+bytes; acquisition now refuses redirects/proxies and verifies cached-byte pins.

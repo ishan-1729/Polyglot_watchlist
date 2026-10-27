@@ -32,10 +32,10 @@
       "calls_to_endpoint": 1,
       "calls": 1,
       "network_calls": 0,
-      "latency_seconds": 0.3686022560004858,
+      "latency_seconds": 0.8130265500003588,
       "case_status": "awaiting_approval",
       "critic_claims": 4,
-      "withdrawn_claims": 0
+      "withdrawn_claims": 1
     },
     {
       "strategy": "bfs",
@@ -44,10 +44,10 @@
       "calls_to_endpoint": 1,
       "calls": 1,
       "network_calls": 0,
-      "latency_seconds": 0.3268464290003976,
+      "latency_seconds": 0.9509079999988899,
       "case_status": "awaiting_approval",
       "critic_claims": 4,
-      "withdrawn_claims": 0
+      "withdrawn_claims": 1
     },
     {
       "strategy": "bfs",
@@ -56,10 +56,10 @@
       "calls_to_endpoint": 1,
       "calls": 1,
       "network_calls": 0,
-      "latency_seconds": 0.38013891900027375,
+      "latency_seconds": 0.9578899749994889,
       "case_status": "awaiting_approval",
       "critic_claims": 4,
-      "withdrawn_claims": 0
+      "withdrawn_claims": 1
     },
     {
       "strategy": "priority",
@@ -68,10 +68,10 @@
       "calls_to_endpoint": 1,
       "calls": 1,
       "network_calls": 0,
-      "latency_seconds": 0.41425865899964265,
+      "latency_seconds": 1.6091051240000525,
       "case_status": "awaiting_approval",
       "critic_claims": 4,
-      "withdrawn_claims": 0
+      "withdrawn_claims": 1
     },
     {
       "strategy": "priority",
@@ -80,10 +80,10 @@
       "calls_to_endpoint": 1,
       "calls": 1,
       "network_calls": 0,
-      "latency_seconds": 0.3560584309998376,
+      "latency_seconds": 0.8110390559995722,
       "case_status": "awaiting_approval",
       "critic_claims": 4,
-      "withdrawn_claims": 0
+      "withdrawn_claims": 1
     },
     {
       "strategy": "priority",
@@ -92,10 +92,10 @@
       "calls_to_endpoint": 1,
       "calls": 1,
       "network_calls": 0,
-      "latency_seconds": 0.37563942300039344,
+      "latency_seconds": 0.7239896219998627,
       "case_status": "awaiting_approval",
       "critic_claims": 4,
-      "withdrawn_claims": 0
+      "withdrawn_claims": 1
     }
   ],
   "k": 3,
@@ -103,5 +103,5 @@
     "bfs": true,
     "priority": true
   },
-  "notice": "One publicly documented hop with a supplied historical service label. Priority uses its heuristic/OOD fallback; no synthetic model is applied to real addresses. No human approval or account ownership is claimed."
+  "notice": "Deterministic replay makes pass^k equal pass^1. One publicly documented hop with a supplied historical service label. Priority uses its heuristic/OOD fallback; no synthetic model is applied to real addresses. No human approval or account ownership is claimed."
 }

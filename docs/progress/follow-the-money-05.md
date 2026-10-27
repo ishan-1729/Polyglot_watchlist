@@ -58,3 +58,11 @@ identifiers, cited hypotheses, hard exclusions and revisioned audit records.
 Next: fixed synthetic and court-evidence evaluation, fair BFS comparisons,
 repeatability/critic/memory measures, and trace-derived value training.
 
+
+
+Review correction (2026-10-27): stored case memory remains unchanged in shape;
+the model-facing view now exposes bounded overlap identifiers and evidence
+commitments without reviewer notes or rule text. Raw memory inspection and
+revisions require the human approver boundary. Agent/model actors cannot use
+those mutation routes. The 175-test Project 2 review run covers the bounded view
+and role restrictions; final repository results are in the review-fixes report.

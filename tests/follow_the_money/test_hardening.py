@@ -3,8 +3,18 @@ from pathlib import Path
 import sqlite3
 from uuid import uuid4
 
-import numpy as np
 import pytest
+
+pytest.importorskip("pydantic")
+pytest.importorskip("yaml")
+pytest.importorskip("langgraph")
+pytest.importorskip("langgraph.checkpoint.sqlite")
+pytest.importorskip("portalocker")
+pytest.importorskip("fastapi")
+pytest.importorskip("httpx")
+pytest.importorskip("numpy")
+
+import numpy as np
 
 from follow_the_money.cases import TraceRequest, make_claim
 from follow_the_money.clients import EsploraClient, TronGridClient, parse_bitcoin
@@ -12,7 +22,7 @@ from follow_the_money.contracts import FtmError, USDT_TRON, digest
 from follow_the_money.critic import challenge
 from follow_the_money.evaluation import trace_value_rows
 from follow_the_money.fixtures import build_fixtures
-from follow_the_money.models import DistributionGuard, score_address
+from follow_the_money.scoring import DistributionGuard, score_address
 from follow_the_money.service import TraceService
 from follow_the_money.transport import Budget, JsonTransport, ReplayCache, request_url
 

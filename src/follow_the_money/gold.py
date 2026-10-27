@@ -146,7 +146,7 @@ def evaluate_gold(
                     if reached and supported
                     else None,
                     "calls": state["budget"]["calls"],
-                    "network_calls": 0,
+                    "network_calls": state["budget"]["network_calls"],
                     "latency_seconds": elapsed,
                     "case_status": state["status"],
                     "critic_claims": len(state["critic"]),
@@ -168,7 +168,7 @@ def evaluate_gold(
             s: all(r["success"] for r in runs if r["strategy"] == s)
             for s in ("bfs", "priority")
         },
-        "notice": "One publicly documented hop with a supplied historical service label. Priority uses its heuristic/OOD fallback; no synthetic model is applied to real addresses. No human approval or account ownership is claimed.",
+        "notice": "Deterministic replay makes pass^k equal pass^1. One publicly documented hop with a supplied historical service label. Priority uses its heuristic/OOD fallback; no synthetic model is applied to real addresses. No human approval or account ownership is claimed.",
     }
     (output / "results.json").write_text(
         json.dumps(report, indent=2) + "\n", encoding="utf-8"

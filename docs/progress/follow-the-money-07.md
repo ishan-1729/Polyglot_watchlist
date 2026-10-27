@@ -52,3 +52,20 @@ at phase 07, in the local mirror, using one shared service and real transport
 smokes to prevent inconsistent approval behavior. Git writes remain blocked;
 coordinator owns staging/commits. Next is M365 artifact generation and the local
 Agents SDK/Playground wrapper, with tenant deployment explicitly blocked.
+
+
+Review correction (2026-10-27): see the [per-finding review report](follow-the-money-review-fixes.md).
+Tracing now calls peel/account/live-feature scoring, with explicit heuristic/OOD
+fallback; the trained change classifier and GNNs remain library/experiment only.
+Models use agent-role keys and bounded human-approved summaries. Human approvers
+are separate from case creators and configured model actors. Playground requires
+an agent key or explicit anonymous opt-in and persists conversation quotas.
+
+
+Review interface checks now exercise actual REST and streamable-HTTP MCP
+requests against the merged Project 1 observability/auth interfaces. Model
+clients receive agent keys and bounded case summaries; human mutations and raw
+review evidence require an approver. A creator or configured model actor cannot
+approve even with a human-role key. The opt-in paired P1 workspace/config flags
+open the public ReviewService. Streamlit explicitly allows localhost and
+127.0.0.1 while retaining loopback binding and disabled usage telemetry.

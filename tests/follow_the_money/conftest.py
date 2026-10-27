@@ -11,8 +11,6 @@ os.environ["TRANSFORMERS_OFFLINE"] = "1"
 os.environ["LANGSMITH_TRACING"] = "false"
 os.environ["LANGCHAIN_TRACING_V2"] = "false"
 
-from follow_the_money.contracts import Provenance
-
 
 @pytest.fixture(autouse=True)
 def offline(monkeypatch):
@@ -58,6 +56,9 @@ def offline(monkeypatch):
 
 @pytest.fixture
 def provenance():
+    pytest.importorskip("pydantic")
+    from follow_the_money.contracts import Provenance
+
     return Provenance(
         source_url="fixture://ftm/authored-v1",
         retrieved_at="2026-10-26T00:00:00+00:00",

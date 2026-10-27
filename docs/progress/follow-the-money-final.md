@@ -1,116 +1,84 @@
-**Project 2 — Follow the Money: final delivery report**
+**Project 2 — Follow the Money: delivery and review fixes**
 
-Delivered the local research implementation through phases 00–09. External
-access and validation work remains BLOCKED below. Nothing was sent to an
-exchange or authority; no push or merge occurred.
+The original local research implementation was committed as `d440a0e` and merged
+with current main at `d91e372`. The earlier statement that no Project 2 commit
+existed is obsolete. This review repairs the merged interfaces, authorization,
+model-visible evidence, tracing correctness and reported evaluation claims.
 
-Delivered phases:
+The delivered system includes replay-first Bitcoin/TRC-20 clients, bounded
+LangGraph tracing, independently checked claims, durable human review, audited
+case memory, REST/MCP/Streamlit and a local Microsoft Agents SDK wrapper. Public
+output remains research leads; nothing is sent to an exchange or authority.
+Ordinary search uses heuristics with an explicit OOD fallback. The optional
+learned value demonstration is synthetic only. GNNs and the trained change
+classifier are library/experiment components, not deployed search policies.
 
-- **00–02:** plan/DAG, typed Bitcoin and TRC-20 clients, replay/cache/rate limits
-  and budget accounting, published-label provenance, Ransomwhere loader, capped
-  clustering, change/peel/CoinJoin heuristics and historical freeze signals.
-- **03:** temporal GraphSAGE/GAT and XGBoost experiments, full/live-feature
-  retraining, OOD fallback, weak-label change classifier and trace-value learning.
-- **04–05:** durable LangGraph loop and independent critic, transaction-cited
-  claims, withdrawal counts, digest-bound human approval, draft-only reports,
-  Project 1 public-service resolution, audited case memory and scoped rules.
-- **06:** frozen synthetic tasks, BFS comparisons, consistency/cost/latency,
-  critic/memory checks and a cited public DOJ transaction-pair replay.
-- **07–08:** authenticated FastAPI, official MCP stdio and streamable HTTP,
-  Streamlit reviewer, offline CI configuration, generated Microsoft manifests/
-  API plugin, Studio instructions, approval templates and a working local
-  Microsoft Agents SDK/Agents Playground integration.
-- **09:** hardening, both-project README, data/model cards, reproduction guide,
-  distribution checks, source hashes and phase/final reports.
+The reference architecture, file/function explanations and historical runs remain
+in phase reports 00–09. Their old metrics are historical where superseded below.
+Current sources are fingerprinted in `config/follow_the_money/source-verification.json`.
 
-The implementation contains 29 Project 2 Python modules and 15 test modules.
-File/function explanations and exact commands/results are in
-[phase reports 00–09](follow-the-money-09.md); the
-[source receipt](../../config/follow_the_money/source-verification.json) records
-47 source/test/script files and their hashes.
+## Review fixes
 
-Verification completed in the Linux mirror on Python 3.14.9, using one pytest
-process at a time:
-
-| Final check | Actual result |
+| Finding | Verified outcome |
 |---|---|
-| Complete Project 2 suite | **133 passed**, 114 upstream warnings, 85.91s |
-| Targeted Project 1/auth/audit/recovery/packaging/tooling regressions | **358 passed**, 176.01s |
-| Total final selections | **491 passed**; entire Project 1 suite was not rerun |
-| Ruff / format | Clean; **183 files** already formatted |
-| Pinned uv lock | **170 packages** resolved; offline lock check passed |
-| Distribution | Wheel/sdist built; **154 packaged files** byte-verified; installed import/CLI help passed outside repository |
-| Interfaces | Actual MCP transports, Streamlit review flow and SDK HTTP activity tested |
-| Microsoft artifacts | Official declarative v1.9 / plugin v2.4 schema validation passed |
+| B1 | Confirmed. Removed the obsolete middleware keyword from both HTTP servers; p1_interfaces.py makes auth, telemetry, locks and ReviewError explicit. REST and actual streamable-HTTP MCP contract tests exercise the merged interfaces. |
+| B2 | Confirmed. Renamed test_evaluation.py to test_ftm_evaluation.py; a repository-wide basename regression finds no duplicates. No test-package __init__.py was added. |
+| B3 | Confirmed. Inspected the detector findings: public transaction/contract identifiers, integrity hashes, receipts and fictional test literals, with no real secret found. Python/Markdown exceptions use inline pragmas; JSON exceptions bind file hash, line and detector type with a reason. Rebound two stale merged Project 1 exceptions without editing their source files. Kept the complete scan scope and 600-second timeout. |
+| S1 | Confirmed. Project 2 agent keys can start traces and read bounded summaries. Human approver keys authorize approval, recovery, rules and memory revisions; reviewer remains a human alias. Creators and configured model/service actors cannot approve. Project 1 roles remain unchanged. |
+| S2 | Confirmed. Pending cases expose no model-visible claims; reviewed cases use report.claims, capped at 50. Rejected cases expose none. Raw evidence, notes, labels and rules are human-only. Copilot uses get_case_summary; MCP and bounded memory views preserve only permitted fields. |
+| S3 | Confirmed. Playground requires an agent key in X-FTM-Key, or explicit --allow-anonymous. Persistent limits default to five distinct traces per actor/conversation and 100 conversations per workspace. Retries/restarts preserve limits; case reads stay within the same actor/conversation. |
+| S4 | Confirmed. Acquisition refuses redirects, disables environment proxies and checks pins on cached reuse. All seven registered sources are pinned to hashes checked against existing local bytes and receipts. No download was needed. |
+| C1 | Confirmed. Exactly one output reusing an input address wins change selection; ambiguous reuse abstains. The critic uses independent structural vetoes, not detect_change, and rejects the planted wrong output. |
+| C2 | Confirmed. Producer and critic use confirmed evidence at or before transaction time. Newest-first pages supply their older observations before scoring; future/current-output observations cannot manufacture freshness. |
+| C3 | Confirmed in part: the optional toy value policy already had a caller, but ordinary service scoring and the listed utilities did not. Tracing now calls peel detection, account signals, live features and score_address with OOD fallback; MCP exposes score_address. TRON uses relative outgoing-page amounts. GNNs and the trained change classifier remain explicitly library/experiment only. |
+| C4 | Confirmed. Freeze pages have explicit cursors and per-page budgets; all three event types are fetched and matched to every traced address. Historical net blacklist state distinguishes removal from fund destruction. Hex/ABI addresses normalize to base58; Approval rows are skipped. Incomplete histories remain explicit. |
+| C5 | Confirmed. Continuation pages accept up to 50 transactions. Regression coverage includes an authored recording and the existing 50-confirmed-transaction public recording; no fresh request was made. |
+| C6 | Confirmed. Weak-label construction filters spends by the observation cutoff before choosing labels. A later second co-spend cannot retroactively remove a training example. |
+| H1 | Confirmed. Chose the permitted honesty fix: the value result is an in-sample fit diagnostic, with duplicate-probe counts and a constant-mean baseline. All 17 probe rows duplicate training features; no held-out performance is claimed. |
+| H2 | Confirmed. Synthetic change examples now vary script match, roundness, relative amount and reuse. Reran training; the old perfect scores are superseded. |
+| H3 | Confirmed. Documented deterministic pass^k = pass^1 and that only one task separates strategies. Added an adequate-budget BFS endpoint run. Renamed tool accuracy to schema self-consistency; tracing/gold metrics read the transport counter. |
+| H4 | Confirmed. Independent authored critic cases cover wrong amount, wrong txid, wrong change, CoinJoin clustering and service clustering. In-loop rechecks are separately identified as circular self-consistency. |
+| H5 | Confirmed. Documents and receipts say GAT is near chance relative to the 0.516667 positive base rate; the small full-to-live drop is not meaningful robustness evidence. One seed, no confidence intervals. |
+| H6 | Confirmed. Targets and metrics now name graph hops or penalty, not API calls. Label observation time comes from recorded evidence rather than build wall-clock time. Renamed graph copies remain explicitly non-validating, even with ordered evidence timestamps. |
+| H7 | Partly stale: the README title already covered both projects. Removed its contradictory exclusion sentence, corrected commit history to d440a0e merged at d91e372, and replaced machine-specific plan paths. |
+| E1 | Confirmed. Optional test imports are guarded, the conftest contract import is lazy/guarded, and NumPy-only scoring is separate from torch/PyG. CI imports ML and Microsoft packages explicitly so missing extras cannot silently skip their tests. |
+| E2 | Confirmed. Project 2 text reads/writes now specify UTF-8, including tests and recording scripts. An AST audit found no remaining read_text/write_text omissions. |
+| E3 | Confirmed. Project 2 CI pins Python 3.14.0, disables check-latest/Python downloads, pins the uv checksum and includes the requested shared-source/tooling trigger paths. |
+| E4 | Confirmed. Evaluation and learned-synthetic demo document ftm-ml and fail with an actionable missing-extra message. make help lists the Project 2 targets. |
+| E5 | Partly confirmed: loopback binding and disabled usage telemetry already existed. Added explicit localhost and 127.0.0.1 allowed-host flags; the CLI regression covers all flags. |
+| E6 | Confirmed. CLI/API/MCP entry points accept paired --p1-workspace/--p1-config options and open the existing public ReviewService. Public-service resolution and entry-point wiring are tested; absent configuration remains explicit unavailable. |
 
-The initial broader regression run failed because the mirror excluded packaged
-P1 data and packaging assertions assumed one package. Both were corrected and
-the identical selection rerun successfully. Details, earlier failures and
-warning types are preserved in Phase 09. Local demonstration servers were
-stopped. Hosted CI and Windows execution were not claimed.
+Corrected measured results:
 
-Measured results, with provenance:
+- Adequate-budget branching search: BFS **16 queries**, heuristic **3**, toy value
+  policy **3**. The original 12-query budget censors BFS; only this task separates
+  the strategies. Deterministic replay makes pass^k equal pass^1.
+- Value fit: **0.358491** MAE versus **8.456747** constant-mean baseline, in graph
+  hops-or-penalty units. **51 training rows**, **17 duplicate probe rows**, **zero
+  novel probe rows**. This is in-sample, not temporal/held-out generalization.
+- Varied synthetic change signals: AP **0.828147**, ROC AUC **0.786848**, accuracy
+  **0.761905**, with 118 training and 42 test output rows. Weak-label assumptions remain.
+- Independent critic cases: **3/3 supported retained**, **5/5 planted errors
+  withdrawn**. The separate in-loop check retains 12 of 13 claims and is circular.
+- Six public one-hop replay runs: both strategies use **one query**; each run
+  retains three of four claims. Transport counters report **zero live calls**.
+- Synthetic GNN results remain unchanged: GraphSAGE AP **0.946293 → 0.699059**;
+  GAT **0.572325 → 0.562924**; XGBoost **0.930949 → 0.711873**. GAT is near the
+  **0.516667** base rate; its small drop proves no robustness. Single seed, no CIs.
 
-- **Synthetic temporal graph:** 600 nodes, 360/120/120 temporal split. Test
-  average precision, full → live-feature subset: GraphSAGE **0.946293 →
-  0.699059**; GAT **0.572325 → 0.562924**; XGBoost **0.930949 → 0.711873**.
-  These are constructed feature proxies, not Elliptic or real-wallet accuracy.
-- **27 synthetic search runs:** branching endpoint in **3 queries** with either
-  priority policy; BFS exhausts **12**. Pass³ across three tasks: BFS **2/3**,
-  heuristic **3/3**, learned value **3/3**. Schema-valid tool calls: 100%.
-  Critic withdrew **10/10** planted amount errors and retained **12/12** supported
-  fixture claims. Memory: TP=1, FP=0, FN=0, TN=3. Value graph-distance MAE
-  **0.358491** on 17 held-out rows after 51 training rows from simulated reviews.
-  These graph variants share one authored structure.
-- **Six public replay runs:** both BFS and priority reach the cited historical
-  endpoint in **one query**. Exact funding/spending outpoints and the
-  **124016260-satoshi** output were verified against recordings and the
-  [2025 DOJ filing](https://www.justice.gov/usao-ma/media/1390101/dl?inline=),
-  affidavit page 13, paragraphs 35–38. No real efficiency gain or ownership
-  finding is claimed. All public cases remain awaiting approval.
-- Evaluation replay used **zero live calls** and $0 external service charges;
-  local hardware/electricity cost was not measured. Development recording used
-  **seven bounded public Bitcoin GETs total**. Source URLs, terms, dates, sizes
-  and hashes are in the [manifest](../../config/follow_the_money/manifest.json).
-- Actual **Agents Playground 0.2.29 → SDK 1.9.0 → LangGraph** routing created a
-  synthetic case with 12 critic outcomes and no approval. Browser visual
-  inspection, Teams publication and tenant/Azure deployment were not performed.
+## Review verification
 
-[Training](../../config/follow_the_money/training-results.json),
-[search](../../config/follow_the_money/evaluation-results.json),
-[public gold](../../config/follow_the_money/public-gold-results.json), and
-[verification](../../config/follow_the_money/verification-results.json) receipts
-preserve exact values, including measured latency.
+Full review validation is in progress. The final exact counts, wall times,
+commands, earlier failures and handoff status will be recorded in
+[the review-fixes report](follow-the-money-review-fixes.md). The intermediate
+Project 2 run passed 169 tests; the core-only environment passed 158 with four
+explicit optional skips. These are not the final full-repository totals.
 
-Documented deviations: CrewAI excludes Python 3.14, so the critic is a LangGraph
-subgraph. PyTorch Geometric installed successfully; no plain-torch substitute
-was needed. Real Elliptic training was replaced by explicitly synthetic pipeline
-verification. The integrated learned search demo uses the own-trace value model;
-GNNs remain offline experiments, and ordinary/public tracing uses heuristics
-until a suitable model is validated. No provider-backed LLM ablation ran.
-Colonial's redacted affidavit cannot support a txid-level gold trace; a separate
-2025 public pair was used. Value training now requires completed simulated
-reviews and critic-retained targets; its earlier pending-review experiment is
-explicitly superseded.
+## Remaining external work
 
-| BLOCKED item | Owner | Next action |
-|---|---|---|
-| Git commits, including initial plan commit | Coordinator | Stage/review/commit preserved changes in a writable Git environment; use the requested co-author trailer |
-| Real Elliptic++ / Elliptic2 training | Dataset owner + engineer | Verify permitted no-login data and feature mapping; provide an approved subset under 2 GB; Elliptic2 metadata is 25.8 GB |
-| OpenSanctions acquisition | Project/data owner | Establish applicable terms and permission before downloading |
-| Live TRON verification | Project owner | Supply authorized access/key and approve a bounded recording run |
-| Provider LLM evaluation | Project owner + engineer | Configure an approved provider/key and run the recorded ablation; deterministic fallback already works |
-| Unredacted Colonial gold / broader real evaluation | Data owner + analyst | Provide permitted complete transaction citations and independent adjudicated tasks |
-| Real-world calibration and analyst/value study | Analyst + ML engineer | Collect genuinely reviewed traces and evaluate independent temporal cases |
-| M365 tenant/Azure/Teams deployment | Tenant administrator + owner | Provide subscription/tenant, HTTPS hosting, identity/vault configuration and platform validation |
-| Windows execution / hosted CI | Coordinator | Run the committed checks on Windows and GitHub; wheel availability alone is not runtime validation |
-
-**Uncommitted handoff:** branch `project-2` remains at
-`fb32c9f93fa0f76becd4017eb44cd741d2aaf583`. Git staging exits 128 because the
-worktree `index.lock` is on a read-only filesystem. No Project 2 commits were
-created. As authorized, all changes remain available: modified `.gitignore`,
-`Makefile`, `README.md`, `pyproject.toml`, `uv.lock`, `tests/test_packaging.py`;
-new `src/follow_the_money/`, `tests/follow_the_money/`,
-`config/follow_the_money/`, `docs/follow_the_money/`, progress reports 00–09 and
-this report, `scripts/ftm_record.py`, `scripts/ftm_m365.py`, and
-`.github/workflows/follow-the-money.yml`. Raw data/caches remain gitignored.
+Real Elliptic training/licensing, live TRON verification, broader independently
+adjudicated gold traces, provider-backed LLM evaluation, real-world calibration,
+and tenant/Azure/Teams deployment remain outside this repair. No new download,
+API key use, paid compute, external message, push or merge was performed.
+Hosted CI and Windows runtime were not run; local validation uses Linux Python
+3.14.9 while hosted CI is configured for Python 3.14.0.

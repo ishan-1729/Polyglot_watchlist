@@ -17,7 +17,7 @@ previous phases; no additional model/data/tenant permission is assumed.
   exception details. `TraceService.list_cases` verifies header/state integrity.
 - `evaluation.trace_value_rows/train_value_policy`: require completed reviewed
   cases, explicitly simulate fictional reviews, use critic-retained target
-  edges and keep training/held-out cases separate. The prior experiment used
+  edges and keep training/probe case IDs separate (feature rows duplicate). The prior experiment used
   completed searches still pending review; this correction is documented.
 - `__main__`: optional `demo --learned-synthetic` trains on separate fictional
   traces and uses the learned value ranker; the demonstration pauses for review.
@@ -127,7 +127,7 @@ schemas; no physical API calls and external service cost $0. The branching
 fixture is censored at BFS's 12-query budget versus 3 for both priorities.
 Critic: 12/12 supported retained, 10/10 planted amount errors withdrawn. Memory:
 TP=1, FP=0, FN=0, TN=3. Value graph-distance MAE **0.3584913178917404** on 17
-held-out rows after training on 51 rows from three explicitly simulated reviewed
+duplicate probe rows after training on 51 rows from three explicitly simulated reviewed
 cases. Renamed isomorphic graphs are not independent real-world generalization.
 
 The final public replay was run with this exact inline Python body (same
@@ -163,3 +163,14 @@ source/test/script receipts match the worktree and Linux mirror; source-set hash
 
 Final text inventory: **86 files LF-only**, **17 configuration JSON files parsed**;
 11 phase/final reports exist. Final report and verification receipts were written.
+
+
+Review correction (2026-10-27): historical metrics above are superseded by the
+[review-fixes report](follow-the-money-review-fixes.md) and regenerated result
+JSON. The old value MAE is in-sample because probe features duplicate training;
+build-time timestamps did not provide temporal validation. The original perfect
+change-classifier scores were tautological. GAT is near chance, with one seed and
+no CIs. pass^k equals pass^1 in deterministic replay; schema self-consistency is
+not independent tool accuracy. Rechecking critic-kept claims is circular; the
+review adds independent planted error types and an adequate-budget BFS run.
+The trained change classifier and GNNs remain library/experiment only.

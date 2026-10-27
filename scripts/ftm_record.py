@@ -8,7 +8,7 @@ from follow_the_money.clients import EsploraClient
 from follow_the_money.contracts import FtmError, utc_now
 from follow_the_money.transport import Budget, JsonTransport, ReplayCache, request_url
 
-GENESIS_TXID = "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"
+GENESIS_TXID = "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"  # pragma: allowlist secret -- public Bitcoin genesis transaction ID
 
 
 def main() -> None:
@@ -50,7 +50,7 @@ def main() -> None:
             except FtmError as exc:
                 errors.append({"url": urls[-1], **exc.to_dict()})
     finally:
-        manifest = json.loads(args.manifest.read_text())
+        manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
         artifacts = {a["id"]: a for a in manifest["artifacts"]}
         for url in urls:
             response = cache.read(url)

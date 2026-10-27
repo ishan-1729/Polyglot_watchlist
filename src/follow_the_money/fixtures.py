@@ -192,6 +192,15 @@ def build_fixtures(root: Path, *, variant: int = 0) -> dict:
                 "meta": {},
             },
         )
+    for event_name in ("RemovedBlackList", "DestroyedBlackFunds"):
+        put(
+            request_url(
+                "https://api.trongrid.io",
+                f"/v1/contracts/{USDT_TRON}/events",
+                {"only_confirmed": "true", "event_name": event_name, "limit": 200},
+            ),
+            {"success": True, "data": [], "meta": {}},
+        )
     put(
         request_url(
             "https://api.trongrid.io",

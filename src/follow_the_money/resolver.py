@@ -11,6 +11,17 @@ from follow_the_money.contracts import Label, digest
 class EntityResolver:
     service: Any = None
 
+    @classmethod
+    def from_workspace(cls, workspace, config):
+        """Opt in to the existing Project 1 public service; never initialize it silently."""
+        if workspace is None and config is None:
+            return cls()
+        if workspace is None or config is None:
+            raise ValueError("Both --p1-workspace and --p1-config are required")
+        from watchlist.review.service import ReviewService
+
+        return cls(ReviewService.open(workspace, config))
+
     def resolve_entity_name(self, label: Label, *, case_id: str) -> dict:
         if label.category != "sanctioned" or not label.owner_name:
             return {

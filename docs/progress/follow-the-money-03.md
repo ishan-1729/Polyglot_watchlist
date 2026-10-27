@@ -59,3 +59,25 @@ future-edge isolation, measured comparisons and conservative fallback.
 
 Next: durable LangGraph tracing, adversarial claim review, human interrupt,
 idempotent approval and the Project 1 public-service resolver.
+
+
+Review correction (2026-10-27): historical metrics above are superseded by the
+[review-fixes report](follow-the-money-review-fixes.md) and regenerated result
+JSON. The old value MAE is in-sample because probe features duplicate training;
+build-time timestamps did not provide temporal validation. The original perfect
+change-classifier scores were tautological. GAT is near chance, with one seed and
+no CIs. pass^k equals pass^1 in deterministic replay; schema self-consistency is
+not independent tool accuracy. Rechecking critic-kept claims is circular; the
+review adds independent planted error types and an adequate-budget BFS run.
+The trained change classifier and GNNs remain library/experiment only.
+
+
+Review rerun (2026-10-27): the change generator varies amount, roundness, script
+match and input-address reuse. With 118 training and 42 test output rows, AP is
+**0.8281470203125101**, ROC AUC **0.7868480725623582**, accuracy
+**0.7619047619047619** and Brier score **0.18110125727325666**. These replace the
+old tautological perfect scores. The six graph-model runs were reproduced in
+54.42 seconds total with the change experiment. GAT AP **0.572325** versus
+**0.516667** positive base rate is near chance; its **0.009401** full-to-live drop
+is not evidence of robustness. All graph results use one seed and no confidence
+intervals. GNNs and the trained change classifier remain library experiments.

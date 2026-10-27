@@ -1,5 +1,8 @@
 import pytest
 
+
+pytest.importorskip("pydantic")
+
 from follow_the_money.contracts import FtmError
 from follow_the_money.seeds import load_ransomwhere
 

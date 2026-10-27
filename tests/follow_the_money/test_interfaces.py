@@ -7,15 +7,27 @@ import threading
 import time
 from uuid import uuid4
 
-import httpx
 import pytest
+
+pytest.importorskip("pydantic")
+pytest.importorskip("yaml")
+pytest.importorskip("langgraph")
+pytest.importorskip("langgraph.checkpoint.sqlite")
+pytest.importorskip("portalocker")
+pytest.importorskip("fastapi")
+pytest.importorskip("httpx")
+pytest.importorskip("mcp")
+pytest.importorskip("streamlit")
+pytest.importorskip("uvicorn")
+
+import httpx
 from fastapi.testclient import TestClient
 
 from follow_the_money.api import create_app
 from follow_the_money.fixtures import build_fixtures
 from follow_the_money.security import local_url
 from follow_the_money.service import TraceService
-from watchlist.api.auth import KeyStore, new_key, parse_key_entries
+from follow_the_money.auth import KeyStore, new_key, parse_key_entries
 from watchlist.observability import Observability
 
 
@@ -29,7 +41,9 @@ def runtime(tmp_path):
     )
     reviewer, entry = new_key("analyst", "reviewer")
     viewer, read_entry = new_key("observer", "viewer")
-    keys = KeyStore(parse_key_entries([entry, read_entry]))
+    agent, agent_entry = new_key("trace-model", "agent")
+    keys = KeyStore(parse_key_entries([entry, read_entry, agent_entry]))
+    keys.test_agent = agent
     return service, keys, reviewer, viewer
 
 
@@ -58,11 +72,15 @@ def test_api_auth_review_idempotency_and_observability(runtime, tmp_path):
         )
         client.headers["Authorization"] = "Bearer " + viewer
         assert client.post("/v1/cases", json=trace_request()).status_code == 403
-        client.headers["Authorization"] = "Bearer " + reviewer
+        client.headers["Authorization"] = "Bearer " + keys.test_agent
         request = trace_request()
         case = client.post("/v1/cases", json=request).json()
-        assert case["created_by"] == "analyst" and case["status"] == "awaiting_approval"
+        assert case["status"] == "awaiting_approval" and not case["claims"]
+        assert "state" not in case
         assert client.post("/v1/cases", json=request).json() == case
+        client.headers["Authorization"] = "Bearer " + reviewer
+        case = client.get(f"/v1/cases/{case['case_id']}").json()
+        assert case["created_by"] == "trace-model"
         url = f"/v1/cases/{case['case_id']}/approval"
         decision = {
             "request_id": str(uuid4()),
@@ -82,7 +100,7 @@ def test_api_auth_review_idempotency_and_observability(runtime, tmp_path):
         assert client.get("/openapi.json").json()["paths"]["/v1/cases"]["post"][
             "security"
         ]
-    spans = (tmp_path / "spans.jsonl").read_text()
+    spans = (tmp_path / "spans.jsonl").read_text(encoding="utf-8")
     assert (
         reviewer not in spans
         and viewer not in spans
@@ -194,6 +212,7 @@ def test_mcp_http_actual_transport_auth_and_no_approval(runtime):
                     "list_cases",
                     "verify_audit",
                     "query_case_memory",
+                    "score_address",
                 }
                 reply = await client.call_tool(
                     "start_trace", {"request": trace_request()}
@@ -203,6 +222,15 @@ def test_mcp_http_actual_transport_auth_and_no_approval(runtime):
                         not reply.is_error
                         and reply.structured_content["status"] == "awaiting_approval"
                     )
+                    scored = await client.call_tool(
+                        "score_address",
+                        {
+                            "case_id": reply.structured_content["case_id"],
+                            "address": "syn_seed_a",
+                        },
+                    )
+                    assert not scored.is_error and scored.structured_content["ood"]
+                    assert scored.structured_content["method"] == "heuristic_fallback"
                 else:
                     assert (
                         reply.is_error
@@ -213,7 +241,7 @@ def test_mcp_http_actual_transport_auth_and_no_approval(runtime):
 
     with local_server(http_app(service, keys)) as url:
         assert httpx.post(url + "/mcp", trust_env=False).status_code == 401
-        asyncio.run(exchange(url, reviewer, True))
+        asyncio.run(exchange(url, keys.test_agent, True))
         asyncio.run(exchange(url, viewer, False))
 
 

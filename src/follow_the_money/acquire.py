@@ -8,15 +8,26 @@ import hashlib
 import json
 from pathlib import Path
 from typing import Any, Callable
-from urllib.request import Request, urlopen
+from urllib.request import Request, HTTPRedirectHandler, ProxyHandler, build_opener
 
 from follow_the_money.contracts import FtmError, Provenance, canonical, strict_json
 
 MAX_DOWNLOAD = 2_000_000_000
 
 
+class NoRedirects(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        raise FtmError(
+            "redirect_refused", "Source redirects require operator registry review"
+        )
+
+
+def source_opener():
+    return build_opener(ProxyHandler({}), NoRedirects())
+
+
 def acquire(
-    source: dict[str, Any], root: Path, *, opener: Callable = urlopen
+    source: dict[str, Any], root: Path, *, opener: Callable | None = None
 ) -> dict[str, Any]:
     """Stream approved bytes to an exclusive file; receipt only after completion.
 
@@ -49,6 +60,8 @@ def acquire(
             or receipt["license"] != source["license"]
             or receipt["size_bytes"] != target.stat().st_size
             or receipt["sha256"] != file_hash(target)
+            or source.get("sha256") is not None
+            and receipt["sha256"] != source["sha256"]
         ):
             raise FtmError("source_changed", "Existing source or receipt differs")
         return {**receipt, "download_operations_this_run": 0}
@@ -64,7 +77,7 @@ def acquire(
         # Reserve the partial before any network work; never unlink another writer's file.
         handle = temporary.open("xb")
         owned = True
-        with handle, opener(request, timeout=30) as response:
+        with handle, (opener or source_opener().open)(request, timeout=30) as response:
             length = response.headers.get("Content-Length")
             if length and int(length) > bound:
                 raise FtmError("source_too_large", "Source exceeds approved size")

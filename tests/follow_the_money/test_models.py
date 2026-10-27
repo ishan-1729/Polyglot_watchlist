@@ -1,8 +1,17 @@
 from dataclasses import replace
 import hashlib
 
-import numpy as np
 import pytest
+
+pytest.importorskip("pydantic")
+pytest.importorskip("httpx")
+pytest.importorskip("numpy")
+pytest.importorskip("torch")
+pytest.importorskip("torch_geometric")
+pytest.importorskip("xgboost")
+pytest.importorskip("sklearn")
+
+import numpy as np
 import torch
 
 from follow_the_money.contracts import FtmError
@@ -85,8 +94,10 @@ def test_features_ignore_future_and_unconfirmed(make_tx, provenance):
 def test_csv_import_requires_hash_license_and_explicit_mapping(tmp_path):
     features = tmp_path / "features.csv"
     edges = tmp_path / "edges.csv"
-    features.write_text("id,t,label,f\na,1,illicit,2\nb,2,unknown,3\nc,3,licit,4\n")
-    edges.write_text("source,target\na,b\nb,c\n")
+    features.write_text(
+        "id,t,label,f\na,1,illicit,2\nb,2,unknown,3\nc,3,licit,4\n", encoding="utf-8"
+    )
+    edges.write_text("source,target\na,b\nb,c\n", encoding="utf-8")
     schema = dict(
         id="id",
         time="t",
@@ -107,7 +118,9 @@ def test_csv_import_requires_hash_license_and_explicit_mapping(tmp_path):
     }
     graph = load_csv_graph(features, edges, schema=schema, receipts=receipts)
     assert graph.labels.tolist() == [1, -1, 0]
-    features.write_text(features.read_text().replace("2\n", "9\n"))
+    features.write_text(
+        features.read_text(encoding="utf-8").replace("2\n", "9\n"), encoding="utf-8"
+    )
     with pytest.raises(FtmError, match="licence"):
         load_csv_graph(features, edges, schema=schema, receipts=receipts)
 
@@ -136,8 +149,8 @@ def test_value_requires_completed_independent_cases():
         dict(
             case_id=str(i),
             features=[i, 1],
-            remaining_calls=i,
-            completed_at=10,
+            remaining_hops_or_penalty=i,
+            label_observed_at=10,
             split="train",
         )
         for i in range(6)
@@ -157,3 +170,13 @@ def test_synthetic_weak_training_is_derived_from_cospends():
     result = train_change(examples, train_end=6000, test_start=7000)
     assert result["train_count"] == 118 and result["test_count"] == 42
     assert all(r.timestamp < r.label_observed_at for r in examples)
+
+
+def test_synthetic_change_signals_overlap_instead_of_encoding_the_answer():
+    rows = synthetic_change_examples()
+    for label in (0, 1):
+        selected = [row for row in rows if row.label == label]
+        assert {row.features[0] for row in selected} == {0, 1}
+        assert {row.features[1] for row in selected} == {0, 1}
+        assert {row.features[2] > 0.5 for row in selected} == {False, True}
+    assert {row.features[3] for row in rows if row.label == 1} == {0, 1}

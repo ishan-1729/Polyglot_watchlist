@@ -1,5 +1,10 @@
 import json
 
+import pytest
+
+pytest.importorskip("pydantic")
+pytest.importorskip("yaml")
+
 from follow_the_money.contracts import Label
 from follow_the_money.labels import (
     LabelStore,

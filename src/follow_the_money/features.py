@@ -61,3 +61,29 @@ def live_features(
         math.log1p(x)
         for x in (outgoing, incoming, units, len(others), (as_of - earliest) / 86400)
     )
+
+
+def evidence_records(evidence: dict, chain: str) -> list[BitcoinTx | Transfer]:
+    """Decode unique structured transactions, omitting separate contract events."""
+    import json
+
+    records = {}
+    for rows in evidence.values():
+        for row in rows:
+            if row["chain"] != chain or "action" in row["value"]:
+                continue
+            cls = BitcoinTx if chain == "bitcoin" else Transfer
+            record = cls.model_validate_json(json.dumps(row["value"]))
+            key = (
+                (record.txid,)
+                if chain == "bitcoin"
+                else (
+                    record.txid,
+                    record.sender,
+                    record.recipient,
+                    record.amount,
+                    record.event_index,
+                )
+            )
+            records[key] = record
+    return list(records.values())

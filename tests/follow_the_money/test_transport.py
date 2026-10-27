@@ -1,7 +1,11 @@
 import json
 
-import httpx
 import pytest
+
+pytest.importorskip("pydantic")
+pytest.importorskip("httpx")
+
+import httpx
 
 from follow_the_money.contracts import FtmError
 from follow_the_money.transport import (
@@ -80,7 +84,7 @@ def test_retries_rate_limit_and_every_response_recorded(tmp_path):
     assert sum(waits) >= 3
     assert len(list((tmp_path / "attempts").glob("*.json"))) == 2
     assert all(
-        "body_base64" in json.loads(p.read_text())
+        "body_base64" in json.loads(p.read_text(encoding="utf-8"))
         for p in (tmp_path / "attempts").glob("*.json")
     )
     transport.get(URL)
@@ -149,7 +153,7 @@ def test_redirects_are_not_followed(tmp_path):
     "url",
     [
         "http://mempool.space/api/tx/a",
-        "https://user:secret@mempool.space/api",
+        "https://user:secret@mempool.space/api",  # pragma: allowlist secret -- fictional credentials exercise URL rejection
         "https://mempool.space/api?api_key=secret",
         "https://mempool.space/api#hidden",
         "https://mempool.space:443/api",
@@ -175,9 +179,9 @@ def test_tampered_cache_fails_closed(tmp_path):
     cache = ReplayCache(tmp_path)
     cache.write(URL, 200, b"{}", evidence_kind="synthetic", license="Authored fiction")
     path = cache.path(URL)
-    value = json.loads(path.read_text())
+    value = json.loads(path.read_text(encoding="utf-8"))
     value["body_base64"] = "eyJ4IjoxfQ=="
-    path.write_text(json.dumps(value))
+    path.write_text(json.dumps(value), encoding="utf-8")
     with pytest.raises(FtmError) as exc:
         cache.read(URL)
     assert exc.value.code == "cache_corrupt"

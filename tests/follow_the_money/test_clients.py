@@ -2,6 +2,10 @@ import json
 
 import pytest
 
+
+pytest.importorskip("pydantic")
+pytest.importorskip("httpx")
+
 from follow_the_money.clients import (
     EsploraClient,
     TronGridClient,
@@ -200,7 +204,7 @@ def test_freeze_events_are_contract_specific(tmp_path):
             ],
         },
     )
-    events = TronGridClient(transport).get_freeze_events()
+    events = TronGridClient(transport).get_freeze_events().events
     assert events[0].address == "syn_t" and events[0].contract == USDT_TRON
 
 

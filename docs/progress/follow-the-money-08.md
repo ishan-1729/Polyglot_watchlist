@@ -82,3 +82,22 @@ so the analyst can assess the integration before any tenant work.
 [declarative schema](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/declarative-agent-manifest-1.9).
 Next: final hardening, reproduction docs, serial full Project 2 tests, targeted
 Project 1 regressions and the honest completion/BLOCKED report.
+
+
+Review correction (2026-10-27): see the [per-finding review report](follow-the-money-review-fixes.md).
+Tracing now calls peel/account/live-feature scoring, with explicit heuristic/OOD
+fallback; the trained change classifier and GNNs remain library/experiment only.
+Models use agent-role keys and bounded human-approved summaries. Human approvers
+are separate from case creators and configured model actors. Playground requires
+an agent key or explicit anonymous opt-in and persists conversation quotas.
+
+
+Review regression coverage uses real local SDK HTTP requests with an agent key,
+checks missing/wrong-role keys, and checks the explicit anonymous opt-in. A
+persistent SQLite quota limits distinct traces to five per actor/conversation
+by default and 100 conversations per workspace. Retry and restart checks prove
+that those actions cannot reset limits. Case reads are conversation-scoped.
+The regenerated Copilot tool OpenAPI calls the bounded summary operation;
+approval, recovery, rules, memory revision and raw evidence are human-only.
+The old Playground receipt remains explicitly historical; no tenant, Azure or
+new browser-based Playground session was run in this repair.

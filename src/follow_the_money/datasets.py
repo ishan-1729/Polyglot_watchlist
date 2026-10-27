@@ -129,7 +129,7 @@ def synthetic_graph(seed: int = 47, nodes: int = 600) -> TemporalGraph:
     return graph
 
 
-def synthetic_change_examples(count: int = 90):
+def synthetic_change_examples(count: int = 90, *, observed_by: int | None = None):
     """Generate fictional UTXOs and derive weak labels from later co-spends."""
     from follow_the_money.contracts import BitcoinTx, Provenance, TxInput, TxOutput
     from follow_the_money.heuristics import weak_change_labels
@@ -147,14 +147,16 @@ def synthetic_change_examples(count: int = 90):
         positive = int(rng.integers(2))
         sender = f"syn_sender_{i}"
         change = TxOutput(
-            address=f"syn_change_{i}",
-            value=int(rng.integers(20000, 89000)),
-            script_type="v0_p2wpkh",
+            address=sender if rng.random() < 0.25 else f"syn_change_{i}",
+            value=int(rng.integers(5, 45)) * 1000
+            + (int(rng.integers(1, 1000)) if rng.random() < 0.6 else 0),
+            script_type="v0_p2wpkh" if rng.random() < 0.7 else "p2pkh",
         )
         payment = TxOutput(
             address=f"syn_pay_{i}",
-            value=10000,
-            script_type="p2pkh" if i % 3 else "v0_p2wpkh",
+            value=int(rng.integers(5, 45)) * 1000
+            + (int(rng.integers(1, 1000)) if rng.random() < 0.4 else 0),
+            script_type="v0_p2wpkh" if rng.random() < 0.5 else "p2pkh",
         )
         outputs = (change, payment) if positive == 0 else (payment, change)
         original = BitcoinTx(
@@ -197,7 +199,7 @@ def synthetic_change_examples(count: int = 90):
             provenance=provenance,
         )
         transactions.extend((original, later))
-    return weak_change_labels(transactions)
+    return weak_change_labels(transactions, observed_by=observed_by)
 
 
 def load_csv_graph(

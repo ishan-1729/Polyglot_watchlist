@@ -13,8 +13,8 @@ bounded public downloads/API recording, dependency installation and local small
 commits on `project-2`. It supersedes the earlier per-phase permission pauses;
 each phase still gets a preflight, tests and an honest progress report. No push,
 merge, paid compute, keys, login-gated downloads or public deployment is allowed.
-Use the existing worktree as source of truth and `/home/ishan/pw-p2-build` as the
-Linux test mirror. Environments are `/home/ishan/pw-tools/venv-p2` and `qa-p2`.
+Use the existing worktree as source of truth and `<linux-test-mirror>` as the
+Linux test mirror. Environments are `<environment-root>/venv-p2` and `<environment-root>/qa-p2`.
 Run pinned uv 0.13.5, Python 3.14, offline tests, Ruff and LF text checks.
 
 Read first: `AGENTS.md`, the proposal's two projects, Microsoft 365 layer,
@@ -71,12 +71,13 @@ planned scope; any necessary adjustment is explained in the phase preflight.
 Expected commands (exact invocations/results recorded when run):
 
 ```bash
-/home/ishan/pw-tools/uvbin/bin/uv lock
-UV_CACHE_DIR=/home/ishan/pw-tools/uv-cache UV_PROJECT_ENVIRONMENT=/home/ishan/pw-tools/venv-p2 /home/ishan/pw-tools/uvbin/bin/uv sync --locked --dev --extra ftm --python 3.14
-rsync -a --delete --exclude .git --exclude .agents --exclude .aws --exclude .codex --exclude .venv --exclude .tools --exclude /data/ --exclude __pycache__ /mnt/d/Projects/raiha/Polyglot_watchlist-p2/ /home/ishan/pw-p2-build/
-PYTHONDONTWRITEBYTECODE=1 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 /home/ishan/pw-tools/venv-p2/bin/python -m pytest -q tests/follow_the_money -p no:cacheprovider
-/home/ishan/pw-tools/qa-p2/bin/python -m ruff check --config pyproject.toml src/follow_the_money tests/follow_the_money
-/home/ishan/pw-tools/qa-p2/bin/python -m ruff format --check --config pyproject.toml src/follow_the_money tests/follow_the_money
+uv sync --locked --dev --all-extras --group qa --python 3.14
+uv lock --check --offline
+# Optional approved Linux mirror; define PROJECT_ROOT and LINUX_MIRROR first.
+rsync -a --delete --exclude .git --exclude .agents --exclude .aws --exclude .codex --exclude .venv --exclude .tools --exclude /data --exclude __pycache__ "$PROJECT_ROOT/" "$LINUX_MIRROR/"
+PYTHONDONTWRITEBYTECODE=1 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 uv run --no-sync python -m pytest -q tests/follow_the_money -p no:cacheprovider
+uv run --no-sync ruff check --config pyproject.toml
+uv run --no-sync ruff format --check --config pyproject.toml
 ```
 
 Use `git.exe` per shared context; its WSL interop currently fails with

@@ -12,8 +12,9 @@ from follow_the_money.cases import Approval, TraceRequest
 from follow_the_money.contracts import Address, Chain, FtmError, Record
 from follow_the_money.security import LocalBoundary, error_payload, principal_context
 from follow_the_money.service import TraceService
-from watchlist.api.auth import KeyStore, Principal
-from watchlist.observability import Observability, ObservabilityMiddleware
+from follow_the_money.views import case_summary, memory_summary
+from follow_the_money.auth import KeyStore, Principal, can_start, is_human
+from follow_the_money.p1_interfaces import Observability, ObservabilityMiddleware
 
 
 class MemoryQuery(Record):
@@ -38,6 +39,8 @@ def create_app(
     service: TraceService, keys: KeyStore, *, obs: Observability | None = None
 ) -> FastAPI:
     obs = obs or Observability()
+    if service is not None:
+        service.model_actors.update(getattr(keys, "model_actors", ()))
     app = FastAPI(
         title="Follow the Money — research review",
         version="0.1.0",
@@ -61,8 +64,18 @@ def create_app(
         return principal
 
     def reviewer(principal=Depends(viewer)) -> Principal:
-        if not principal.can("reviewer"):
-            raise FtmError("forbidden", "Reviewer role required")
+        if not is_human(principal, service.model_actors):
+            raise FtmError("forbidden", "Independent human approver role required")
+        return principal
+
+    def agent(principal=Depends(viewer)) -> Principal:
+        if not can_start(principal):
+            raise FtmError("forbidden", "Agent role required")
+        return principal
+
+    def human_reader(principal=Depends(viewer)) -> Principal:
+        if principal.role == "agent" or principal.actor in service.model_actors:
+            raise FtmError("forbidden", "Use the bounded model case operation")
         return principal
 
     @app.exception_handler(FtmError)
@@ -116,16 +129,25 @@ def create_app(
         return {"cases": service.list_cases()}
 
     @app.post("/v1/cases", operation_id="start_trace")
-    def start_trace(request: TraceRequest, actor=Depends(reviewer)) -> dict:
+    def start_trace(request: TraceRequest, actor=Depends(agent)) -> dict:
         with obs.span("ftm.start_trace"):
-            return service.start_case(request, actor=actor.actor)
+            case = service.start_case(request, actor=actor.actor)
+            return (
+                case_summary(case)
+                if actor.role == "agent" or actor.actor in service.model_actors
+                else case
+            )
 
     @app.get("/v1/cases/{case_id}", operation_id="get_case")
-    def get_case(case_id: str, _=Depends(viewer)) -> dict:
+    def get_case(case_id: str, _=Depends(human_reader)) -> dict:
         return service.get_case(case_id)
 
+    @app.get("/v1/cases/{case_id}/summary", operation_id="get_case_summary")
+    def get_case_summary(case_id: str, _=Depends(viewer)) -> dict:
+        return case_summary(service.get_case(case_id))
+
     @app.get("/v1/cases/{case_id}/audit", operation_id="get_audit")
-    def get_audit(case_id: str, _=Depends(viewer)) -> dict:
+    def get_audit(case_id: str, _=Depends(human_reader)) -> dict:
         return service.audit(case_id)
 
     @app.post("/v1/cases/{case_id}/approval", operation_id="human_approval")
@@ -140,11 +162,16 @@ def create_app(
         return service.recover(case_id)
 
     @app.post("/v1/memory/query", operation_id="query_case_memory")
-    def query_memory(query: MemoryQuery, _=Depends(viewer)) -> dict:
-        return service.memory.query_case_memory(query.chain, list(query.addresses))
+    def query_memory(query: MemoryQuery, actor=Depends(viewer)) -> dict:
+        value = service.memory.query_case_memory(query.chain, list(query.addresses))
+        return (
+            memory_summary(value)
+            if actor.role == "agent" or actor.actor in service.model_actors
+            else value
+        )
 
     @app.get("/v1/memory", operation_id="list_memory")
-    def list_memory(_=Depends(viewer)) -> dict:
+    def list_memory(_=Depends(human_reader)) -> dict:
         return {"entries": service.memory.entries()}
 
     @app.post("/v1/memory/rules", operation_id="add_rule")
@@ -168,6 +195,5 @@ def create_app(
     app.add_middleware(
         ObservabilityMiddleware,
         observability=obs,
-        is_credential=lambda v: keys.authenticate(v) is not None,
     )
     return app

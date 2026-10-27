@@ -5,6 +5,15 @@ from uuid import uuid4
 
 import pytest
 
+
+pytest.importorskip("pydantic")
+pytest.importorskip("yaml")
+pytest.importorskip("langgraph")
+pytest.importorskip("langgraph.checkpoint.sqlite")
+pytest.importorskip("portalocker")
+pytest.importorskip("fastapi")
+pytest.importorskip("httpx")
+
 from follow_the_money.cases import Approval, TraceRequest
 from follow_the_money.contracts import FtmError, Label, digest
 from follow_the_money.critic import challenge
@@ -142,7 +151,8 @@ def test_freeze_signal_is_budgeted_cited_and_challenged(service):
         check_freeze_signals=True,
     )
     result = service.start_case(req, actor="analyst")["state"]
-    assert result["budget"]["calls"] == 3
+    # Three event-type pages and two transfer pages are independently budgeted.
+    assert result["budget"]["calls"] == 5
     claim = next(c for c in result["claims"] if c["kind"] == "freeze_signal")
     assert claim["txids"] == [digest("fictional-freeze")]
     assert next(c for c in result["critic"] if c["claim_id"] == claim["claim_id"])[

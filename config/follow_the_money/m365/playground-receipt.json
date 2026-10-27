@@ -15,5 +15,6 @@
   "physical_blockchain_calls": 0,
   "approval": null,
   "browser_visual_test": false,
-  "tenant_or_azure": false
+  "tenant_or_azure": false,
+  "review_status": "Historical pre-review anonymous Playground run. Current SDK endpoint requires an agent key or explicit anonymous opt-in and persistent quotas; authenticated HTTP regression is recorded in the review-fixes report."
 }

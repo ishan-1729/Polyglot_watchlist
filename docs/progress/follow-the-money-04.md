@@ -87,3 +87,11 @@ reservations, independent claim checks and an evidence-bound interrupt.
 
 Next: namespaced long-term cases, clusters, links and analyst rules, including
 service suppression, correction and deletion from active recall.
+
+
+Review correction (2026-10-27): see the [per-finding review report](follow-the-money-review-fixes.md).
+Tracing now calls peel/account/live-feature scoring, with explicit heuristic/OOD
+fallback; the trained change classifier and GNNs remain library/experiment only.
+Models use agent-role keys and bounded human-approved summaries. Human approvers
+are separate from case creators and configured model actors. Playground requires
+an agent key or explicit anonymous opt-in and persists conversation quotas.

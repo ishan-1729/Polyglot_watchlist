@@ -39,9 +39,12 @@
   in MCP or generated model actions. Approval means reviewed research output,
   not sending a request. Drafts always retain `sent=false`.
 - M365 SDK 1.9.0 works on 3.14 with an explicit disabled connection protocol and
-  anonymous buffered replies. Actual Playground 0.2.29 routes a local message;
+  SDK anonymous buffered replies behind our agent-key authentication boundary.
+  Anonymous HTTP access requires explicit opt-in and persistent quotas. Actual Playground 0.2.29 routes a local message;
   tenant/Azure/Teams publication is blocked. Generated v1.9/v2.4 manifests were
   checked against the fetched official schemas, not accepted by a tenant.
+- Initial delivery was subsequently committed as `d440a0e` and merged with main
+  at `d91e372`. The original sandbox Git limitation below is historical.
 - Local Git 2.49 can read this repository; system 2.43 cannot. Windows Git
   interop failed. The sandbox exposes worktree metadata read-only, so even the
   required plan-first commit could not be written. The owner authorized leaving

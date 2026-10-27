@@ -3,8 +3,22 @@ import json
 from pathlib import Path
 import runpy
 
+import pytest
+
+pytest.importorskip("pydantic")
+pytest.importorskip("yaml")
+pytest.importorskip("langgraph")
+pytest.importorskip("langgraph.checkpoint.sqlite")
+pytest.importorskip("portalocker")
+pytest.importorskip("fastapi")
+pytest.importorskip("httpx")
+pytest.importorskip("microsoft_agents.hosting.aiohttp")
+pytest.importorskip("aiohttp")
+pytest.importorskip("mcp")
+
 from aiohttp.test_utils import TestClient, TestServer
 
+from follow_the_money.auth import KeyStore, new_key, parse_key_entries
 from follow_the_money.fixtures import build_fixtures
 from follow_the_money.m365 import create_local_app, review_card
 from follow_the_money.service import TraceService
@@ -17,7 +31,11 @@ def test_generated_manifests_match_openapi_and_exclude_human_actions():
     artifacts = generator["artifacts"]()
     for name, value in artifacts.items():
         assert (
-            json.loads((ROOT / "config/follow_the_money/m365" / name).read_text())
+            json.loads(
+                (ROOT / "config/follow_the_money/m365" / name).read_text(
+                    encoding="utf-8"
+                )
+            )
             == value
         )
     spec = artifacts["openapi-tools.json"]
@@ -69,8 +87,13 @@ def test_actual_agents_sdk_http_trace_retry_and_no_approval(tmp_path):
         labels=Path(fixture["labels"]),
     )
 
+    token, entry = new_key("playground-agent", "agent")
+    keys = KeyStore(parse_key_entries([entry]))
+
     async def exercise():
-        async with TestClient(TestServer(create_local_app(service))) as client:
+        async with TestClient(
+            TestServer(create_local_app(service, keys)), headers={"X-FTM-Key": token}
+        ) as client:
             response = await client.post(
                 "/api/messages", json=activity("trace bitcoin syn_seed_a")
             )

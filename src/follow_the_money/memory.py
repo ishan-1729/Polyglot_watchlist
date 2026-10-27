@@ -11,7 +11,7 @@ from uuid import uuid4
 
 from follow_the_money.contracts import FtmError, canonical, digest, strict_json
 from follow_the_money.storage import Ledger
-from watchlist.review.locking import create_lock_file, workspace_lock
+from follow_the_money.p1_interfaces import create_lock_file, workspace_lock
 
 
 class CaseMemory:

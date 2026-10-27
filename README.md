@@ -1,6 +1,5 @@
 # Polyglot Watchlist and Follow the Money — research agents
 
-
 This repository contains two local research projects. **Project 1, Polyglot
 Watchlist**, retrieves possible multilingual name matches for human review.
 **Project 2, Follow the Money**, traces Bitcoin and USDT TRC-20 research leads
@@ -125,7 +124,7 @@ The following do not exist:
 - real-data reviewer-memory evidence;
 - a deployed HF, Azure or Microsoft 365 integration.
 
-The v2 API, UI, MCP and memory exist, but only for local fictional use; see the v2 table above. Project 2 is excluded. Missing external access is tracked in the [access/resource ledger](docs/access-and-resource-ledger.md).
+The v2 API, UI, MCP and memory exist, but only for local fictional use; see the v2 table above. Project 2 is included through its separate [Follow the Money guide](docs/follow_the_money/README.md). Missing external access is tracked in the [access/resource ledger](docs/access-and-resource-ledger.md).
 
 ## Run the existing environment
 

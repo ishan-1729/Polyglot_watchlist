@@ -228,6 +228,9 @@ help:
 	  'test-v2        Run the v2 stack and completion-step test modules.' \
 	  'eval-fictional Rerun the fictional evaluations into a new EVAL_OUTPUT (default: data/eval-fictional/run-<UTC>).' \
 	  'demo           Run the fictional API + memory + MCP walkthrough into a new DEMO_OUTPUT.' \
+	  'test-ftm       Run offline Project 2 tests (ftm, ftm-ml, ftm-m365 extras).' \
+	  'eval-ftm       Evaluate Project 2 synthetic search (requires ftm-ml).' \
+	  'demo-ftm       Run the fictional Project 2 trace (ftm extra).' \
 	  'Overrides: PYTHON=<executable> QA_PYTHON=<executable> UV=<executable> DIST_DIR=<new-directory>' \
 	  'v2 overrides: WORKSPACE REVIEW_CONFIG MEMORY_STORE MEMORY_CONFIG WORKSPACE_ID API_PORT UI_PORT MCP_ORIGIN EVAL_FLAGS=--skip-torch'
 

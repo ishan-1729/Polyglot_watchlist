@@ -36,9 +36,10 @@ For the learned value policy demonstration, use a different fresh workspace:
 uv run --no-sync python -m follow_the_money demo --learned-synthetic --workspace data/follow_the_money/learned-demo
 ```
 
-This trains on three separate fictional traces and measures a fourth before
-ranking the demonstration frontier. Those training reviews are explicitly
-simulated. The resulting demonstration still pauses for real human review.
+This requires `ftm-ml` (as does `make eval-ftm`). It fits three fictional
+traces and probes a renamed fourth with identical feature rows: an in-sample
+fit diagnostic, with a constant-predictor baseline, not held-out validation.
+Those training reviews are explicitly simulated by a separate fixture actor. The resulting demonstration still pauses for real human review.
 The synthetic-only policy rejects real addresses and TRON. Ordinary tracing
 uses its conservative heuristic/OOD fallback. GraphSAGE/GAT are temporal graph
 experiments; they are not passed off as validated real-address risk models.
@@ -47,7 +48,8 @@ Issue local API keys, keep each token private, and put only the hash entries in
 an operator-owned file under `data/`:
 
 ```bash
-uv run --no-sync python -m follow_the_money keygen --actor analyst --role reviewer
+uv run --no-sync python -m follow_the_money keygen --actor analyst --role approver
+uv run --no-sync python -m follow_the_money keygen --actor trace-model --role agent
 uv run --no-sync python -m follow_the_money keygen --actor observer --role viewer
 # Save each key_file_entry as a line in data/follow_the_money/keys.txt.
 uv run --no-sync python -m follow_the_money serve --workspace data/follow_the_money/my-demo/service --key-file data/follow_the_money/keys.txt
@@ -61,7 +63,17 @@ critic objections/withdrawals and memory context, then approve or reject the
 shown digest. Approval can produce a **DRAFT_ONLY**, `sent=false` request.
 The UI never calls an exchange. A stale digest is rejected. Viewer keys cannot
 start, approve or mutate a case. Bearer possession is attributed identity, not
-proof of a human at the keyboard; keep reviewer keys away from model clients.
+proof of a human at the keyboard. Give model/Copilot clients **agent** keys:
+start traces and read bounded summaries only. Human **approver** keys authorize
+approval, recovery, rules and memory revisions; `reviewer` is a legacy human
+alias. Creators cannot approve their own cases. `local-mcp`, `local-playground`,
+configured agent-key actors and actors supplied through `--model-actor` cannot
+approve. Keep human keys out of model clients and plugin vaults.
+
+Agent keys cannot read the raw human case, audit or memory inspector. Use
+`GET /v1/cases/{case_id}/summary`: pending cases expose no claims, and reviewed
+cases expose at most 50 claims from the human-approved report. Rejected cases
+expose no claims. Raw labels, notes, rules and evidence stay in the human UI.
 
 MCP uses the official Python SDK, with no approval tool:
 
@@ -73,8 +85,9 @@ uv run --no-sync python -m follow_the_money mcp --workspace data/follow_the_mone
 Configure stdio as a client-spawned command; stdout is reserved for protocol.
 HTTP endpoint: `http://127.0.0.1:8766/mcp`, with `Authorization: Bearer <token>`.
 Tools: `start_trace`, `get_case`, `list_cases`, `verify_audit`,
-`query_case_memory`. Stdio without `--read-only` permits starting traces under
-its configured actor. HTTP enforces viewer/reviewer permissions per request.
+`query_case_memory`, `score_address`. Stdio without `--read-only` uses the
+agent role and permits starting traces under its configured actor. HTTP enforces
+agent/human/viewer permissions per request.
 Host/Origin checks and 64 KiB request bounds apply. Responses are untrusted data.
 
 ## Architecture and evidence
@@ -95,7 +108,8 @@ signal is not present-day status or evidence of wrongdoing. Missing or partial
 pages are explicit. Each physical HTTP retry is charged separately; logical
 tool queries remain charged when a cache hit makes network cost zero.
 
-The critic recomputes support from typed evidence and challenges **every**
+The critic checks typed evidence, with independent structural vetoes for change
+claims and service/CoinJoin vetoes for common-input claims. It challenges **every**
 claim, including retained ones. Contradictions are withdrawn and counted.
 Approval binds claims, objections, evidence, labels, trace, budget and memory
 context. The hash chain and separate anchor detect local corruption; they are
@@ -106,8 +120,10 @@ audit payload and are not secure erasure. Rules can stop or annotate, not widen
 budgets or bypass critic/approval.
 
 `EntityResolver` calls Project 1's public v2 `start_case` only for a published
-sanctioned-wallet label with an owner name. Inject an opened `ReviewService`
-into `EntityResolver(service=...)`, then into `TraceService(..., resolver=...)`.
+sanctioned-wallet label with an owner name. Opt in on `demo`, `init`, `serve`, `mcp` or `m365` with both
+`--p1-workspace <existing-p1-workspace> --p1-config config/review-v2.json`.
+The entry point opens Project 1’s public `ReviewService`; it never silently
+initializes a workspace. Python callers can still inject `EntityResolver(service=...)`.
 The real public-service integration is tested with P1's fictional retriever.
 Unconfigured resolution is explicit `unavailable`; no name or ownership is
 inferred. P1's own human review remains required.
@@ -125,7 +141,8 @@ The fixed tasks and result JSONs are in `config/follow_the_money/`. Three toy
 tasks × three policies × three repeats measure success, censored endpoint
 queries, tool schema validity, actual latency, external cost and pass^3.
 The branching fixture reaches its endpoint in 3 queries with either priority
-policy; BFS exhausts 12. This is deliberately constructed test evidence.
+policy; BFS exhausts 12 in the fixed-budget comparison. A separate adequate
+budget (32 queries) measures BFS’s actual endpoint cost. This is deliberately constructed test evidence.
 A cited 2025 DOJ funding/spending pair is replay-verified separately: BFS and
 priority each use **one query**, with no claimed real-world efficiency gain.
 The Colonial affidavit's redacted addresses/no txids prevent an honest endpoint
@@ -136,8 +153,16 @@ past-to-present messages and training-only scaling. The live-feature subset
 experiment retrains instead of dropping columns only at inference. Synthetic
 feature proxies and weak co-spend labels are explicitly labeled; no Elliptic
 performance is claimed. The value model learns observed graph distance from
-completed simulated traces, not real investigator effort. Tool-call accuracy
-means schema-valid bounded queries; it is not factual investigative accuracy.
+completed simulated traces, not real investigator effort. Its target is hop
+distance or penalty 25, with names stating those units. Evidence timestamps
+replace build wall-clock timestamps; the renamed-graph fit is explicitly not
+temporal validation. All 17 probe feature rows duplicate training rows.
+Tool schema self-consistency checks bounded queries against our own schema;
+it is not independently judged tool-call accuracy. Deterministic replay makes
+pass^k equal pass^1. Only one of the three tasks separates strategies.
+The critic benchmark has independent wrong-amount, wrong-txid, wrong-change,
+CoinJoin-cluster and service-cluster cases; rechecking in-loop claims is
+reported separately as circular self-consistency.
 
 The full public gold replay needs the raw ignored cache matching the manifest.
 CI uses authored fixtures, cited gold annotation/unit checks and fail-closed
@@ -157,16 +182,25 @@ fallback. Data acquisition is separate from serving/tracing.
 Generate artifacts with `python scripts/ftm_m365.py`. Approval and rule mutations
 are excluded from the model OpenAPI. The server/vault placeholders deliberately
 cannot deploy. A future trusted Adaptive Card handler must authenticate the
-human and re-fetch the digest; the anonymous local wrapper accepts no approvals.
+human and re-fetch the digest; the local wrapper accepts no approvals. The
+plugin vault must hold an agent-role key, and the generated model OpenAPI uses
+the bounded case summary operation.
 
 ```bash
-uv run --no-sync python -m follow_the_money m365 --workspace data/follow_the_money/my-demo/service --port 3978
+uv run --no-sync python -m follow_the_money m365 --workspace data/follow_the_money/my-demo/service --port 3978 --key-file data/follow_the_money/keys.txt
 # Local development tool, installed separately at the pinned tested version:
 npm install --prefix data/follow_the_money/playground --ignore-scripts --no-audit --no-fund @microsoft/m365agentsplayground@0.2.29
 data/follow_the_money/playground/node_modules/.bin/agentsplayground -e http://127.0.0.1:3978/api/messages -c emulator --delivery-mode expectReplies --disable-telemetry --host 127.0.0.1 --port 56150
 ```
 
-The local wrapper requires emulator + `expectReplies`, returns replies in the
+The local wrapper requires an agent key in the `X-FTM-Key` request header,
+emulator + `expectReplies` and a loopback service URL. If the Playground client
+cannot supply that header, start the server with the explicit `--allow-anonymous`
+flag for a local demo; this is never the default. The default persistent quota
+is five distinct trace requests per actor/conversation and 100 conversations
+per workspace; retries do not consume additional slots, and restarts do not
+reset quotas. `--max-cases-per-conversation` adjusts the first bound. Case reads
+are limited to the same actor/conversation. The wrapper returns replies in the
 HTTP response, and disables external connectors/OAuth. Playground commands:
 `trace bitcoin syn_seed_a`, `trace tron syn_tron_seed`, `case <UUID>`.
 [Phase 08](../progress/follow-the-money-08.md) records exactly what ran: actual
@@ -188,5 +222,29 @@ fails closed and needs operator inspection, not automatic hash repair.
 Blocked work and owners are in the [final report](../progress/follow-the-money-final.md).
 No live TRON key, LLM provider, verified Elliptic licence, Windows runtime,
 tenant/Azure deployment, production calibration or genuine analyst study is
-claimed. The source branch was not pushed or merged; sandbox Git metadata was
-read-only, so the coordinator must stage and commit the preserved changes.
+claimed. The source branch was not pushed or merged. The review report records the
+local Git handoff status and exact validation results.
+
+
+Review implementation status: `live_features`, `score_address` with OOD fallback,
+peel-chain claims, account signals and all three paginated freeze event types now
+have tracing callers. Ordinary tracing uses amount-based heuristic priority;
+TRON compares amounts across the outgoing page instead of assigning every branch
+0.75. GNNs and the trained change classifier remain **library/experiment only**;
+they do not drive ordinary search. Only `--learned-synthetic` injects the toy value
+ranker. GAT AP 0.572325 versus base rate 0.516667 is near chance; its small
+full-to-live drop is not meaningful robustness evidence (one seed, no CIs).
+
+Acquisition refuses redirects and environment proxies. Every registered source
+is pinned to its already-verified SHA-256, including checks when reusing cached
+bytes. This review downloaded no data and made no live explorer calls.
+
+Review rerun: the varied-signal change classifier has AP **0.828147**, ROC AUC
+**0.786848**, accuracy **0.761905** (118 training / 42 test output rows). The
+branching search reaches its endpoint in **16 queries with BFS**, **3 with
+heuristic priority**, and **3 with the optional toy value policy**, at a common
+budget of 32. The value model’s **0.358491** in-sample MAE compares with a
+constant-mean baseline of **8.456747**, in hops-or-penalty units; all **17** probe
+rows duplicate training features. The independent critic set retains **3/3**
+supported cases and withdraws **5/5** planted errors. These are constructed
+software checks, not real-world effectiveness estimates.

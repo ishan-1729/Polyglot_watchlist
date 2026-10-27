@@ -84,6 +84,16 @@ def detect_change(
         return ChangeEstimate(
             tuple(0.0 for _ in tx.outputs), 1.0, "abstain_ambiguous_structure"
         )
+    reused = [i for i in range(2) if change_features(tx, i)[3]]
+    if len(reused) == 1:
+        # Deterministic candidate selection, not a calibrated ownership probability.
+        return ChangeEstimate(
+            tuple(0.8 if i == reused[0] else 0.0 for i in range(2)),
+            0.2,
+            "unique_input_address_reuse",
+        )
+    if len(reused) == 2:
+        return ChangeEstimate((0.0, 0.0), 1.0, "ambiguous_input_address_reuse")
     weights = []
     for index, output in enumerate(tx.outputs):
         same_script, nonround, fraction, reused = change_features(tx, index)
@@ -93,7 +103,7 @@ def detect_change(
             and output.address not in seen_addresses
         )
         logit = (
-            -1.0 + 1.4 * same_script + 0.8 * nonround + 0.3 * fraction + fresh - reused
+            -1.0 + 1.4 * same_script + 0.8 * nonround + 0.3 * fraction + fresh + reused
         )
         weights.append(math.exp(logit) if output.address else 0.0)
     null_weight = math.exp(1.0)
@@ -279,8 +289,17 @@ class WeakChangeExample:
 
 def weak_change_labels(
     transactions: Sequence[BitcoinTx],
+    *,
+    observed_by: int | None = None,
 ) -> tuple[WeakChangeExample, ...]:
     """Later co-spend gives weak positives; label observation time prevents leakage."""
+    transactions = [
+        tx
+        for tx in transactions
+        if tx.confirmed
+        and tx.timestamp is not None
+        and (observed_by is None or tx.timestamp <= observed_by)
+    ]
     spends: dict[tuple[str, int], list[BitcoinTx]] = {}
     for tx in transactions:
         if detect_coinjoin(tx).suspected:
@@ -301,7 +320,9 @@ def weak_change_labels(
         }
         positives = {}
         for index in range(2):
-            for later in spends.get((tx.txid, index), []):
+            for later in sorted(
+                spends.get((tx.txid, index), []), key=lambda t: (t.timestamp, t.txid)
+            ):
                 other_inputs = {
                     i.prevout.address
                     for i in later.inputs
@@ -359,6 +380,49 @@ def account_signals(
         "change": None,
         "common_input_cluster": None,
         "freeze_signal": freezes[-1].action if freezes else None,
+        "blacklisted_at_last_observation": _blacklist_state(freezes),
+        "destroyed_funds_events": sum(
+            e.action == "DestroyedBlackFunds" for e in freezes
+        ),
         "freeze_txids": [e.txid for e in freezes],
         "notice": "A historical contract signal, not current freeze status, ownership or wrongdoing.",
     }
+
+
+def _blacklist_state(events: Sequence[FreezeEvent]) -> bool | None:
+    """Destruction does not remove an address from the blacklist; ties abstain."""
+    changes = [e for e in events if e.action in {"AddedBlackList", "RemovedBlackList"}]
+    if not changes:
+        return None
+    latest = max(e.timestamp for e in changes)
+    actions = {e.action for e in changes if e.timestamp == latest}
+    return actions == {"AddedBlackList"} if len(actions) == 1 else None
+
+
+def seen_addresses_before(tx: BitcoinTx, evidence: dict) -> set[str]:
+    """Addresses in confirmed evidence no later than tx time, excluding tx itself.
+
+    This is freshness within the available recordings, not global chain novelty.
+    """
+    seen = set()
+    if tx.timestamp is None:
+        return seen
+    for rows in evidence.values():
+        for row in rows:
+            if row["chain"] != "bitcoin":
+                continue
+            value = row["value"]
+            if (
+                value["txid"] == tx.txid
+                or not value["confirmed"]
+                or value["timestamp"] is None
+                or value["timestamp"] > tx.timestamp
+            ):
+                continue
+            seen.update(
+                i["prevout"]["address"]
+                for i in value["inputs"]
+                if i["prevout"] and i["prevout"]["address"]
+            )
+            seen.update(o["address"] for o in value["outputs"] if o["address"])
+    return seen

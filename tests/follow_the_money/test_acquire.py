@@ -2,6 +2,9 @@ import io
 
 import pytest
 
+
+pytest.importorskip("pydantic")
+
 from follow_the_money.acquire import acquire
 from follow_the_money.contracts import FtmError
 

@@ -3,6 +3,15 @@ from pathlib import Path
 
 import pytest
 
+
+pytest.importorskip("pydantic")
+pytest.importorskip("yaml")
+pytest.importorskip("langgraph")
+pytest.importorskip("langgraph.checkpoint.sqlite")
+pytest.importorskip("portalocker")
+pytest.importorskip("fastapi")
+pytest.importorskip("httpx")
+
 from follow_the_money.contracts import FtmError, Outspend, TxInput, TxOutput
 from follow_the_money.clients import parse_bitcoin
 from follow_the_money.evaluation import TASKS, evaluate, train_value_policy
@@ -13,12 +22,14 @@ CONFIG = Path(__file__).resolve().parents[2] / "config/follow_the_money"
 
 
 def test_task_contract_is_frozen_and_documented():
-    config = json.loads((CONFIG / "tasks.json").read_text())
+    config = json.loads((CONFIG / "tasks.json").read_text(encoding="utf-8"))
     assert config["evidence_kind"] == "synthetic"
     assert [
         {k: row[k] for k in task} for row, task in zip(config["tasks"], TASKS)
     ] == list(TASKS)
-    gold = json.loads((CONFIG / "gold-traces.json").read_text())["traces"]
+    gold = json.loads((CONFIG / "gold-traces.json").read_text(encoding="utf-8"))[
+        "traces"
+    ]
     assert gold[0]["benchmark_eligible"] and len(gold[0]["source_sha256"]) == 64
     assert not gold[1]["benchmark_eligible"]
     assert all(row["txid"] is None for row in gold[1]["observations"])
@@ -53,11 +64,19 @@ def test_fixed_evaluation_censors_failures_and_preserves_human_boundary(tmp_path
 
 
 def test_value_policy_uses_disjoint_cases_and_rejects_real_addresses(tmp_path):
+    pytest.importorskip("torch_geometric")
+    pytest.importorskip("sklearn")
     score, result = train_value_policy(tmp_path / "value")
-    assert not set(result["train_cases"]) & set(result["test_cases"])
+    assert not set(result["train_cases"]) & set(result["probe_cases"])
     assert len(set(result["graph_hashes"])) == 4
-    assert result["train_rows"] == 51 and result["test_rows"] == 17
-    assert 0 <= result["heldout_mae_calls"] < 3
+    assert result["train_rows"] == 51 and result["probe_rows"] == 17
+    assert 0 <= result["in_sample_mae_hops_or_penalty"] < 3
+    assert result["duplicate_probe_rows"] == 17 and result["novel_probe_rows"] == 0
+    assert result["duplicate_probe_mae_hops_or_penalty"] == pytest.approx(
+        result["in_sample_mae_hops_or_penalty"]
+    )
+    assert "not_temporal_validation" in result["split_kind"]
+    assert "heldout_mae_calls" not in result
     item = {
         "address": "bc1example",
         "heuristic": 0.5,
@@ -113,7 +132,9 @@ def test_gold_validation_requires_exact_outpoint_and_units(make_tx, provenance):
 
 
 def test_redacted_gold_is_excluded_and_missing_public_cache_never_downloads(tmp_path):
-    annotations = json.loads((CONFIG / "gold-traces.json").read_text())["traces"]
+    annotations = json.loads((CONFIG / "gold-traces.json").read_text(encoding="utf-8"))[
+        "traces"
+    ]
     assert (
         evaluate_gold(
             output=tmp_path / "blocked", cache=tmp_path, annotation=annotations[1]

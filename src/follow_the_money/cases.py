@@ -82,6 +82,7 @@ def proposal_payload(state: dict) -> dict:
         "stop_reason",
         "resolutions",
         "memory_context",
+        "signals",
     )
     return {key: state[key] for key in keys}
 

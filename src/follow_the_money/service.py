@@ -31,8 +31,7 @@ from follow_the_money.memory import CaseMemory
 from follow_the_money.resolver import EntityResolver
 from follow_the_money.storage import Ledger
 from follow_the_money.transport import Budget, JsonTransport, ReplayCache
-from watchlist.review.contracts import ReviewError
-from watchlist.review.locking import create_lock_file, workspace_lock
+from follow_the_money.p1_interfaces import ReviewError, create_lock_file, workspace_lock
 
 
 def validate_actor(actor: str) -> str:
@@ -59,20 +58,23 @@ class TraceService:
         *,
         resolver: EntityResolver | None = None,
         score=None,
+        model_actors=(),
         rank_override=None,
         memory=None,
         failpoint=lambda stage: None,
     ):
         self.root = Path(root)
+        self.model_actors = {"local-mcp", "local-playground", *model_actors}
         settings = strict_json((self.root / "settings.json").read_bytes())
         if settings.get("schema") != "ftm-workspace-v1":
             raise FtmError("incompatible", "Unsupported workspace schema")
+        self.model_actors.update(settings.get("model_actors", []))
         self.cache = ReplayCache(Path(settings["cache_root"]))
         self.labels = LabelStore(Path(settings["labels_path"]))
         self.tron_provider = settings["tron_provider"]
         self.resolver = resolver or EntityResolver()
         self.score, self.rank_override, self.memory, self.failpoint = (
-            score,
+            score or self.score_frontier,
             rank_override,
             memory
             or (
@@ -84,6 +86,51 @@ class TraceService:
             ),
             failpoint,
         )
+
+    @staticmethod
+    def score_frontier(item: dict, chain: str) -> dict:
+        from follow_the_money.scoring import score_address
+
+        return score_address(
+            item.get("live_features", ()),
+            guard=None,
+            chain=chain,
+            feature_names=item.get("feature_names", ()),
+            heuristic=item["heuristic"],
+        )
+
+    def score_address(self, case_id: str, address: str) -> dict:
+        """Score an observed address using recorded features; never fetch live data."""
+        from follow_the_money.features import (
+            LIVE_FEATURES,
+            live_features,
+            evidence_records,
+        )
+
+        case = self.get_case(case_id)
+        state = case["state"] or {}
+        items = [i for i in state.get("frontier", []) if i["address"] == address]
+        items += [
+            i
+            for i in state.get("trace", [])
+            if i.get("address") == address and "heuristic" in i
+        ]
+        if not items:
+            raise FtmError("not_found", "Address has no recorded scoring context")
+        item = dict(items[0])
+        chain = case["request"]["chain"]
+        records = evidence_records(state["evidence"], chain)
+        as_of = item.get("received_at", 0) // (1000 if chain == "tron" else 1)
+        values = live_features(address, records, as_of=as_of)
+        item.update(live_features=values, feature_names=LIVE_FEATURES)
+        return {
+            "address": address,
+            "as_of": as_of,
+            "chain": chain,
+            "features": values,
+            "feature_names": LIVE_FEATURES,
+            **self.score(item, chain),
+        }
 
     @classmethod
     def initialize(
@@ -114,6 +161,9 @@ class TraceService:
                     "cache_root": str(Path(cache).resolve()),
                     "labels_path": str(Path(labels).resolve()),
                     "tron_provider": tron_provider,
+                    "model_actors": sorted(
+                        validate_actor(a) for a in kwargs.get("model_actors", ())
+                    ),
                 }
             )
             + "\n",
@@ -298,6 +348,8 @@ class TraceService:
         submitted = {**approval.to_dict(), "actor": actor}
         with self._locked() as ledger:
             row = ledger.case(case_id)
+            if actor == row["actor"] or actor in self.model_actors:
+                raise FtmError("forbidden", "An independent human approver is required")
             if row["approval"]:
                 if row["approval"] != submitted:
                     raise FtmError(

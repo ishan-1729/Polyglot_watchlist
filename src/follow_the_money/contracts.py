@@ -20,7 +20,7 @@ NOTICE = (
     "do not establish identity, ownership or wrongdoing. Requests remain drafts; "
     "nothing is sent to an exchange or authority."
 )
-USDT_TRON = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+USDT_TRON = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"  # pragma: allowlist secret -- public USDT TRON contract identifier
 
 
 def canonical(value: object) -> str:
@@ -176,6 +176,13 @@ class Page(Record):
 
     transactions: tuple[BitcoinTx, ...] = ()
     transfers: tuple[Transfer, ...] = ()
+    next_cursor: str | None = None
+    complete: bool
+    provenance: Provenance
+
+
+class FreezePage(Record):
+    events: tuple[FreezeEvent, ...] = ()
     next_cursor: str | None = None
     complete: bool
     provenance: Provenance

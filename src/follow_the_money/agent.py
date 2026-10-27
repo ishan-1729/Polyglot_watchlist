@@ -11,9 +11,24 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.types import interrupt
 
 from follow_the_money.cases import TraceRequest, make_claim, proposal_payload
-from follow_the_money.contracts import NOTICE, FtmError, Page, digest
+from follow_the_money.contracts import (
+    NOTICE,
+    FtmError,
+    FreezePage,
+    FreezeEvent,
+    Page,
+    digest,
+)
 from follow_the_money.critic import build_critic
-from follow_the_money.heuristics import ClusterBook, detect_change, detect_coinjoin
+from follow_the_money.heuristics import (
+    ClusterBook,
+    detect_change,
+    detect_coinjoin,
+    detect_peel_chain,
+    account_signals,
+    seen_addresses_before,
+)
+from follow_the_money.features import LIVE_FEATURES, live_features, evidence_records
 from follow_the_money.planner import plan
 from follow_the_money.resolver import EntityResolver
 from follow_the_money.storage import Ledger
@@ -42,6 +57,7 @@ class AgentState(TypedDict):
     approval: dict
     report: dict
     memory: dict
+    signals: dict
     memory_context: dict
 
 
@@ -82,6 +98,7 @@ def initial_state(case_id: str, thread_id: str, request: TraceRequest) -> AgentS
         report={},
         memory={},
         memory_context={"links": [], "rules": []},
+        signals={},
     )
 
 
@@ -121,6 +138,7 @@ def build_graph(saver, deps: Dependencies):
         ]
         if not frontier:
             return {"frontier": [], "current": {}, "stop_reason": "frontier_exhausted"}
+        records = evidence_records(state["evidence"], state["request"]["chain"])
         for item in frontier:
             item["score"] = item["heuristic"]
             item["ranking"] = {
@@ -130,13 +148,30 @@ def build_graph(saver, deps: Dependencies):
             }
             if deps.score is not None and state["request"]["strategy"] == "priority":
                 try:
+                    as_of = item["received_at"] // (
+                        1000 if state["request"]["chain"] == "tron" else 1
+                    )
+                    item["live_features"] = live_features(
+                        item["address"], records, as_of=as_of
+                    )
+                    item["feature_names"] = LIVE_FEATURES
                     result = deps.score(dict(item), state["request"]["chain"])
                     if (
-                        result.get("ood") is False
-                        and math.isfinite(result["score"])
-                        and 0 <= result["score"] <= 1
+                        not isinstance(result, dict)
+                        or type(result.get("score")) not in {int, float}
+                        or not math.isfinite(result["score"])
+                        or not 0 <= result["score"] <= 1
                     ):
+                        raise ValueError("Invalid model output")
+                    if result.get("ood") is False:
                         item["score"], item["ranking"] = result["score"], result
+                    else:
+                        item["ranking"] = {
+                            **result,
+                            "ood": True,
+                            "method": "heuristic_fallback",
+                            "score": item["heuristic"],
+                        }
                 except (ValueError, TypeError, KeyError, RuntimeError):
                     item["ranking"]["reason"] = "model_error"
         if state["request"]["strategy"] == "bfs":
@@ -187,47 +222,74 @@ def build_graph(saver, deps: Dependencies):
                     {"action": "backtrack", "reason": "freeze_provider_unavailable"}
                 ]
             }
-        query = {"chain": "tron", "tool": "get_freeze_events"}
-        result = deps.ledger.tool(
-            state["case_id"],
-            query,
-            lambda: [e.to_dict() for e in method()],
-            max_calls=request["max_calls"],
-            failpoint=deps.failpoint,
-        )
-        evidence, claims = {}, []
-        if result["ok"]:
-            for event in result["value"]:
-                if event["address"] == request["seed"]:
-                    evidence.setdefault(event["txid"], []).append(
-                        {"chain": "tron", "value": event}
+        evidence, trace, count, complete = {}, [], 0, True
+        for event_name in ("AddedBlackList", "RemovedBlackList", "DestroyedBlackFunds"):
+            cursor, seen_cursors = None, set()
+            while True:
+                query = {
+                    "chain": "tron",
+                    "tool": "get_freeze_events",
+                    "event_name": event_name,
+                    "cursor": cursor,
+                }
+                try:
+                    result = deps.ledger.tool(
+                        state["case_id"],
+                        query,
+                        lambda: method(cursor, event_name=event_name).to_dict(),
+                        max_calls=request["max_calls"],
+                        failpoint=deps.failpoint,
                     )
-                    claims.append(
-                        make_claim(
-                            "freeze_signal",
-                            "tron",
-                            (event["txid"],),
-                            (event["address"],),
-                            confidence=0.5,
-                        )
+                except FtmError as exc:
+                    if exc.code != "budget_exhausted":
+                        raise
+                    complete = False
+                    trace.append({**query, "action": "backtrack", "reason": exc.code})
+                    break
+                trace.append(
+                    {
+                        **query,
+                        "action": "continue" if result["ok"] else "backtrack",
+                        "reason": "historical_events"
+                        if result["ok"]
+                        else result["error"]["code"],
+                    }
+                )
+                if not result["ok"]:
+                    complete = False
+                    break
+                page = FreezePage.model_validate_json(json.dumps(result["value"]))
+                for event in page.events:
+                    evidence.setdefault(event.txid, []).append(
+                        {"chain": "tron", "value": event.to_dict()}
                     )
+                count += len(page.events)
+                if not page.next_cursor:
+                    complete = complete and page.complete
+                    break
+                if count >= 2000 or page.next_cursor in seen_cursors:
+                    complete = False
+                    trace.append(
+                        {
+                            **query,
+                            "action": "backtrack",
+                            "reason": "event_resource_or_cursor_limit",
+                        }
+                    )
+                    break
+                seen_cursors.add(page.next_cursor)
+                cursor = page.next_cursor
+            if not complete:
+                break
         return {
             "evidence": evidence,
-            "claims": claims,
+            "trace": trace,
+            "signals": {"freeze_history_complete": complete},
             "budget": {
                 "calls": deps.ledger.calls(state["case_id"]),
-                "network_calls": 0,
+                "network_calls": deps.client.transport.budget.network_calls,
                 "max_calls": request["max_calls"],
             },
-            "trace": [
-                {
-                    **query,
-                    "action": "continue",
-                    "reason": "historical_events"
-                    if result["ok"]
-                    else result["error"]["code"],
-                }
-            ],
         }
 
     def tools_node(state):
@@ -304,6 +366,7 @@ def build_graph(saver, deps: Dependencies):
                         "hops": current["hops"],
                         "heuristic": current["heuristic"],
                         "incoming_units": current.get("incoming_units", 0),
+                        "received_at": current["received_at"],
                     },
                 ],
             }
@@ -348,7 +411,7 @@ def build_graph(saver, deps: Dependencies):
             return {"stop_reason": "budget_exhausted"}
         budget = {
             "calls": deps.ledger.calls(state["case_id"]),
-            "network_calls": 0,
+            "network_calls": deps.client.transport.budget.network_calls,
             "max_calls": request["max_calls"],
         }
         if not result["ok"]:
@@ -367,6 +430,13 @@ def build_graph(saver, deps: Dependencies):
         added = 0
         coinjoin = False
         matched_outpoint = False
+        # Explorer pages may be newest-first. All page records are available
+        # now, but only observations at/before each transaction inform freshness.
+        history = {key: list(rows) for key, rows in evidence.items()}
+        for observed in page.transactions:
+            history.setdefault(observed.txid, []).append(
+                {"chain": "bitcoin", "value": observed.to_dict()}
+            )
         for tx in page.transactions if chain == "bitcoin" else page.transfers:
             record = {"chain": chain, "value": tx.to_dict()}
             entries = evidence.setdefault(tx.txid, [])
@@ -432,7 +502,9 @@ def build_graph(saver, deps: Dependencies):
                             confidence=0.6,
                         )
                     )
-                change = detect_change(tx)
+                change = detect_change(
+                    tx, seen_addresses=seen_addresses_before(tx, history)
+                )
                 if (
                     change.candidate is not None
                     and tx.outputs[change.candidate].address
@@ -457,7 +529,14 @@ def build_graph(saver, deps: Dependencies):
                 if tx.sender != address or tx.timestamp < current["received_at"]:
                     continue
                 targets = [(tx.recipient, tx.amount, None, tx.timestamp)]
-                total = max(1, tx.amount)
+                total = max(
+                    1,
+                    sum(
+                        t.amount
+                        for t in page.transfers
+                        if t.sender == address and t.timestamp >= current["received_at"]
+                    ),
+                )
             for target, amount, index, timestamp in targets:
                 claims.append(
                     make_claim(
@@ -517,6 +596,7 @@ def build_graph(saver, deps: Dependencies):
                     "ranking": current["ranking"],
                     "heuristic": current["heuristic"],
                     "incoming_units": current.get("incoming_units", 0),
+                    "received_at": current["received_at"],
                 },
             ],
         }
@@ -529,9 +609,80 @@ def build_graph(saver, deps: Dependencies):
         return {}
 
     def critique(state):
+        claims = list(state["claims"])
+        signals = dict(state.get("signals", {}))
+        records = evidence_records(state["evidence"], state["request"]["chain"])
+        traced_addresses = {state["request"]["seed"]} | {
+            a for c in claims for a in c["addresses"]
+        }
+        if state["request"]["chain"] == "tron":
+            events = [
+                FreezeEvent.model_validate(r["value"])
+                for rows in state["evidence"].values()
+                for r in rows
+                if "action" in r["value"]
+            ]
+            for event in events:
+                if event.address in traced_addresses:
+                    claims.append(
+                        make_claim(
+                            "freeze_signal",
+                            "tron",
+                            (event.txid,),
+                            (event.address,),
+                            confidence=0.5,
+                        )
+                    )
+            signals["accounts"] = [
+                account_signals(a, records, events) for a in sorted(traced_addresses)
+            ]
+        else:
+            # Build candidate paths from actual spend outpoints; unrelated page rows never join a path.
+            by_id = {tx.txid: tx for tx in records}
+            for last in records:
+                path = [last]
+                while (
+                    len(path) < state["request"]["max_hops"]
+                    and len(path[0].inputs) == 1
+                ):
+                    parent = by_id.get(path[0].inputs[0].txid)
+                    if parent is None or parent in path:
+                        break
+                    path.insert(0, parent)
+                if len(path) >= 3:
+                    peel = detect_peel_chain(path)
+                    if peel.detected and all(
+                        txid
+                        in {
+                            t
+                            for c in claims
+                            if c["kind"] == "transfer"
+                            for t in c["txids"]
+                        }
+                        for txid in peel.txids
+                    ):
+                        claims.append(
+                            make_claim(
+                                "peel_hypothesis",
+                                "bitcoin",
+                                peel.txids,
+                                tuple(
+                                    sorted(
+                                        {
+                                            o.address
+                                            for tx in path
+                                            for o in tx.outputs
+                                            if o.address
+                                        }
+                                    )
+                                ),
+                                confidence=0.5,
+                            )
+                        )
+        claims = unique_claims(claims)
         result = critic_graph.invoke(
             {
-                "claims": state["claims"],
+                "claims": claims,
                 "evidence": state["evidence"],
                 "labels": state["labels"],
                 "critic": [],
@@ -550,7 +701,12 @@ def build_graph(saver, deps: Dependencies):
                 blocked_members=state["clusters"]["service"],
             )
             context.update(recalled)
-        return {"critic": result["critic"], "memory_context": context}
+        return {
+            "claims": claims,
+            "signals": signals,
+            "critic": result["critic"],
+            "memory_context": context,
+        }
 
     def analyst_rules(state):
         if deps.memory is None or not state["current"]:

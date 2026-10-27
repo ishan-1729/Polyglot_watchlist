@@ -17,16 +17,21 @@ def main():
         p.add_argument(
             "--workspace", type=Path, default=Path("data/follow_the_money/demo")
         )
+        p.add_argument("--p1-workspace", type=Path)
+        p.add_argument("--p1-config", type=Path)
+        p.add_argument("--model-actor", action="append", default=[])
         if name == "demo":
             p.add_argument(
                 "--learned-synthetic",
                 action="store_true",
                 help="Train a value policy on separate fictional traces and use it in this demo",
             )
-        if name in {"serve", "mcp"}:
+        if name in {"serve", "mcp", "m365"}:
             p.add_argument("--key-file", type=Path)
             p.add_argument(
-                "--port", type=int, default=8765 if name == "serve" else 8766
+                "--port",
+                type=int,
+                default={"serve": 8765, "mcp": 8766, "m365": 3978}[name],
             )
         if name == "mcp":
             p.add_argument(
@@ -35,17 +40,20 @@ def main():
             p.add_argument("--actor", default="local-mcp")
             p.add_argument("--read-only", action="store_true")
         if name == "m365":
-            p.add_argument("--port", type=int, default=3978)
+            p.add_argument("--allow-anonymous", action="store_true")
+            p.add_argument("--max-cases-per-conversation", type=int, default=5)
     key = sub.add_parser("keygen")
     key.add_argument("--actor", required=True)
-    key.add_argument("--role", choices=["viewer", "reviewer"], required=True)
+    key.add_argument(
+        "--role", choices=["viewer", "agent", "approver", "reviewer"], required=True
+    )
     sub.add_parser("ui")
     evaluation = sub.add_parser("evaluate")
     evaluation.add_argument("--output", type=Path, required=True)
     evaluation.add_argument("--repeats", type=int, default=3)
     args = parser.parse_args()
     if args.command == "keygen":
-        from watchlist.api.auth import new_key
+        from follow_the_money.auth import new_key
 
         token, entry = new_key(args.actor, args.role)
         print(json.dumps({"token_shown_once": token, "key_file_entry": entry}))
@@ -63,6 +71,8 @@ def main():
                     ui.__file__,
                     "--server.address=127.0.0.1",
                     "--server.headless=true",
+                    "--server.allowedHosts=localhost",
+                    "--server.allowedHosts=127.0.0.1",
                     "--browser.gatherUsageStats=false",
                 ]
             )
@@ -76,6 +86,11 @@ def main():
     from follow_the_money.fixtures import build_fixtures
     from follow_the_money.service import TraceService, validate_actor
 
+    from follow_the_money.resolver import EntityResolver
+
+    if bool(args.p1_workspace) != bool(args.p1_config):
+        parser.error("Both --p1-workspace and --p1-config are required")
+    resolver = EntityResolver.from_workspace(args.p1_workspace, args.p1_config)
     if args.command in {"demo", "init"}:
         score = None
         if getattr(args, "learned_synthetic", False):
@@ -88,6 +103,8 @@ def main():
             cache=Path(fixtures["cache"]),
             labels=Path(fixtures["labels"]),
             score=score,
+            resolver=resolver,
+            model_actors=args.model_actor,
         )
         if args.command == "demo":
             view = service.start_case(
@@ -110,13 +127,34 @@ def main():
                 )
             )
         return
-    service = TraceService(args.workspace)
+    service = TraceService(
+        args.workspace, resolver=resolver, model_actors=args.model_actor
+    )
     if args.command == "m365":
         from follow_the_money.m365 import run_local
 
-        run_local(service, port=args.port)
+        from follow_the_money.auth import KeyStore, parse_key_entries
+
+        if not args.key_file and not args.allow_anonymous:
+            parser.error("Playground requires --key-file or --allow-anonymous")
+        keys = (
+            KeyStore(
+                parse_key_entries(
+                    args.key_file.read_text(encoding="utf-8").splitlines()
+                )
+            )
+            if args.key_file
+            else None
+        )
+        run_local(
+            service,
+            port=args.port,
+            keys=keys,
+            allow_anonymous=args.allow_anonymous,
+            max_cases_per_conversation=args.max_cases_per_conversation,
+        )
         return
-    from watchlist.api.auth import KeyStore, Principal, parse_key_entries
+    from follow_the_money.auth import KeyStore, Principal, parse_key_entries
 
     if args.command == "mcp" and args.transport == "stdio":
         from follow_the_money.mcp_server import build_server
@@ -125,7 +163,7 @@ def main():
         build_server(
             service,
             stdio_principal=Principal(
-                validate_actor(args.actor), "viewer" if args.read_only else "reviewer"
+                validate_actor(args.actor), "viewer" if args.read_only else "agent"
             ),
         ).run(transport="stdio")
         return

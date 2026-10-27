@@ -1,4 +1,8 @@
 import pytest
+
+
+pytest.importorskip("pydantic")
+
 from pydantic import ValidationError
 
 from follow_the_money.contracts import Provenance, TxOutput, canonical, strict_json

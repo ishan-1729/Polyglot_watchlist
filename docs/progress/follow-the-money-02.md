@@ -50,3 +50,11 @@ the uncertainty. How: explicit stop conditions, outpoint checks and abstention.
 Next: temporal ML pipelines, full/live-feature comparisons, OOD fallback and
 weak-label learning. Elliptic++ licence verification and Git commits remain
 blocked; owners/next actions are recorded in the manifest and Phase 00.
+
+
+Review correction (2026-10-27): see the [per-finding review report](follow-the-money-review-fixes.md).
+Tracing now calls peel/account/live-feature scoring, with explicit heuristic/OOD
+fallback; the trained change classifier and GNNs remain library/experiment only.
+Models use agent-role keys and bounded human-approved summaries. Human approvers
+are separate from case creators and configured model actors. Playground requires
+an agent key or explicit anonymous opt-in and persists conversation quotas.

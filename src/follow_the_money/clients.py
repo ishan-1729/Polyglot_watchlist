@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import hashlib
 from typing import Any
 
 from pydantic import ValidationError
@@ -11,6 +12,7 @@ from follow_the_money.contracts import (
     BitcoinTx,
     FtmError,
     FreezeEvent,
+    FreezePage,
     Outspend,
     Page,
     Provenance,
@@ -123,7 +125,7 @@ class EsploraClient:
             request_url(self.base, f"/address/{address}{suffix}")
         )
         raw = response.json()
-        if not isinstance(raw, list) or len(raw) > (75 if cursor is None else 25):
+        if not isinstance(raw, list) or len(raw) > (100 if cursor is None else 50):
             raise FtmError("invalid_response", "Malformed Bitcoin transaction page")
         txs = tuple(parse_bitcoin(item, response.provenance) for item in raw)
         if any(
@@ -217,6 +219,8 @@ class TronGridClient:
                 raise ValueError("unsuccessful page")
             transfers = []
             for item in raw["data"]:
+                if item.get("type") == "Approval":
+                    continue
                 token = item["token_info"]
                 if (
                     item["type"] != "Transfer"
@@ -249,7 +253,7 @@ class TronGridClient:
             return Page(
                 transfers=tuple(transfers),
                 next_cursor=cursor_next,
-                complete=cursor_next is None and len(transfers) < limit,
+                complete=cursor_next is None and len(raw["data"]) < limit,
                 provenance=response.provenance,
             )
         except (TypeError, KeyError, ValueError, AttributeError):
@@ -257,15 +261,24 @@ class TronGridClient:
                 "invalid_response", "Malformed TronGrid transfer page"
             ) from None
 
-    def get_freeze_events(self, cursor: str | None = None) -> tuple[FreezeEvent, ...]:
-        """Replay confirmed contract events; a freeze is not an ownership finding."""
+    def get_freeze_events(
+        self, cursor: str | None = None, *, event_name: str = "AddedBlackList"
+    ) -> FreezePage:
+        """One bounded page; callers explicitly budget all three event types."""
+        if (
+            event_name
+            not in {"AddedBlackList", "RemovedBlackList", "DestroyedBlackFunds"}
+            or cursor is not None
+            and (not isinstance(cursor, str) or not 1 <= len(cursor) <= 2000)
+        ):
+            raise FtmError("invalid_input", "Invalid freeze event query")
         response = self.transport.get(
             request_url(
                 self.base,
                 f"/v1/contracts/{USDT_TRON}/events",
                 {
                     "only_confirmed": "true",
-                    "event_name": "AddedBlackList",
+                    "event_name": event_name,
                     "limit": 200,
                     "fingerprint": cursor,
                 },
@@ -273,27 +286,46 @@ class TronGridClient:
         )
         try:
             raw = response.json()
+            rows = raw["data"]
+            next_cursor = raw.get("meta", {}).get("fingerprint") or None
             if (
                 raw.get("success") is not True
-                or raw.get("meta", {}).get("fingerprint")
-                or not isinstance(raw.get("data"), list)
-                or len(raw["data"]) >= 200
-                or any(
-                    x.get("contract_address", USDT_TRON) != USDT_TRON
-                    for x in raw["data"]
+                or not isinstance(rows, list)
+                or len(rows) > 200
+                or next_cursor is not None
+                and (
+                    not isinstance(next_cursor, str)
+                    or len(next_cursor) > 2000
+                    or next_cursor == cursor
                 )
+                or len(rows) == 200
+                and next_cursor is None
             ):
                 raise ValueError("failed or incomplete event page")
-            return tuple(
-                FreezeEvent(
-                    txid=x["transaction_id"],
-                    address=x["result"]["_user"],
-                    contract=USDT_TRON,
-                    action=x["event_name"],
-                    timestamp=x["block_timestamp"],
-                    provenance=response.provenance,
+            events = []
+            for row in rows:
+                if (
+                    row.get("contract_address", USDT_TRON) != USDT_TRON
+                    or row["event_name"] != event_name
+                ):
+                    raise ValueError("wrong contract or event")
+                events.append(
+                    FreezeEvent(
+                        txid=row["transaction_id"],
+                        address=tron_address(row["result"]["_user"]),
+                        contract=USDT_TRON,
+                        action=event_name,
+                        timestamp=row["block_timestamp"],
+                        provenance=response.provenance,
+                    )
                 )
-                for x in raw["data"]
+            if len({(e.txid, e.address, e.action) for e in events}) != len(events):
+                raise ValueError("duplicate event")
+            return FreezePage(
+                events=tuple(events),
+                next_cursor=next_cursor,
+                complete=next_cursor is None,
+                provenance=response.provenance,
             )
         except (KeyError, TypeError, ValueError, AttributeError):
             raise FtmError(
@@ -377,3 +409,21 @@ class TronScanClient:
             raise FtmError(
                 "invalid_response", "Malformed TronScan transfer page"
             ) from None
+
+
+def tron_address(value: str) -> str:
+    """Normalize ABI hex _user addresses to TRON base58check; preserve fixture IDs."""
+    if not isinstance(value, str):
+        raise ValueError("invalid TRON address")
+    raw = value[2:] if value.startswith("0x") else value
+    if re.fullmatch(r"[0-9a-fA-F]{40}|41[0-9a-fA-F]{40}|0{24}[0-9a-fA-F]{40}", raw):
+        payload = bytes.fromhex(raw[-40:])
+        payload = b"\x41" + payload
+        check = hashlib.sha256(hashlib.sha256(payload).digest()).digest()[:4]
+        number, encoded = int.from_bytes(payload + check, "big"), ""
+        alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+        while number:
+            number, index = divmod(number, 58)
+            encoded = alphabet[index] + encoded
+        return encoded
+    return identifier(value)

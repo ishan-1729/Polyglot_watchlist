@@ -5,7 +5,7 @@ from urllib.parse import urlsplit
 
 from starlette.responses import JSONResponse
 
-from watchlist.api.auth import KeyStore, Principal
+from follow_the_money.auth import KeyStore, Principal
 from follow_the_money.contracts import FtmError, strict_json
 
 principal_context: ContextVar[Principal | None] = ContextVar(

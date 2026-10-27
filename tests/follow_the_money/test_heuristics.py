@@ -2,6 +2,10 @@ import hashlib
 
 import pytest
 
+
+pytest.importorskip("pydantic")
+pytest.importorskip("httpx")
+
 from follow_the_money.clients import parse_bitcoin
 from follow_the_money.contracts import (
     FreezeEvent,
