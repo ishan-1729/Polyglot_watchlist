@@ -5,25 +5,13 @@ build-backend = "hatchling.build"
 [project]
 name = "polyglot-watchlist"
 version = "0.1.0"
-description = "Research-only multilingual review and blockchain tracing prototypes"
+description = "Research-only multilingual name matching with human review"
 requires-python = ">=3.14,<3.15"
 license = "MIT"
 license-files = ["LICENSE"]
 dependencies = ["rapidfuzz>=3.14,<4"]
 
 [project.optional-dependencies]
-ftm = [
-    "langgraph==1.2.16", "langgraph-checkpoint==4.3.0",
-    "langgraph-checkpoint-sqlite==3.1.2", "portalocker==4.4.1",
-    "httpx>=0.28,<0.29", "pydantic>=2.12,<3", "PyYAML==6.0.3",
-    "fastapi>=0.162,<0.163", "uvicorn>=0.54,<0.55",
-    "mcp>=2.3,<2.4", "streamlit>=1.66,<1.67",
-]
-ftm-ml = [
-    "torch==2.14.1", "torch-geometric==2.8.1",
-    "scikit-learn==1.9.1", "xgboost==3.4.1",
-]
-ftm-m365 = ["microsoft-agents-hosting-aiohttp==1.9.0"]
 agent = [
     "langgraph==1.2.16",
     "langgraph-checkpoint==4.3.0",
@@ -62,12 +50,12 @@ dev = ["pytest==9.1.1", "hatchling==1.32.4"]
 qa = ["ruff==0.14.10", "pre-commit==4.5.1", "detect-secrets==1.5.0"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/watchlist", "src/follow_the_money"]
+packages = ["src/watchlist"]
 
 [tool.hatch.build.targets.sdist]
 # The source distribution rebuilds the package without redistributing datasets,
 # model weights, historical evidence, or local environments from this checkout.
-include = ["/src/watchlist", "/src/follow_the_money", "/pyproject.toml", "/README.md", "/uv.lock", "/LICENSE"]
+include = ["/src/watchlist", "/pyproject.toml", "/README.md", "/uv.lock", "/LICENSE"]
 
 [tool.uv]
 required-version = "==0.13.5"
@@ -76,7 +64,6 @@ required-version = "==0.13.5"
 required-version = "==0.14.10"
 target-version = "py314"
 include = [
-    "src/follow_the_money/**/*.py", "tests/follow_the_money/**/*.py", "scripts/ftm_*.py",
     "scripts/project_checks.py", "tests/test_project_checks.py", "tests/test_packaging.py",
     "src/watchlist/ingest/source_registry.py", "src/watchlist/ingest/acquire.py",
     "src/watchlist/ingest/_parse_common.py", "src/watchlist/ingest/parse_ftm.py",

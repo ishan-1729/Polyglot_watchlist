@@ -45,7 +45,7 @@ PACKAGE_ENTRY_POINTS = {
     f"watchlist/{name}/__init__.py"
     for name in ("review", "api", "ui", "mcp_server", "case_memory", "llm")
 }
-PACKAGE_PREFIXES = ("watchlist/", "follow_the_money/")
+PACKAGE_PREFIXES = ("watchlist/",)
 
 
 def sha256(path: Path) -> str:

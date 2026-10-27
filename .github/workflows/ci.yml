@@ -249,12 +249,6 @@ jobs:
           import streamlit
           import usearch
           import uvicorn
-          # Project 2 extras: missing installations must not become silent skips.
-          import torch_geometric
-          import xgboost
-          import sklearn
-          import microsoft_agents.hosting.aiohttp
-          import aiohttp
           VERIFY_ENVIRONMENT
           "$QA_PYTHON" -I -B -m pre_commit validate-config
           "$QA_PYTHON" -I -B -m pre_commit run --all-files
