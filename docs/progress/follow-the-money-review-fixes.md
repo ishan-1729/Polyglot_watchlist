@@ -58,9 +58,15 @@ All source paths below are under `src/follow_the_money/` unless stated otherwise
 
 Tests: renamed `test_evaluation.py` to `test_ftm_evaluation.py`; added `test_ftm_review_security.py` and `test_ftm_review_tracing.py`. They cover merged HTTP contracts, role separation, report-only views, quotas/restarts, resolver wiring, redirects/proxies/pins, change/freshness/cutoffs, pagination/address normalization, production scoring/signals and independent critic errors. Existing interface/model/M365/agent/memory/transport tests were updated for the intentional behavior changes. Every Project 2 test module now guards optional imports as needed and uses explicit UTF-8; the conftest contract import is lazy. No assertion was relaxed to hide a failure, and no test-package `__init__.py` was added.
 
-## Validation — in progress
+## Validation
 
-Final Project 2: 175 passed; packaging: 8 passed. The complete repository run finished with 827 passes in shard 1 and 3688 passes / 49 failures / 30 setup errors / 153 skips in shard 2. All failures concern sandbox lsof warnings in the two preservation/archive modules; both full modules are being rerun with an environment-only pseudo-filesystem exemption. Final scan, exact receipts and handoff are pending.
+The fixer's own sandboxed run was interrupted before its final receipts. The coordinator then verified the committed tree outside the sandbox on Linux (WSL Ubuntu 24.04, Python 3.14.9, all extras, two parallel shards):
+
+- Full offline suite (`-m "not integration"`): **4,589 passed, 154 skipped, 4 failed** in 61 minutes. The skips are private Step 08 evidence and absent optional runtimes.
+- The 4 failures are v1 `tests/test_agent.py` lock-worker timing tests (writer body exception, killed writer, service re-entry, concurrent review). They fail identically on `main`'s code under the same host load (load average about 8 on 8 cores from unrelated jobs); the worker's status call took 9.7–11.4 s against the test's 10 s deadline. They passed on the same v1 code in the merged-main run (4,419 passed, 0 failed). The frozen v1 tests were not loosened.
+- Repository secret scan: initially **67 unresolved** findings because two receipts were regenerated after their exceptions were recorded. After rebinding `source-verification.json` and `training-results.json` and adding a hash-bound entry for the public base58 alphabet in `clients.py`: **passed, 0 unresolved, 462 files, 212 s** (limit 600 s).
+- `tests/test_project_checks.py` and `tests/test_packaging.py`: **57 passed**. Ruff check and format: clean (192 files). `uv lock --check --offline`: consistent (170 packages).
+- The 52 hashes in `config/follow_the_money/source-verification.json` match the committed files.
 
 ## Corrected measurements
 

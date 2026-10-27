@@ -539,7 +539,7 @@ REVIEWED_NON_SECRET_FINDINGS = {
         "reason": "Reviewed public court document/response SHA-256 checksums and publicly cited Bitcoin transaction IDs; no credentials.",
     },
     "config/follow_the_money/source-verification.json": {
-        "file_sha256": "4b5dd56f46e9e92165cac637b3fa6e10c6a84e480ccb4b7f3f567104c8060848",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "file_sha256": "8fd74315ded8595f3452be21f29816ef67d9ddda7e93a1fe78c43b84204a1db1",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
         "findings": frozenset(
             (
                 (11, "Hex High Entropy String"),
@@ -616,9 +616,30 @@ REVIEWED_NON_SECRET_FINDINGS = {
         ),
         "reason": "Reviewed public source revision IDs and SHA-256 pins verified against existing local download receipts; no credentials.",
     },
+    "src/follow_the_money/clients.py": {
+        "file_sha256": "466154ba7563ac82f65930d623c1d9e2ad26c8ca190aaf25553df5f7568e3b7e",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(((424, "Base64 High Entropy String"),)),
+        "reason": "Public base58 alphabet constant used to encode TRON addresses; not a credential.",
+    },
     "config/follow_the_money/training-results.json": {
-        "file_sha256": "ce6edab08c95d0c72b3875e14fe9d2c8f1e6ab781b2081917f742a00dbd5f152",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
-        "findings": frozenset(((45, "Hex High Entropy String"),)),
+        "file_sha256": "8c9d724c95e385204143fb7a18e6e37bcf786f4edc3b4e6a7f0f4b7e240033b7",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "findings": frozenset(
+            (
+                (45, "Hex High Entropy String"),
+                (412, "Hex High Entropy String"),
+                (417, "Hex High Entropy String"),
+                (422, "Hex High Entropy String"),
+                (427, "Hex High Entropy String"),
+                (432, "Hex High Entropy String"),
+                (437, "Hex High Entropy String"),
+                (442, "Hex High Entropy String"),
+                (447, "Hex High Entropy String"),
+                (452, "Hex High Entropy String"),
+                (457, "Hex High Entropy String"),
+                (462, "Hex High Entropy String"),
+                (467, "Hex High Entropy String"),
+            )
+        ),
         "reason": "Reviewed synthetic dataset/model artifact integrity hashes from offline training receipts; no credentials.",
     },
     "config/follow_the_money/verification-results.json": {
