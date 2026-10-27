@@ -35,7 +35,7 @@ previous phases; no additional model/data/tenant permission is assumed.
 ## Commands and exact results
 
 Source: `/mnt/d/Projects/raiha/Polyglot_watchlist-p2`. Linux mirror:
-`/home/ishan/pw-p2-build`. Interpreter: `/home/ishan/pw-tools/venv-p2/bin/python`.
+`~/pw-p2-build`. Interpreter: `~/pw-tools/venv-p2/bin/python`.
 Every pytest/evaluation command used:
 
 ```bash
@@ -51,7 +51,7 @@ returned `connect_ex=111` (closed).
 **130 passed, 114 warnings in 120.00s**, then after the final malformed-response
 and Bearer hardening, **133 passed, 114 warnings in 85.91s**. Warnings are
 upstream TorchScript/PyG typing and SDK adapter deprecations, not skipped tests.
-Final log: `/home/ishan/pw-tools/p2-final-tests-v2.log`.
+Final log: `~/pw-tools/p2-final-tests-v2.log`.
 
 The initial P1 regression run returned **316 passed, 14 failed, 28 errors in
 136.11s**. Investigation found the mirror command's unanchored `--exclude data`
@@ -60,14 +60,14 @@ not missing from the worktree. Packaging assertions also assumed one package
 and case-sensitive dependency names. The corrected mirror command is:
 
 ```bash
-rsync -a --delete --exclude .git --exclude .agents --exclude .aws --exclude .codex --exclude .venv --exclude .tools --exclude /data/ --exclude __pycache__ /mnt/d/Projects/raiha/Polyglot_watchlist-p2/ /home/ishan/pw-p2-build/
+rsync -a --delete --exclude .git --exclude .agents --exclude .aws --exclude .codex --exclude .venv --exclude .tools --exclude /data/ --exclude __pycache__ /mnt/d/Projects/raiha/Polyglot_watchlist-p2/ ~/pw-p2-build/
 ```
 
 The same regression selection then passed **358 tests in 176.01s**, with
-`WATCHLIST_WHEELHOUSE=/home/ishan/pw-tools/wheelhouse`,
-`QA_PYTHON=/home/ishan/pw-tools/qa-p2/bin/python`,
-`UV=/home/ishan/pw-tools/uvbin/bin/uv`,
-`UV_CACHE_DIR=/home/ishan/pw-tools/uv-cache`:
+`WATCHLIST_WHEELHOUSE=~/pw-tools/wheelhouse`,
+`QA_PYTHON=~/pw-tools/qa-p2/bin/python`,
+`UV=~/pw-tools/uvbin/bin/uv`,
+`UV_CACHE_DIR=~/pw-tools/uv-cache`:
 
 ```bash
 python -m pytest -q tests/test_api_auth.py tests/test_observability.py tests/test_review_v2_contracts.py tests/test_review_v2_service.py tests/test_review_v2_recovery.py tests/test_review_v2_portability.py tests/test_review_v2_concurrency.py tests/test_packaging.py tests/test_project_checks.py -p no:cacheprovider
@@ -79,15 +79,15 @@ include exact bytes/resources, RECORD hashes, offline clean installation and
 identical wheel rebuild from sdist. A separate installed-package smoke outside
 the repo imported `follow_the_money` 0.1.0 and ran its `--help`, both exit 0.
 
-`UV_CACHE_DIR=/home/ishan/pw-tools/uv-cache /home/ishan/pw-tools/uvbin/bin/uv lock`:
+`UV_CACHE_DIR=~/pw-tools/uv-cache ~/pw-tools/uvbin/bin/uv lock`:
 **resolved 170 packages in 89ms**. `uv lock --check --offline` also passed.
-`/home/ishan/pw-tools/qa-p2/bin/ruff check --config pyproject.toml`:
+`~/pw-tools/qa-p2/bin/ruff check --config pyproject.toml`:
 **All checks passed**. `ruff format --check --config pyproject.toml`:
 **183 files already formatted**. JSON configuration parsed and LF-only checks
 passed; final receipt includes the final documentation inventory.
 
 ```bash
-UV_CACHE_DIR=/home/ishan/pw-tools/uv-cache /home/ishan/pw-tools/uvbin/bin/uv build --offline --no-build-isolation --python /home/ishan/pw-tools/venv-p2/bin/python --out-dir data/follow_the_money/dist-final
+UV_CACHE_DIR=~/pw-tools/uv-cache ~/pw-tools/uvbin/bin/uv build --offline --no-build-isolation --python ~/pw-tools/venv-p2/bin/python --out-dir data/follow_the_money/dist-final
 ```
 
 Built wheel and sdist successfully. Wheel 719366 bytes,

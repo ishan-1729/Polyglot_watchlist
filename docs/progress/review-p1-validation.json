@@ -1,14 +1,14 @@
 {
   "scope": "Project 1 modules added in 6524b70 and 875d702, excluding assigned legacy/infra ownership. No full legacy suite.",
   "source": "/mnt/d/Projects/raiha/Polyglot_watchlist-review",
-  "mirror": "/home/ishan/pw-p1-review2",
+  "mirror": "~/pw-p1-review2",
   "environment": {
     "python": "3.14.9",
     "uv": "0.13.5",
     "ruff": "0.14.10",
     "platform": "Linux x86_64 under Ubuntu WSL",
-    "application_env": "/home/ishan/pw-tools/venv-p1-review2",
-    "quality_env": "/home/ishan/pw-tools/qa-p1-review2",
+    "application_env": "~/pw-tools/venv-p1-review2",
+    "quality_env": "~/pw-tools/qa-p1-review2",
     "extras": [
       "agent",
       "api",
@@ -21,9 +21,9 @@
     "network": "No external calls or dependency downloads; loopback server tests only"
   },
   "environment_commands": [
-    "UV_CACHE_DIR=/home/ishan/pw-tools/uv-cache UV_PROJECT_ENVIRONMENT=/home/ishan/pw-tools/venv-p1-review2 /home/ishan/pw-tools/uvbin/bin/uv sync --offline --locked --dev --all-extras --python 3.14 (failed: uncached torch==2.14.1)",
-    "UV_CACHE_DIR=/home/ishan/pw-tools/uv-cache UV_PROJECT_ENVIRONMENT=/home/ishan/pw-tools/venv-p1-review2 /home/ishan/pw-tools/uvbin/bin/uv sync --offline --locked --dev --extra agent --extra api --extra ui --extra mcp --extra preprocessing --extra index --extra llm --python 3.14 (passed)",
-    "UV_CACHE_DIR=/home/ishan/pw-tools/uv-cache UV_PROJECT_ENVIRONMENT=/home/ishan/pw-tools/qa-p1-review2 /home/ishan/pw-tools/uvbin/bin/uv sync --offline --locked --only-group qa --no-install-project --python 3.14 (passed)"
+    "UV_CACHE_DIR=~/pw-tools/uv-cache UV_PROJECT_ENVIRONMENT=~/pw-tools/venv-p1-review2 ~/pw-tools/uvbin/bin/uv sync --offline --locked --dev --all-extras --python 3.14 (failed: uncached torch==2.14.1)",
+    "UV_CACHE_DIR=~/pw-tools/uv-cache UV_PROJECT_ENVIRONMENT=~/pw-tools/venv-p1-review2 ~/pw-tools/uvbin/bin/uv sync --offline --locked --dev --extra agent --extra api --extra ui --extra mcp --extra preprocessing --extra index --extra llm --python 3.14 (passed)",
+    "UV_CACHE_DIR=~/pw-tools/uv-cache UV_PROJECT_ENVIRONMENT=~/pw-tools/qa-p1-review2 ~/pw-tools/uvbin/bin/uv sync --offline --locked --only-group qa --no-install-project --python 3.14 (passed)"
   ],
   "test_environment": {
     "PYTHONDONTWRITEBYTECODE": "1",
@@ -37,7 +37,7 @@
   },
   "test_commands": [
     [
-      "/home/ishan/pw-tools/venv-p1-review2/bin/python",
+      "~/pw-tools/venv-p1-review2/bin/python",
       "-B",
       "-m",
       "pytest",
@@ -54,11 +54,11 @@
       "tests/test_review_backup.py",
       "tests/test_review_retention.py",
       "--basetemp=/tmp/p1-review2-final-1",
-      "--junitxml=/home/ishan/pw-tools/p1-review2-results/group-1.xml",
+      "--junitxml=~/pw-tools/p1-review2-results/group-1.xml",
       "--tb=short"
     ],
     [
-      "/home/ishan/pw-tools/venv-p1-review2/bin/python",
+      "~/pw-tools/venv-p1-review2/bin/python",
       "-B",
       "-m",
       "pytest",
@@ -78,11 +78,11 @@
       "tests/test_explanation_grounding.py",
       "tests/test_prompt_injection.py",
       "--basetemp=/tmp/p1-review2-final-2",
-      "--junitxml=/home/ishan/pw-tools/p1-review2-results/group-2.xml",
+      "--junitxml=~/pw-tools/p1-review2-results/group-2.xml",
       "--tb=short"
     ],
     [
-      "/home/ishan/pw-tools/venv-p1-review2/bin/python",
+      "~/pw-tools/venv-p1-review2/bin/python",
       "-B",
       "-m",
       "pytest",
@@ -103,11 +103,11 @@
       "tests/test_security_hardening.py",
       "tests/test_load_failure.py",
       "--basetemp=/tmp/p1-review2-final-3",
-      "--junitxml=/home/ishan/pw-tools/p1-review2-results/group-3.xml",
+      "--junitxml=~/pw-tools/p1-review2-results/group-3.xml",
       "--tb=short"
     ],
     [
-      "/home/ishan/pw-tools/venv-p1-review2/bin/python",
+      "~/pw-tools/venv-p1-review2/bin/python",
       "-B",
       "-m",
       "pytest",
@@ -129,11 +129,11 @@
       "tests/test_calibration.py",
       "tests/test_review_policy.py",
       "--basetemp=/tmp/p1-review2-final-4",
-      "--junitxml=/home/ishan/pw-tools/p1-review2-results/group-4.xml",
+      "--junitxml=~/pw-tools/p1-review2-results/group-4.xml",
       "--tb=short"
     ],
     [
-      "/home/ishan/pw-tools/venv-p1-review2/bin/python",
+      "~/pw-tools/venv-p1-review2/bin/python",
       "-B",
       "-m",
       "pytest",
@@ -144,7 +144,7 @@
       "tests/test_review_v2_portability.py",
       "tests/test_observability.py",
       "--basetemp=/tmp/p1-review2-corrections",
-      "--junitxml=/home/ishan/pw-tools/p1-review2-results/corrections.xml",
+      "--junitxml=~/pw-tools/p1-review2-results/corrections.xml",
       "--tb=short"
     ]
   ],
@@ -505,7 +505,7 @@
     {
       "name": "lock",
       "command": [
-        "/home/ishan/pw-tools/uvbin/bin/uv",
+        "~/pw-tools/uvbin/bin/uv",
         "lock",
         "--check",
         "--offline"
@@ -517,7 +517,7 @@
     {
       "name": "preprocessing",
       "command": [
-        "/home/ishan/pw-tools/venv-p1-review2/bin/python",
+        "~/pw-tools/venv-p1-review2/bin/python",
         "-B",
         "-m",
         "watchlist.preprocessing",
@@ -534,7 +534,7 @@
     {
       "name": "llm-preflight",
       "command": [
-        "/home/ishan/pw-tools/venv-p1-review2/bin/python",
+        "~/pw-tools/venv-p1-review2/bin/python",
         "-B",
         "-m",
         "watchlist.llm.comparison",
@@ -549,7 +549,7 @@
     {
       "name": "demo",
       "command": [
-        "/home/ishan/pw-tools/venv-p1-review2/bin/python",
+        "~/pw-tools/venv-p1-review2/bin/python",
         "-B",
         "-m",
         "watchlist.stack",
@@ -564,7 +564,7 @@
     {
       "name": "memory",
       "command": [
-        "/home/ishan/pw-tools/venv-p1-review2/bin/python",
+        "~/pw-tools/venv-p1-review2/bin/python",
         "-B",
         "-m",
         "watchlist.case_memory.evaluation",
@@ -580,12 +580,12 @@
     {
       "name": "build",
       "command": [
-        "/home/ishan/pw-tools/uvbin/bin/uv",
+        "~/pw-tools/uvbin/bin/uv",
         "build",
         "--offline",
         "--no-build-isolation",
         "--python",
-        "/home/ishan/pw-tools/venv-p1-review2/bin/python",
+        "~/pw-tools/venv-p1-review2/bin/python",
         "--out-dir",
         "data/eval-fictional/p1-review-build"
       ],
@@ -596,7 +596,7 @@
     {
       "name": "llm-preflight-corrected",
       "command": [
-        "/home/ishan/pw-tools/venv-p1-review2/bin/python",
+        "~/pw-tools/venv-p1-review2/bin/python",
         "-B",
         "-m",
         "watchlist.llm.comparison",
@@ -611,7 +611,7 @@
     {
       "name": "memory-corrected",
       "command": [
-        "/home/ishan/pw-tools/venv-p1-review2/bin/python",
+        "~/pw-tools/venv-p1-review2/bin/python",
         "-B",
         "-m",
         "watchlist.case_memory.evaluation",
@@ -714,7 +714,7 @@
     "ruff": [
       {
         "command": [
-          "/home/ishan/pw-tools/qa-p1-review2/bin/python",
+          "~/pw-tools/qa-p1-review2/bin/python",
           "-I",
           "-B",
           "-m",
@@ -837,7 +837,7 @@
       },
       {
         "command": [
-          "/home/ishan/pw-tools/qa-p1-review2/bin/python",
+          "~/pw-tools/qa-p1-review2/bin/python",
           "-I",
           "-B",
           "-m",
@@ -1250,7 +1250,7 @@
     },
     "git_staging": {
       "command": [
-        "/home/ishan/pw-tools/git-p2-src/git",
+        "~/pw-tools/git-p2-src/git",
         "add",
         "--",
         "docs/progress/completion-29.md"

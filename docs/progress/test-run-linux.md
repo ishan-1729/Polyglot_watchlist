@@ -26,11 +26,11 @@ After restart, Git/status and surviving jobs were checked. The sandbox process v
 ## Environment and reproduction
 
 - Source of truth: `/mnt/d/Projects/raiha/Polyglot_watchlist-tests`.
-- Linux execution mirror: `/home/ishan/pw-p1-tests/repo`; only root `data/` is excluded. Package data at `src/watchlist/data/` is retained.
-- Runtime: CPython **3.14.9**, uv **0.13.5**, pytest **9.1.1**; own runtime `/home/ishan/pw-tools/venv-p1-tests` and QA `/home/ishan/pw-tools/qa-p1-tests`.
-- Cache `/home/ishan/pw-tools/uv-cache`; explicit wheelhouse `/home/ishan/pw-tools/wheelhouse`. Initial runtime inventory: **95 installed / 151 locked** packages; final all-extras runtime: **138 installed / 151 locked**; QA environment: **18 locked** packages.
+- Linux execution mirror: `~/pw-p1-tests/repo`; only root `data/` is excluded. Package data at `src/watchlist/data/` is retained.
+- Runtime: CPython **3.14.9**, uv **0.13.5**, pytest **9.1.1**; own runtime `~/pw-tools/venv-p1-tests` and QA `~/pw-tools/qa-p1-tests`.
+- Cache `~/pw-tools/uv-cache`; explicit wheelhouse `~/pw-tools/wheelhouse`. Initial runtime inventory: **95 installed / 151 locked** packages; final all-extras runtime: **138 installed / 151 locked**; QA environment: **18 locked** packages.
 - Initially installed extras: `agent`, `preprocessing`, `index`, `api`, `ui`, `mcp`, `llm`. The final environment also installs `embeddings`, completing `--all-extras`.
-- Full commands, environment overrides, file-to-shard assignments, source hashes, collection coverage proving no duplicate selected items, selected/deselected node IDs, subprocess exit codes, logs and JUnit XML are retained under `/home/ishan/pw-p1-tests/evidence/<run>/`.
+- Full commands, environment overrides, file-to-shard assignments, source hashes, collection coverage proving no duplicate selected items, selected/deselected node IDs, subprocess exit codes, logs and JUnit XML are retained under `~/pw-p1-tests/evidence/<run>/`.
 
 Commands actually used (environment prefixes shown explicitly; no network installation):
 
@@ -38,34 +38,34 @@ Commands actually used (environment prefixes shown explicitly; no network instal
 rsync -a --delete --exclude /.git --exclude /.venv --exclude /.tools \
   --exclude '/.venv-*' --exclude /data --exclude __pycache__ \
   --exclude .pytest_cache /mnt/d/Projects/raiha/Polyglot_watchlist-tests/ \
-  /home/ishan/pw-p1-tests/repo/
+  ~/pw-p1-tests/repo/
 
-UV_CACHE_DIR=/home/ishan/pw-tools/uv-cache \
-UV_PROJECT_ENVIRONMENT=/home/ishan/pw-tools/venv-p1-tests \
-UV_PYTHON_DOWNLOADS=never /home/ishan/pw-tools/uvbin/bin/uv sync \
+UV_CACHE_DIR=~/pw-tools/uv-cache \
+UV_PROJECT_ENVIRONMENT=~/pw-tools/venv-p1-tests \
+UV_PYTHON_DOWNLOADS=never ~/pw-tools/uvbin/bin/uv sync \
   --offline --locked --dev --all-extras --python 3.14 \
-  --project /home/ishan/pw-p1-tests/repo
+  --project ~/pw-p1-tests/repo
 # Failed offline: missing locked NVIDIA/Torch artifacts.
 
-UV_CACHE_DIR=/home/ishan/pw-tools/uv-cache \
-UV_PROJECT_ENVIRONMENT=/home/ishan/pw-tools/venv-p1-tests \
-UV_PYTHON_DOWNLOADS=never /home/ishan/pw-tools/uvbin/bin/uv sync \
+UV_CACHE_DIR=~/pw-tools/uv-cache \
+UV_PROJECT_ENVIRONMENT=~/pw-tools/venv-p1-tests \
+UV_PYTHON_DOWNLOADS=never ~/pw-tools/uvbin/bin/uv sync \
   --offline --locked --dev --extra agent --extra preprocessing --extra index \
   --extra api --extra ui --extra mcp --extra llm --python 3.14 \
-  --project /home/ishan/pw-p1-tests/repo
+  --project ~/pw-p1-tests/repo
 
-UV_CACHE_DIR=/home/ishan/pw-tools/uv-cache \
-UV_PROJECT_ENVIRONMENT=/home/ishan/pw-tools/qa-p1-tests \
-UV_PYTHON_DOWNLOADS=never /home/ishan/pw-tools/uvbin/bin/uv sync \
+UV_CACHE_DIR=~/pw-tools/uv-cache \
+UV_PROJECT_ENVIRONMENT=~/pw-tools/qa-p1-tests \
+UV_PYTHON_DOWNLOADS=never ~/pw-tools/uvbin/bin/uv sync \
   --offline --locked --only-group qa --no-install-project --python 3.14 \
-  --project /home/ishan/pw-p1-tests/repo
+  --project ~/pw-p1-tests/repo
 
-python3 /home/ishan/pw-p1-tests/run_suite.py initial-available
-python3 /home/ishan/pw-p1-tests/run_final_suite.py final-available
-python3 /home/ishan/pw-p1-tests/run_final_suite.py final-verified  # interrupted
-python3 /home/ishan/pw-p1-tests/run_low_memory_suite.py final-restarted
+python3 ~/pw-p1-tests/run_suite.py initial-available
+python3 ~/pw-p1-tests/run_final_suite.py final-available
+python3 ~/pw-p1-tests/run_final_suite.py final-verified  # interrupted
+python3 ~/pw-p1-tests/run_low_memory_suite.py final-restarted
 # After this exits, repeat the above --all-extras offline sync successfully.
-python3 /home/ishan/pw-p1-tests/run_all_extras_suite.py final-all-extras
+python3 ~/pw-p1-tests/run_all_extras_suite.py final-all-extras
 ```
 
 The runner discovers every `tests/**/test_*.py` file, assigns each once (94 modules after the hook regression was added), and invokes pytest with `-q -m 'not integration' -p no:cacheprovider -rfEsxX --tb=short --durations=20`, separate `--basetemp` directories and separate JUnit outputs. `live_pytest.py` only records collection and outcomes; it does not alter outcomes. Runner scripts and raw receipts are machine-local handoff artifacts, not committed repository files.
@@ -155,7 +155,7 @@ The final all-extras run passes all 36 training/training-loss cases and the form
 
 `git status --short` fails because Linux Git 2.43 does not support this repository's `relativeworktrees` extension. The prescribed `git.exe status --short` also fails inside the sandbox with `WSL … UtilBindVsockAnyPort:307: socket failed 1`. Therefore **no commits were made**; the user explicitly authorized leaving these changes uncommitted for the coordinator. The worktree's HEAD file still references `refs/heads/p1-tests` at the starting commit. File-byte comparisons against saved originals and the initial source manifest were used to inventory changes; this is not a successful Git status claim.
 
-Uncommitted files: `Makefile`, `pyproject.toml`, `tests/conftest.py`, `tests/test_private_evidence.py` (new), `tests/test_packaging.py`, `scripts/project_checks.py`, `tests/test_corpus.py`, and `docs/progress/test-run-linux.md` (new). Grouped patches are saved under `/home/ishan/pw-p1-tests/evidence/patches/` for review. Suggested small commits: private-evidence hook/tests/scope; package-resource assertions; scanner exceptions/timeout; deterministic corpus fixture plus its scanner pin; report. Preserve the required `Co-Authored-By: GPT 6 Astra <noreply@openai.com>` trailer when committing.
+Uncommitted files: `Makefile`, `pyproject.toml`, `tests/conftest.py`, `tests/test_private_evidence.py` (new), `tests/test_packaging.py`, `scripts/project_checks.py`, `tests/test_corpus.py`, and `docs/progress/test-run-linux.md` (new). Grouped patches are saved under `~/pw-p1-tests/evidence/patches/` for review. Suggested small commits: private-evidence hook/tests/scope; package-resource assertions; scanner exceptions/timeout; deterministic corpus fixture plus its scanner pin; report. Preserve the required `Co-Authored-By: GPT 6 Astra <noreply@openai.com>` trailer when committing.
 
 Coordinator work remaining: rerun preservation/archive cases with valid `lsof` visibility; route A and the three existing xfails to the review engineer; integrate both branches and repeat affected checks. Exact-content scanner exceptions will need re-review if the other branch changes the pinned files. The all-extras run is complete, but no green-suite or release acceptance is asserted here.
 

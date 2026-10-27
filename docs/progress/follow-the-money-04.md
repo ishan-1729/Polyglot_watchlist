@@ -43,13 +43,13 @@ phase run, including freeze integration, is recorded below.
 
 Final full phase run (same environment flags, target `tests/follow_the_money`):
 **98 passed, 110 upstream warnings in 84.51s (0:01:24)**. Exit 0; log
-`/home/ishan/pw-tools/p2-phase04-tests.log`.
+`~/pw-tools/p2-phase04-tests.log`.
 
 Commands actually run: pinned Ruff format/check over the package/tests; mirror
 with the Phase 01 rsync command; then
-`OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 /home/ishan/pw-tools/venv-p2/bin/python -m pytest -q tests/follow_the_money/test_agent_service.py -p no:cacheprovider`.
+`OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 ~/pw-tools/venv-p2/bin/python -m pytest -q tests/follow_the_money/test_agent_service.py -p no:cacheprovider`.
 Ruff: **All checks passed**; final formatting scope including recording script:
-**31 files already formatted**. Logs live under `/home/ishan/pw-tools/p2-*.log`.
+**31 files already formatted**. Logs live under `~/pw-tools/p2-*.log`.
 
 Synthetic input `seed=syn_seed_a`, budget 12/hops 5 reaches the fictional exchange
 after **3 logical calls, 0 network calls**, then pauses with no final report.

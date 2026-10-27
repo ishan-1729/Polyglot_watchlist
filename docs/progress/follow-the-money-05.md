@@ -29,11 +29,11 @@ Pinned Ruff format/check: **All checks passed**. Mirrored with the Phase 01
 rsync command. Then, from the Linux mirror:
 
 ```bash
-OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 /home/ishan/pw-tools/venv-p2/bin/python -m pytest -q tests/follow_the_money/test_agent_service.py tests/follow_the_money/test_memory.py -p no:cacheprovider
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 ~/pw-tools/venv-p2/bin/python -m pytest -q tests/follow_the_money/test_agent_service.py tests/follow_the_money/test_memory.py -p no:cacheprovider
 ```
 
 **21 passed in 61.76s (0:01:01)**. Log:
-`/home/ishan/pw-tools/p2-phase05-tests.log`. One pytest process; no training job.
+`~/pw-tools/p2-phase05-tests.log`. One pytest process; no training job.
 
 Example: approve a fictional `syn_seed_a` case, reopen the service, and start
 `syn_partner`. The second proposal recalls the first case's common-input

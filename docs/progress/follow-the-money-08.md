@@ -31,12 +31,12 @@ UUID and requires the host to authenticate the reviewer and re-fetch evidence.
 
 - `npm view @microsoft/m365agentsplayground version engines dist --json` initially
   failed EROFS on default npm cache; rerun with
-  `npm_config_cache=/home/ishan/pw-tools/npm-cache-p2` returned version **0.2.29**.
-- `npm_config_cache=/home/ishan/pw-tools/npm-cache-p2 npm install --prefix /home/ishan/pw-tools/playground-p2 --ignore-scripts --no-audit --no-fund @microsoft/m365agentsplayground@0.2.29`:
+  `npm_config_cache=~/pw-tools/npm-cache-p2` returned version **0.2.29**.
+- `npm_config_cache=~/pw-tools/npm-cache-p2 npm install --prefix ~/pw-tools/playground-p2 --ignore-scripts --no-audit --no-fund @microsoft/m365agentsplayground@0.2.29`:
   **added 1 package in 3s**. Its Microsoft pre-release evaluation licence was
   inspected. No package bytes are redistributed. Tarball 5,039,076 bytes,
   SHA-256 `eda2faf616b407c72a9650b7b2d5d1de3f3ce0f976001157fd4e550d4178f427`.
-- `/home/ishan/pw-tools/venv-p2/bin/python scripts/ftm_m365.py`: generated six
+- `~/pw-tools/venv-p2/bin/python scripts/ftm_m365.py`: generated six
   JSON artifacts and Studio instructions, deployment explicitly blocked.
 - `jsonschema.validate` against downloaded official schemas: **declarative
   agent v1.9 valid; API plugin v2.4 valid**. Schema URLs, sizes and hashes are
@@ -50,7 +50,7 @@ UUID and requires the host to authenticate the reviewer and re-fetch evidence.
 - `python -m follow_the_money demo --workspace data/follow_the_money/demo-final-v1`:
   created a synthetic case paused at approval; no approval was submitted.
 - `python -m follow_the_money m365 --workspace data/follow_the_money/demo-final-v1/service --port 3978`.
-- `/home/ishan/pw-tools/playground-p2/node_modules/.bin/agentsplayground -e http://127.0.0.1:3978/api/messages -c emulator --delivery-mode expectReplies --disable-telemetry --host 127.0.0.1 --port 56150`:
+- `~/pw-tools/playground-p2/node_modules/.bin/agentsplayground -e http://127.0.0.1:3978/api/messages -c emulator --delivery-mode expectReplies --disable-telemetry --host 127.0.0.1 --port 56150`:
   **Listening on 56150**. Playground root and SDK health returned HTTP 200.
   A local HTTP client submitted `trace bitcoin syn_seed_a` through Playground's
   actual conversation endpoint: HTTP 200, new SDK-created case

@@ -33,7 +33,7 @@ stack. Earlier P1 completion reports describe limitations, not P2 results.
   Initial `make ... NO_CURL=YesPlease git` failed because OpenSSL headers are
   absent. Retried with `NO_OPENSSL=YesPlease` and locally extracted zlib dev
   package; final result recorded below. No system packages were installed.
-- `UV_CACHE_DIR=/home/ishan/pw-tools/uv-cache UV_PROJECT_ENVIRONMENT=/home/ishan/pw-tools/qa-p2 /home/ishan/pw-tools/uvbin/bin/uv sync --locked --only-group qa --no-install-project --python 3.14`:
+- `UV_CACHE_DIR=~/pw-tools/uv-cache UV_PROJECT_ENVIRONMENT=~/pw-tools/qa-p2 ~/pw-tools/uvbin/bin/uv sync --locked --only-group qa --no-install-project --python 3.14`:
   succeeded, CPython 3.14.9, resolved 151 packages, installed 18 packages;
   includes Ruff 0.14.10. A first `uv python find` without the cache override
   failed on read-only home cache; explicit cache override succeeded.
@@ -70,16 +70,16 @@ The Git 2.49.0 build succeeded (exit 0):
 
 ```bash
 apt download zlib1g-dev
-dpkg-deb -x zlib1g-dev_*.deb /home/ishan/pw-tools/git-p2-deps
-make -C /home/ishan/pw-tools/git-p2-src -j4 NO_OPENSSL=YesPlease NO_GETTEXT=YesPlease NO_TCLTK=YesPlease NO_CURL=YesPlease ZLIB_PATH=/home/ishan/pw-tools/git-p2-deps/usr BASIC_LDFLAGS=-L/home/ishan/pw-tools/git-p2-deps/usr/lib/x86_64-linux-gnu git
+dpkg-deb -x zlib1g-dev_*.deb ~/pw-tools/git-p2-deps
+make -C ~/pw-tools/git-p2-src -j4 NO_OPENSSL=YesPlease NO_GETTEXT=YesPlease NO_TCLTK=YesPlease NO_CURL=YesPlease ZLIB_PATH=~/pw-tools/git-p2-deps/usr BASIC_LDFLAGS=-L~/pw-tools/git-p2-deps/usr/lib/x86_64-linux-gnu git
 ```
 
-Local Git is `/home/ishan/pw-tools/git-p2-src/git`; this is an environment
+Local Git is `~/pw-tools/git-p2-src/git`; this is an environment
 deviation from git.exe, required because Windows interop fails. It is used
 only for local repository work. A Python assertion check passed for all ten
 phase entries, LF text and the data ignore rule.
 
-Wheel-only resolution with `uv pip compile /home/ishan/pw-tools/p2-requirements.in
+Wheel-only resolution with `uv pip compile ~/pw-tools/p2-requirements.in
 --python-version 3.14 --python-platform <platform> --only-binary :all:` succeeded
 for `x86_64-pc-windows-msvc` (111 packages) and
 `x86_64-unknown-linux-gnu` (128 packages). These are preflight dependency sets,

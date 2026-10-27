@@ -14,8 +14,8 @@ Recorded during the Project 1 adversarial review, 2026-10-27. This is an impleme
 ## Environment and commands actually executed
 
 Source checkout: `/mnt/d/Projects/raiha/Polyglot_watchlist-review`, branch `p1-review`.
-Linux rsync mirror: `/home/ishan/pw-p1-review2`.
-Separate application and quality environments: `/home/ishan/pw-tools/venv-p1-review2` and `/home/ishan/pw-tools/qa-p1-review2`.
+Linux rsync mirror: `~/pw-p1-review2`.
+Separate application and quality environments: `~/pw-tools/venv-p1-review2` and `~/pw-tools/qa-p1-review2`.
 
 The initial mirror command excluded any directory named `data`, accidentally omitting the packaged fictional fixture. That setup error was corrected by excluding only root `/data/`; its failing diagnostic run is not final validation evidence.
 

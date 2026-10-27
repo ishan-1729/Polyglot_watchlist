@@ -25,8 +25,8 @@ Dependencies: phases 01–05; no LLM provider, keys or real Elliptic training.
 ## Commands actually run and results
 
 All test/evaluation processes used one numerical thread and ran sequentially.
-Linux mirror `/home/ishan/pw-p2-build`; interpreter
-`/home/ishan/pw-tools/venv-p2/bin/python`; environment
+Linux mirror `~/pw-p2-build`; interpreter
+`~/pw-tools/venv-p2/bin/python`; environment
 `OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
 PYTHONDONTWRITEBYTECODE=1 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1`.
 

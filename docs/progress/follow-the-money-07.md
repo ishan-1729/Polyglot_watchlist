@@ -28,7 +28,7 @@ Files/functions:
 
 Commands/results in Linux mirror, one pytest process, numerical threads=1,
 `PYTHONDONTWRITEBYTECODE=1 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1`:
-`/home/ishan/pw-tools/venv-p2/bin/python -m pytest -q tests/follow_the_money/test_interfaces.py -p no:cacheprovider`
+`~/pw-tools/venv-p2/bin/python -m pytest -q tests/follow_the_money/test_interfaces.py -p no:cacheprovider`
 first **9 passed, 1 failed in 34.38s** (test used an old SDK list result shape),
 then **10 passed in 44.89s** after using `ListToolsResult.tools`.
 Ruff check and format passed for new files. The HTTP MCP smoke uses a real

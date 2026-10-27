@@ -657,7 +657,7 @@ REVIEWED_NON_SECRET_FINDINGS = {
         "reason": "Reviewed source/result/report integrity hashes in the local validation receipt; no credentials.",
     },
     "docs/progress/review-p1-validation.json": {
-        "file_sha256": "18d93467ba93728da658df8503e204c56817d87108e9f94d421c953ffcafadb9",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
+        "file_sha256": "552ba4e0c9555fe1bf6b95aeefa96cb05e58821670cd7cad4af3da61f54025bc",  # pragma: allowlist secret -- reviewed whole-file SHA256 only
         "findings": frozenset(
             (
                 (154, "Hex High Entropy String"),

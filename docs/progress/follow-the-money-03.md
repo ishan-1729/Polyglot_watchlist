@@ -27,9 +27,9 @@ New review artifacts: `config/follow_the_money/training-results.json` and
 - Ruff format/check over package/tests: **All checks passed**.
 - Phase 01 mirror command, then offline pytest with the same flags:
   **83 passed, 110 warnings in 75.13s (0:01:15)**. Log:
-  `/home/ishan/pw-tools/p2-phase03-tests.log`. Warnings are Torch's unsupported
+  `~/pw-tools/p2-phase03-tests.log`. Warnings are Torch's unsupported
   Python 3.14 TorchScript notice and PyG's deprecated annotation evaluation.
-- From mirror: `PYTHONDONTWRITEBYTECODE=1 /home/ishan/pw-tools/venv-p2/bin/python -m follow_the_money.training --output data/follow_the_money/models`:
+- From mirror: `PYTHONDONTWRITEBYTECODE=1 ~/pw-tools/venv-p2/bin/python -m follow_the_money.training --output data/follow_the_money/models`:
   exit 0, **six model fits**, 600 synthetic nodes, split **360/120/120**.
 - Full-minus-live test average precision: GraphSAGE **0.24723379642100918**,
   GAT **0.009400911952016311**, XGBoost **0.21907599541424527**. Complete metrics

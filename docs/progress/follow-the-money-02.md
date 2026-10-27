@@ -26,9 +26,9 @@ transaction cases. No dependencies changed.
 - Ruff format/check over `src/follow_the_money`, `tests/follow_the_money`,
   `scripts/ftm_record.py`: **All checks passed; 17 files already formatted**.
 - Mirrored with the Phase 01 `rsync` command (excluding protected metadata/data).
-- From `/home/ishan/pw-p2-build`:
-  `PYTHONDONTWRITEBYTECODE=1 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 /home/ishan/pw-tools/venv-p2/bin/python -m pytest -q tests/follow_the_money -p no:cacheprovider`:
-  **73 passed in 2.18s**. Log: `/home/ishan/pw-tools/p2-phase02-tests.log`.
+- From `~/pw-p2-build`:
+  `PYTHONDONTWRITEBYTECODE=1 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 ~/pw-tools/venv-p2/bin/python -m pytest -q tests/follow_the_money -p no:cacheprovider`:
+  **73 passed in 2.18s**. Log: `~/pw-tools/p2-phase02-tests.log`.
 - A standalone synthetic `detect_change` example with a 10,000-satoshi round
   payment and 89,137-satoshi fresh, matching-script output returned probabilities
   **0.0254197581680301**, **0.7923509756691753**, and null probability
