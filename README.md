@@ -37,7 +37,7 @@ The default demonstration uses invented names. All existing fictional, public-su
 - opt-in reviewer memory, which shows dated earlier annotations about exact record IDs;
 - mechanics for preprocessing, baselines, hybrid retrieval, training, calibration and a grounded LLM harness.
 
-No component makes an automatic match or clear decision. A human records `candidate_for_follow_up`, `none_selected` or `unresolved`, and every interface shows the research-only limitation notice. Real-data experiments, live LLM calls, hosting and the licence remain **blocked**; see [Blocked items](#blocked-items). Exact test counts and commands are in the [Step 29 report](docs/progress/completion-29.md), and the [reproduction guide](docs/reproduction.md) gives the Linux/WSL and Windows commands.
+No component makes an automatic match or clear decision. A human records `candidate_for_follow_up`, `none_selected` or `unresolved`, and every interface shows the research-only limitation notice. Real-data experiments, live LLM calls and hosting remain **blocked**; see [Blocked items](#blocked-items). The project code is released under the [MIT License](LICENSE). Exact test counts and commands are in the [Step 29 report](docs/progress/completion-29.md), and the [reproduction guide](docs/reproduction.md) gives the Linux/WSL and Windows commands.
 
 | v2 capability (fictional data) | Implemented behavior | Evidence |
 | --- | --- | --- |
@@ -90,7 +90,6 @@ Each item below stays unfinished until its evidence exists. None of them is solv
 | Live LLM: Step 18 comparison and Step 23 live run | No provider, model revision, data-transfer scope, retention, budget or request cap has been approved. No key exists. | Project owner | Approve those items. Then run `python -m watchlist.llm.comparison preflight`, followed by the approved `run --allow-live`. |
 | Hugging Face Space (Step 30) | Account, publication and resource approval are missing, and no container build has been verified. | Interfaces/release, with the project owner as publisher | Approve network access for an image build. Build and smoke-test the container locally, then request publication approval. |
 | Azure and Microsoft 365 (Step 31) | Tenant, budget and deployment approval are missing. There is no Postgres backend and no authenticated HTTP MCP. | Interfaces/release, with the tenant administrator | Obtain tenant and budget approval. Build and test the Postgres ledger and authenticated MCP locally first. |
-| Project code licence | The owner has not chosen a licence, so there is no `LICENSE` file and no `docs/licenses/manifest.json`. | Project owner | Choose a licence. Then add `LICENSE` and the component-licence manifest, and review [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). |
 | Container build and hosted CI run | No container runtime build was approved, so the image has not been built. The Linux and Windows CI jobs have not been run on hosted runners. | Project owner (approval) and the integration engineer | Approve a bounded image build (`podman build`) with a compose smoke test, and a hosted CI dispatch. Record the outcomes in a completion report. |
 
 ### Step 08 corpus status (history)
@@ -181,7 +180,7 @@ WATCHLIST_WHEELHOUSE=data/eval-comparisons/completion-06/wheelhouse \
   make PYTHON=.venv/bin/python QA_PYTHON=.tools/qa/bin/python UV=.tools/bin/uv package-smoke
 ```
 
-`eval-smoke` has passed with 157 deterministic current-contract fictional queries, excluding timing from its comparison. `inventory` separates installed packages, lock entries and unreviewed license metadata; see the [inventory evidence and limits](docs/access-and-resource-ledger.md). The project's own release-license decision remains with its owner. An inventory is not a legal clearance.
+`eval-smoke` has passed with 157 deterministic current-contract fictional queries, excluding timing from its comparison. `inventory` separates installed packages, lock entries and unreviewed license metadata; see the [inventory evidence and limits](docs/access-and-resource-ledger.md). The project's own code is MIT-licensed; dependency, model and data terms are separate. An inventory is not a legal clearance.
 
 The packaging checks build a wheel/source archive, rebuild the wheel from the archive, install the core package into an empty environment, verify packaged resources and native RapidFuzz, and run the fictional CLI outside the repository. They also exercise the separate locked QA setup. The core check installs only this project and RapidFuzz; it does not reproduce every optional model/agent dependency on every platform. Receipts under `data/eval-comparisons/completion-06/` bind each checked build to its input/artifact hashes; the Step 06 report records actual outcomes.
 

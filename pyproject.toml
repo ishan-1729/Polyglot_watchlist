@@ -7,6 +7,8 @@ name = "polyglot-watchlist"
 version = "0.1.0"
 description = "Research-only multilingual review and blockchain tracing prototypes"
 requires-python = ">=3.14,<3.15"
+license = "MIT"
+license-files = ["LICENSE"]
 dependencies = ["rapidfuzz>=3.14,<4"]
 
 [project.optional-dependencies]
@@ -65,7 +67,7 @@ packages = ["src/watchlist", "src/follow_the_money"]
 [tool.hatch.build.targets.sdist]
 # The source distribution rebuilds the package without redistributing datasets,
 # model weights, historical evidence, or local environments from this checkout.
-include = ["/src/watchlist", "/src/follow_the_money", "/pyproject.toml", "/README.md", "/uv.lock"]
+include = ["/src/watchlist", "/src/follow_the_money", "/pyproject.toml", "/README.md", "/uv.lock", "/LICENSE"]
 
 [tool.uv]
 required-version = "==0.13.5"

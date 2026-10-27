@@ -81,7 +81,7 @@ Status as of 2026-10-27. Every "mechanics" entry was run on fictional, authored 
 | 23 | Offline mechanics complete. The live provider run is BLOCKED. | [23](progress/completion-23.md) |
 | 24–27 | API, UI, MCP and observability implemented on loopback with fictional data. External hosting, TLS, a real identity provider and a third-party MCP client are BLOCKED. | [24](progress/completion-24.md), [25](progress/completion-25.md), [26](progress/completion-26.md), [27](progress/completion-27.md) |
 | 28 | **Not started** (BLOCKED on 08/09/14–16). | — |
-| 29 | Partly done. Wiring, CI jobs, Makefile targets, container recipe, notices and the reproduction guide exist, and local Windows runs are recorded. The container build, hosted CI run and licence are BLOCKED. | [29](progress/completion-29.md), [reproduction](reproduction.md) |
+| 29 | Partly done. Wiring, CI jobs, Makefile targets, container recipe, notices and the reproduction guide exist, and local Windows runs are recorded. The project code is MIT-licensed. The container build and hosted CI run are BLOCKED. | [29](progress/completion-29.md), [reproduction](reproduction.md) |
 | 30–32 | **Not started** (BLOCKED on approvals). | — |
 
 **Windows.** The v2 modules and the completion-step modules have run locally on Windows (CPython 3.14). The historical v1 agent still uses POSIX file locks and is not a Windows target.

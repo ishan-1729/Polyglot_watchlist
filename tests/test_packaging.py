@@ -258,6 +258,7 @@ def test_wheel_metadata_and_record_hashes_are_complete(distributions):
         )
         metadata = BytesParser().parsebytes(archive.read(metadata_name))
         project = distributions["project"]["project"]
+        assert metadata["License-Expression"] == project["license"] == "MIT"
         assert (
             metadata["Name"] == project["name"]
             and metadata["Version"] == project["version"]
@@ -316,7 +317,13 @@ def test_source_distribution_excludes_local_data_models_and_history(distribution
         expected.update(
             {
                 name: ROOT / name
-                for name in (".gitignore", "pyproject.toml", "README.md", "uv.lock")
+                for name in (
+                    ".gitignore",
+                    "pyproject.toml",
+                    "README.md",
+                    "uv.lock",
+                    "LICENSE",
+                )
             }
         )
         assert set(files) == set(expected) | {"PKG-INFO"}

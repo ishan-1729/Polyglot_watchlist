@@ -40,3 +40,7 @@ The project code licence is the owner's decision. No `LICENSE` or component-lice
 Follow [reproduction](../reproduction.md), choosing new ignored output directories. The review records an honest partial environment and exercised integration path; a complete model-dependent validation still needs the missing approved dependencies. Any image build, live data/model acquisition, hosted run or publication requires its own concrete approved work package and receipt.
 
 What: runnable fictional stack wiring. Why: connect implementation to observable evidence. Who: local research operators and human reviewers. Where/when: the checkout and dated Linux mirror above. How: managed environments, scoped tests, explicit smoke commands and durable receipts. Scripted review annotations remain explicitly simulated, never genuine human-review evidence.
+
+## Licence decision (2026-10-27)
+
+The owner chose the MIT License. `LICENSE` was added, `pyproject.toml` declares `license = "MIT"`, and the source archive includes the licence file; the packaging tests check both. Dependency, model and data terms remain separate and are not covered by this decision.
