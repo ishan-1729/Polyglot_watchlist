@@ -146,6 +146,7 @@ QUALITY_FILES = \
 	tests/test_ui_client.py \
 	tests/test_ui_components.py \
 	tests/test_ui_support.py
+QUALITY_FILES += $(wildcard src/follow_the_money/*.py tests/follow_the_money/*.py scripts/ftm_*.py)
 export PYTHON QA_PYTHON UV
 
 # These targets verify local inputs; they never acquire packages or models.
@@ -227,6 +228,9 @@ help:
 	  'test-v2        Run the v2 stack and completion-step test modules.' \
 	  'eval-fictional Rerun the fictional evaluations into a new EVAL_OUTPUT (default: data/eval-fictional/run-<UTC>).' \
 	  'demo           Run the fictional API + memory + MCP walkthrough into a new DEMO_OUTPUT.' \
+	  'test-ftm       Run offline Project 2 tests (ftm, ftm-ml, ftm-m365 extras).' \
+	  'eval-ftm       Evaluate Project 2 synthetic search (requires ftm-ml).' \
+	  'demo-ftm       Run the fictional Project 2 trace (ftm extra).' \
 	  'Overrides: PYTHON=<executable> QA_PYTHON=<executable> UV=<executable> DIST_DIR=<new-directory>' \
 	  'v2 overrides: WORKSPACE REVIEW_CONFIG MEMORY_STORE MEMORY_CONFIG WORKSPACE_ID API_PORT UI_PORT MCP_ORIGIN EVAL_FLAGS=--skip-torch'
 
@@ -305,3 +309,16 @@ eval-fictional:
 
 demo:
 	"$(PYTHON)" -B -m watchlist.stack demo $(if $(DEMO_OUTPUT),--output-root "$(DEMO_OUTPUT)")
+
+.PHONY: test-ftm eval-ftm demo-ftm
+
+FTM_RUN ?= data/follow_the_money/run-$(shell date -u +%Y%m%dT%H%M%SZ)
+
+test-ftm:
+	"$(PYTHON)" -B -m pytest -q tests/follow_the_money -p no:cacheprovider
+
+eval-ftm:
+	"$(PYTHON)" -B -m follow_the_money evaluate --output "$(FTM_RUN)/evaluation"
+
+demo-ftm:
+	"$(PYTHON)" -B -m follow_the_money demo --workspace "$(FTM_RUN)/demo"
